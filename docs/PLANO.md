@@ -11,8 +11,9 @@ que o público assume os semáforos.
 
 | fato | fonte |
 |---|---|
-| grid 3×4, 12 semáforos, mão única por corredor, fechado por `ret_N`/`ret_S` | `sumo/small_network/network/*.edg.xml` do maquete |
-| **8 dos 12 semáforos são controláveis** — os outros têm 1 fase verde só | `net_topology.TL_PHASES`, rodado |
+| grid 3×4, mão única por corredor, fechado por `ret_N`/`ret_S` | `sumo/small_network/network/*.edg.xml` do maquete |
+| **`real`: 12 TLs, 8 controláveis. `maquete` e `maquete_sim` (os que rodam na feira): 10 TLs, só 6 controláveis** | `net_topology.TL_PHASES`, rodado nos três cenários |
+| os 2 cantos (H1V4/H3V4) foram **des-semaforizados** na maquete: viraram junções de prioridade com U-turn interno, porque o carrinho não podia parar na curva de retorno | `scale_to_maquete.py`, cabeçalho |
 | treino de 250 ep × 1800 s = **2511 s de parede (42 min, CPU)** | `experiments/maq30_ats_full/train_log.csv` |
 | `BASELINE_GREEN=27`, `YELLOW=3`, `DI=10`, `MIN_GREEN=10`, `MAX_RED=0` | `sim/environment/constants.py` |
 | demo roda `SEED=42`, que é uma das `eval_seeds=(42,43)` do treino | `dashboard/backend/config.py` + `train.py` |
@@ -90,7 +91,7 @@ em vez de 8, e demanda direcional (plano fixo é ótimo para uma hora de projeto
 
 | decisão | valor | motivo |
 |---|---|---|
-| semáforos controlados | **12** (todos, após abrir) | ninguém acompanha 12 cruzamentos — protege a margem sem trapaça |
+| semáforos controlados | **12** (todos, após abrir) — contra **6** úteis hoje | ninguém acompanha 12 cruzamentos: protege a margem sem trapaça. Hoje o jogo teria 6 botões com efeito e 4 mortos |
 | rodada | **120 s simulados, 1:1 → 2 min** | ~270 viagens (média estável) e teto de atenção em pé |
 | botão | enfileira intenção, aplicada no **próximo tick** da grade, sujeita a MIN_GREEN/YELLOW/MAX_RED | idêntico bit-a-bit à ação da RL; aplicar na hora daria ao humano grade mais fina |
 | feedback | LED: pulsando = armado · aceso = aceito · piscando = negado | sem isso o visitante acha que o botão quebrou |
@@ -122,8 +123,10 @@ baseline. **Resultado:** 58 testes, lint limpo.
 `.nod/.edg/.con` com 9 fontes / 9 sorvedouros + similitude + `netconvert`; gerador de
 `.rou.xml` por seed; calibração de população ativa; warm-up medido; replay
 determinístico. **Fora:** treino, baseline, jogo, projeção.
-**DoD:** (a) `netconvert` sem warning; (b) **os 12 TLs controláveis**; (c) mesma seed
-2× → mesmo sha256; (d) 3600 s a 45–55% parados, estável, sem travamento em 6 seeds;
+**DoD:** (a) `netconvert` sem warning; (b) **os 12 TLs controláveis** (contra 6 de 10
+hoje — abrir a borda devolve os cantos H1V4/H3V4 à semaforização, já que o U-turn de
+retorno deixa de existir, e dá uma segunda aproximação a H1V1/H1V3/H3V1/H3V2);
+(c) mesma seed 2× → mesmo sha256; (d) 3600 s a 45–55% parados, estável, sem travamento em 6 seeds;
 (e) replay de t=0 a t0 reproduz estado idêntico em 3 seeds. **Preenche
 `Cenario.warmup_s`, hoje `None` — a Arena recusa rodar sem isso.**
 
