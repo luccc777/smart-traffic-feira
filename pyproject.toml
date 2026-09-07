@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smart-traffic-feira"
+version = "0.1.0"
+description = "Rede aberta, comparacao auditada e modo jogo da maquete SmartTraffic."
+requires-python = ">=3.10"
+# Runtime minimo. O ambiente de RL vem do smart-traffic-maquete, instalado a parte:
+#     pip install -e ../smart-traffic-maquete --no-deps
+# Nao repetir as deps dele aqui: duas listas divergem, e divergiram neste projeto.
+dependencies = ["numpy"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.4"]
+serial = ["pyserial>=3.5"]        # so a botoeira (agente A4); o teclado nao precisa
+web = ["fastapi", "uvicorn", "websockets"]
+
+[tool.setuptools.packages.find]
+include = ["feira*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "sumo: requer SUMO + rede construida (integracao); pulado sem SUMO_HOME",
+    "aberta: requer a rede aberta (entregavel do agente A1); pulado ate existir",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+extend-select = ["I"]

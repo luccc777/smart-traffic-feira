@@ -1,0 +1,25 @@
+# venv: este repo NAO tem o seu -- usa o do smart-traffic (ver README)
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# saidas de run: os checkpoints campeoes vao versionados (results/), o resto nao
+experiments/*/checkpoints/ckpt_*.pt
+*.log
+*.tmp
+
+# SUMO
+*.net.xml.bak
+sumo/**/*.dump.xml
+
+# so os .rou.xml GERADOS ficam de fora; o MANIFESTO deles vai versionado, e e ele
+# que prova a reprodutibilidade (ver docs/CONTRATOS.md, C2).
+sumo/aberta/demanda/*.rou.xml
+!sumo/aberta/demanda/*.manifesto.json
+
+# build metadata do pip install -e
+*.egg-info/
+build/
+dist/
