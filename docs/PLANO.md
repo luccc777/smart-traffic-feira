@@ -309,18 +309,23 @@ Da Onda 0:
   "continua de onde a RL parou"?
 - **modo corredor** entra como plano B ou já nasce?
 
-Da Onda 1:
-- **duração da rodada.** Medido a 3500 veh/h, 6 seeds: 120 s → 116 viagens (cv 7,9%);
-  180 s → 174 (6,2%); 240 s → 232 (5,1%); 300 s → 290 (4,5%). Os 270 do §2 exigiriam
-  279 s. O ganho satura: 120→240 corta o cv de 7,9% para 5,1%, 240→480 só até 3,3%.
-  Recomendação: **180 s** — compra quase toda a estabilidade por metade do custo de
-  atenção, e o `dp` que importa é o da *diferença entre braços*, que cancela no
-  pareamento (os três leem o mesmo `.rou.xml` na mesma janela).
-- **os 37,9% parados.** Recomendação (minha e do A1): congelar 3500 veh/h para a Onda 1,
-  trocar o critério de aceite de "45–55% parados" para **velocidade equivalente + vazão**
-  com "% parados" reportado como saiu, e recalibrar **uma vez** quando o A5 congelar o
-  plano coordenado — exigindo estabilidade sob **o pior braço que de fato roda, que na
-  feira é o humano**. Não alongar o ciclo do baseline para inflar o número.
-- **a demo roda em seed 42, onde o timer trava em 1h35.** Recomendação: rodar a demo em
-  seed held-out (100–111) e reiniciar a cada hora, ou exibir o número held-out como
-  manchete e o da rodada corrente rotulado como "esta rodada".
+Da Onda 1 — **decididas**:
+- **Rodada: 120 s.** Medido a 3500 veh/h, 6 seeds: 120 s → **116 viagens, cv 7,9%**
+  (180 s → 174 / 6,2%; 240 s → 232 / 5,1%; 300 s → 290 / 4,5%). Decisão do dono do
+  projeto contra a recomendação de 180 s. O que sustenta 120 s: o desvio que importa é o
+  da **diferença entre braços**, não o do número absoluto — os três leem o mesmo
+  `.rou.xml` na mesma janela e boa parte cancela no pareamento. **O agente A8 tem que
+  medir essa variância pareada e reportar; se P(humano vence a RL) for dominada por ruído
+  de janela e não por habilidade, a duração volta à mesa com dado.**
+- **Regime: 3500 veh/h congelado para a Onda 1.** O aceite deixa de ser "45–55% parados"
+  (inatingível: piso de fluxo livre 38,8%) e passa a ser **velocidade equivalente +
+  vazão**, com "% parados" reportado como saiu (37,9%). Recalibra **uma vez** quando o A5
+  congelar o plano coordenado, exigindo estabilidade sob **o pior braço que de fato roda,
+  que na feira é o humano**. Não alongar o ciclo do baseline para inflar o número.
+
+Ainda abertas:
+- rodada partindo do estado neutro canônico ou da leitura literal (ver acima);
+- modo corredor como plano B ou já de nascença;
+- **a demo roda em seed 42, onde o timer trava em 1h35.** Recomendação: seed held-out
+  (100–111) e reinício horário, ou manchete no número held-out com a rodada corrente
+  rotulada como "esta rodada".
