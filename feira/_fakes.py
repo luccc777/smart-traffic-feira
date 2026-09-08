@@ -242,8 +242,32 @@ class GeradorDemandaFake:
         return ManifestoDemanda.carrega(caminho_manifesto(cenario, seed))
 
 
-def cenario_fake_arquivo(tmp: Path) -> Cenario:
-    """Cenário de demanda-em-arquivo apontando para um diretório temporário."""
+# Seeds canônicas do projeto: 42-47 (varredura) e 100-111 (held-out).
+SEEDS_CANONICAS = tuple(range(42, 48)) + tuple(range(100, 112))
+
+
+def cenario_fake_arquivo(tmp: Path, *, seeds=SEEDS_CANONICAS) -> Cenario:
+    """Cenário de demanda-em-arquivo apontando para um diretório temporário.
+
+    Escreve TAMBÉM um `.sumocfg` por seed, ao lado do canônico. Não é enfeite: um
+    cenário de demanda em arquivo tem um `.sumocfg` por seed **por construção** —
+    quem escolhe o `.rou.xml` é o `.sumocfg`, e o `TrafficEnv` do maquete não
+    aceita `--route-files`. Uma fake sem eles é estruturalmente irreal, e
+    esconderia justamente a falha que custou caro: a Arena caía no canônico (que
+    não tem `<route-files>`), rodava a malha VAZIA, e o diagnóstico ainda
+    reportava o caminho da seed.
+    """
+    canon = tmp / "n.sumocfg"
+    canon.write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n<configuration>\n'
+        '  <input><net-file value="n.net.xml"/></input>\n</configuration>\n',
+        encoding="utf-8")
+    for s in seeds:
+        (tmp / ("n_s%d.sumocfg" % s)).write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n<configuration>\n'
+            '  <input><net-file value="n.net.xml"/>\n'
+            '         <route-files value="demanda_s%d.rou.xml"/></input>\n'
+            '</configuration>\n' % s, encoding="utf-8")
     return Cenario(
         chave="fake.arquivo",
         net_file=str(tmp / "n.net.xml"),

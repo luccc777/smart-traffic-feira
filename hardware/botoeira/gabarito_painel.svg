@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="305mm" height="240mm" viewBox="0 0 305 240">
+<style>
+  .placa  { fill:#fff; stroke:#111; stroke-width:.5 }
+  .furo   { fill:none; stroke:#c00; stroke-width:.4 }
+  .bezel  { fill:none; stroke:#bbb; stroke-width:.3; stroke-dasharray:3 2 }
+  .cruz   { stroke:#c00; stroke-width:.3 }
+  .via    { stroke:#9cf; stroke-width:6; stroke-linecap:round; opacity:.55 }
+  .arte   { stroke:#69c; stroke-width:10; stroke-linecap:round; opacity:.55 }
+  .rot    { font:600 5px sans-serif; fill:#111; text-anchor:middle }
+  .idx    { font:700 7px sans-serif; fill:#c00; text-anchor:middle }
+  .nota   { font:4px sans-serif; fill:#444 }
+  .regua  { stroke:#111; stroke-width:.4; fill:none }
+</style>
+<!-- GERADO por hardware/botoeira/gabarito.py — NAO EDITAR A MAO. -->
+<rect class="placa" x="0" y="0" width="305" height="240"/>
+<line class="via" x1="36.25" y1="35" x2="257.5" y2="35"/>
+<line class="arte" x1="36.25" y1="80" x2="268.75" y2="80"/>
+<line class="via" x1="36.25" y1="125" x2="268.75" y2="125"/>
+<line class="via" x1="36.25" y1="35" x2="36.25" y2="125"/>
+<line class="via" x1="107.5" y1="35" x2="107.5" y2="125"/>
+<line class="via" x1="178.75" y1="35" x2="178.75" y2="125"/>
+<line class="via" x1="257.5" y1="35" x2="268.75" y2="125"/>
+<circle class="bezel" cx="36.25" cy="35" r="16.5"/>
+<circle class="furo" cx="36.25" cy="35" r="14"/>
+<path class="cruz" d="M32.25 35h8M36.25 31v8"/>
+<text class="idx" x="36.25" y="16.5">0</text>
+<text class="rot" x="36.25" y="57.5">H1V1</text>
+<circle class="bezel" cx="107.5" cy="35" r="16.5"/>
+<circle class="furo" cx="107.5" cy="35" r="14"/>
+<path class="cruz" d="M103.5 35h8M107.5 31v8"/>
+<text class="idx" x="107.5" y="16.5">1</text>
+<text class="rot" x="107.5" y="57.5">H1V2</text>
+<circle class="bezel" cx="178.75" cy="35" r="16.5"/>
+<circle class="furo" cx="178.75" cy="35" r="14"/>
+<path class="cruz" d="M174.75 35h8M178.75 31v8"/>
+<text class="idx" x="178.75" y="16.5">2</text>
+<text class="rot" x="178.75" y="57.5">H1V3</text>
+<circle class="bezel" cx="257.5" cy="35" r="16.5"/>
+<circle class="furo" cx="257.5" cy="35" r="14"/>
+<path class="cruz" d="M253.5 35h8M257.5 31v8"/>
+<text class="idx" x="257.5" y="16.5">3</text>
+<text class="rot" x="257.5" y="57.5">H1V4</text>
+<circle class="bezel" cx="36.25" cy="80" r="16.5"/>
+<circle class="furo" cx="36.25" cy="80" r="14"/>
+<path class="cruz" d="M32.25 80h8M36.25 76v8"/>
+<text class="idx" x="36.25" y="61.5">4</text>
+<text class="rot" x="36.25" y="102.5">H2V1</text>
+<circle class="bezel" cx="107.5" cy="80" r="16.5"/>
+<circle class="furo" cx="107.5" cy="80" r="14"/>
+<path class="cruz" d="M103.5 80h8M107.5 76v8"/>
+<text class="idx" x="107.5" y="61.5">5</text>
+<text class="rot" x="107.5" y="102.5">H2V2</text>
+<circle class="bezel" cx="178.75" cy="80" r="16.5"/>
+<circle class="furo" cx="178.75" cy="80" r="14"/>
+<path class="cruz" d="M174.75 80h8M178.75 76v8"/>
+<text class="idx" x="178.75" y="61.5">6</text>
+<text class="rot" x="178.75" y="102.5">H2V3</text>
+<circle class="bezel" cx="268.75" cy="80" r="16.5"/>
+<circle class="furo" cx="268.75" cy="80" r="14"/>
+<path class="cruz" d="M264.75 80h8M268.75 76v8"/>
+<text class="idx" x="268.75" y="61.5">7</text>
+<text class="rot" x="268.75" y="102.5">H2V4</text>
+<circle class="bezel" cx="36.25" cy="125" r="16.5"/>
+<circle class="furo" cx="36.25" cy="125" r="14"/>
+<path class="cruz" d="M32.25 125h8M36.25 121v8"/>
+<text class="idx" x="36.25" y="106.5">8</text>
+<text class="rot" x="36.25" y="147.5">H3V1</text>
+<circle class="bezel" cx="107.5" cy="125" r="16.5"/>
+<circle class="furo" cx="107.5" cy="125" r="14"/>
+<path class="cruz" d="M103.5 125h8M107.5 121v8"/>
+<text class="idx" x="107.5" y="106.5">9</text>
+<text class="rot" x="107.5" y="147.5">H3V2</text>
+<circle class="bezel" cx="178.75" cy="125" r="16.5"/>
+<circle class="furo" cx="178.75" cy="125" r="14"/>
+<path class="cruz" d="M174.75 125h8M178.75 121v8"/>
+<text class="idx" x="178.75" y="106.5">10</text>
+<text class="rot" x="178.75" y="147.5">H3V3</text>
+<circle class="bezel" cx="268.75" cy="125" r="16.5"/>
+<circle class="furo" cx="268.75" cy="125" r="14"/>
+<path class="cruz" d="M264.75 125h8M268.75 121v8"/>
+<text class="idx" x="268.75" y="106.5">11</text>
+<text class="rot" x="268.75" y="147.5">H3V4</text>
+<circle class="bezel" cx="152.5" cy="195" r="25"/>
+<circle class="furo" cx="152.5" cy="195" r="22"/>
+<path class="cruz" d="M148.5 195h8M152.5 191v8"/>
+<text class="idx" x="152.5" y="168">START</text>
+<text class="rot" x="152.5" y="226">START</text>
+<path class="regua" d="M10 232 h100 M10 232 v-4 M60 232 v-3 M110 232 v-4"/>
+<text class="nota" x="10" y="228">100 mm — meça antes de furar (imprimir 1:1, sem "ajustar a pagina")</text>
+<text class="nota" x="10" y="12">BOTOEIRA SmartTraffic — furo 28 mm (semaforos) / 44 mm (START) — face vista de FRENTE</text>
+</svg>

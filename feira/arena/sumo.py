@@ -121,7 +121,7 @@ def _mesmo_caminho(a, b) -> bool:
     return os.path.normcase(os.path.abspath(str(a))) == os.path.normcase(os.path.abspath(str(b)))
 
 
-def _amarra_sim(cenario: Cenario):
+def _amarra_sim(cenario: Cenario, seed: int | None = None):
     """Aponta o pacote `sim` para ESTE cenário e devolve o módulo `constants`.
 
     `Cenario.aplicar()` (C1) protege contra o caso "importei `sim` antes de
@@ -144,7 +144,7 @@ def _amarra_sim(cenario: Cenario):
     `.net.xml` com sumolib) e por isso só acontece quando há divergência de
     verdade: numa sessão de um cenário só, nunca dispara.
     """
-    C = _aponta_constants(cenario)
+    C = _aponta_constants(cenario, seed)
     nt = _importa_net_topology()
     if _sim_bate_com(C, nt, cenario):
         return C
@@ -152,7 +152,7 @@ def _amarra_sim(cenario: Cenario):
     # os escalares (grade de decisão, verde mínimo, amarelo) NÃO são atributos que
     # dê para reapontar: eles já foram lidos por quem importou. Só reimportando.
     _purga_sim()
-    C = _aponta_constants(cenario)
+    C = _aponta_constants(cenario, seed)
     nt = _importa_net_topology()
     if not _sim_bate_com(C, nt, cenario):
         raise ArenaNaoConfigurada(
@@ -182,13 +182,22 @@ def _sim_bate_com(C, nt, cenario: Cenario) -> bool:
             and int(C.N_VEHICLES) == int(n_alvo))
 
 
-def _aponta_constants(cenario: Cenario):
+def _aponta_constants(cenario: Cenario, seed: int | None = None):
     """Importa `sim.environment.constants` e o aponta para os arquivos do cenário.
 
     A rede aberta mora NESTE repo e o `scenarios.py` do maquete não a conhece —
     sem reapontar, a Arena rodaria a rede fechada achando que roda a aberta.
     A frota persistente do `sim` também é zerada no modelo de demanda em ARQUIVO:
     senão ela injeta 30 carros por cima da demanda do `.rou.xml`.
+
+    `seed` RESOLVE O `SUMOCFG`, e a costura importa: `roda()` apontava o cfg da
+    seed e logo depois chamava `topologia()`, que passa por aqui de novo e
+    devolvia o `SUMOCFG` ao canônico — que não tem `<route-files>`. Medido: a
+    corrida inseria 0 veículos e o diagnóstico reportava o caminho da seed.
+    Agora todo caminho que passa por aqui resolve o MESMO alvo; sem `seed`
+    (o caso de `topologia()`, que só precisa do `.net.xml`) o `SUMOCFG` de
+    demanda-em-arquivo é deixado como está, em vez de ser reescrito para um
+    valor que esta função não tem como saber.
     """
     # `forcar=True`: a guarda do C1 compara ENV VAR, e aqui a verificação é sobre
     # o ESTADO CONGELADO (`_sim_bate_com`), que é estritamente mais forte — e é a
@@ -196,8 +205,10 @@ def _aponta_constants(cenario: Cenario):
     cenario.aplicar(forcar=True)
     from sim.environment import constants as C
 
-    alvo = {"NET_FILE": cenario.net_file, "SUMOCFG": cenario.sumocfg,
+    alvo = {"NET_FILE": cenario.net_file,
             "ADD_FILE": cenario.add_file, "VIEW_FILE": cenario.view_file}
+    if cenario.modelo_demanda != "arquivo" or seed is not None:
+        alvo["SUMOCFG"] = _sumocfg_da_seed(cenario, seed)
     for campo, valor in alvo.items():
         if valor is not None and not _mesmo_caminho(getattr(C, campo, None), valor):
             setattr(C, campo, str(valor))
@@ -248,14 +259,30 @@ def _sumocfg_da_seed(cenario: Cenario, seed: int | None) -> str:
 
         maquete_aberta.sumocfg  ->  maquete_aberta_s42.sumocfg
 
-    Se ele não existir, cai no canônico (e o `ultimo_diagnostico` registra que a
-    demanda veio de onde o `.sumocfg` apontar, não da seed).
+    LEVANTA se o arquivo da seed não existir. A versão anterior caía no canônico,
+    e o canônico não tem `<route-files>`: a corrida rodava a malha VAZIA e o
+    `ultimo_diagnostico` ainda registrava o caminho da seed. É o mesmo silêncio
+    que o agente A1 fechou do lado do gerador (`ConfigDaSeedAusente`) — cair no
+    canônico é sempre erro, nunca degradação aceitável.
     """
     if cenario.modelo_demanda != "arquivo" or seed is None:
         return cenario.sumocfg
     base = Path(cenario.sumocfg)
-    por_seed = base.with_name("%s_s%d%s" % (base.stem, int(seed), base.suffix))
-    return str(por_seed) if por_seed.exists() else cenario.sumocfg
+    # IDEMPOTENTE: um `Cenario` cujo `sumocfg` JÁ é o da seed passa direto. Sem
+    # isto sai `..._s100_s100.sumocfg` quando o chamador resolveu a seed antes de
+    # entregar o cenário — que é o que o motor do jogo faz.
+    if base.stem.endswith("_s%d" % int(seed)):
+        por_seed = base
+    else:
+        por_seed = base.with_name("%s_s%d%s" % (base.stem, int(seed), base.suffix))
+    if not por_seed.exists():
+        raise ArenaNaoConfigurada(
+            "cenário %s (demanda em arquivo) não tem `.sumocfg` para a seed %d:\n"
+            "    %s\n"
+            "Sem ele o SUMO sobe o canônico, que não tem <route-files>, e a malha "
+            "roda VAZIA. Gere com `python -m feira.demanda --seed %d` (agente A1)."
+            % (cenario.chave, int(seed), por_seed, int(seed)))
+    return str(por_seed)
 
 
 class _Contador:
@@ -448,7 +475,8 @@ class ArenaSumo:
     """
 
     def __init__(self, *, seca_max_s: float = 600.0, abortar_travamento: bool = False,
-                 usar_subscriptions: bool = True, heat_com_internas: bool = True) -> None:
+                 usar_subscriptions: bool = True, heat_com_internas: bool = True,
+                 ao_esperar=None, fatia_espera_s: float = 0.02) -> None:
         self.seca_max_s = float(seca_max_s)
         self.abortar_travamento = bool(abortar_travamento)
         self.usar_subscriptions = bool(usar_subscriptions)
@@ -461,9 +489,22 @@ class ArenaSumo:
         self.ultima_contabilidade: Contabilidade | None = None
         self.ultimo_leitor: "_LeitorDeFaixas | None" = None
 
+        # Gancho de cadencia de entrada (pedido do agente A3, achado do A4). Em
+        # tempo real o laco dorme ~1 s entre sim-steps; sem isto o `poll()` da
+        # botoeira/teclado roda a 1 Hz e o botao parece quebrado. Publicos e
+        # settables de proposito: o motor do jogo os liga sem tocar em contrato.
+        self.ao_esperar = ao_esperar
+        self.fatia_espera_s = float(fatia_espera_s)
+
     # ------------------------------------------------------------ topologia
     def topologia(self, cenario: Cenario) -> Topologia:
-        """Deriva a topologia do `.net.xml` sem subir o SUMO."""
+        """Deriva a topologia do `.net.xml` sem subir o SUMO.
+
+        Sem `seed` de proposito: topologia sai do `.net.xml`, nao da demanda. Por
+        isso `_aponta_constants` NAO reescreve o `SUMOCFG` quando a demanda vem de
+        arquivo -- era esse reescrever que apagava a escolha da seed feita em
+        `roda()`.
+        """
         _amarra_sim(cenario)
         from sim.environment import net_topology as nt
 
@@ -498,10 +539,11 @@ class ArenaSumo:
         janela = janela or janela_padrao(cenario)
         ritmo = ritmo or Ritmo()
 
-        C = _amarra_sim(cenario)
-        cfg = _sumocfg_da_seed(cenario, seed)
-        if not _mesmo_caminho(C.SUMOCFG, cfg):
-            C.SUMOCFG = cfg
+        # A seed entra AQUI: e ela que resolve o `.sumocfg` com o <route-files>
+        # certo, e `topologia()` mais abaixo passa por `_aponta_constants` de novo
+        # -- antes desta correcao era esse segundo passe que devolvia o SUMOCFG ao
+        # canonico e fazia a corrida rodar a malha vazia.
+        C = _amarra_sim(cenario, seed)
         from sim.environment import net_topology as nt
         from sim.environment.traffic_env import TrafficEnv
 
@@ -577,7 +619,8 @@ class ArenaSumo:
 
         n_passos = int(round(janela.duracao / passo))
         feito = 0
-        relogio = _Relogio(ritmo, passo)
+        relogio = _Relogio(ritmo, passo, ao_esperar=self.ao_esperar,
+                           fatia_s=self.fatia_espera_s)
         travou = False
         decisao = 0
         while feito < n_passos:
@@ -850,23 +893,51 @@ class _Relogio:
     trás: o atraso some da vista e nunca é recuperado, e é entre os dois braços
     que ele vira deriva de tempo simulado. Aqui, com `recupera_atraso=True`, o
     deadline NÃO é reajustado — o laço deixa de dormir até recuperar, e o atraso
-    máximo visto vai no diagnóstico."""
+    máximo visto vai no diagnóstico.
 
-    def __init__(self, ritmo: Ritmo, passo_sim: float) -> None:
+    `ao_esperar` é o gancho de CADÊNCIA DE ENTRADA. Em tempo real o laço dorme
+    ~1 s entre sim-steps, e quem drena a `FonteEntrada` é o observador — ou seja,
+    a 1 Hz. Medido pelo agente A4: latência botão→evento de até 1000 ms, contra
+    um teto de 50 ms. O sono é fatiado em `fatia_s` e o gancho roda entre as
+    fatias, levando o `poll()` a ~50 Hz sem mexer no relógio da simulação: o
+    deadline continua sendo o mesmo, e o atraso continua sendo acumulado.
+
+    O gancho PODE levantar — é assim que o botão ABORTAR interrompe a rodada — e
+    a exceção sobe por `roda()`.
+    """
+
+    def __init__(self, ritmo: Ritmo, passo_sim: float, *,
+                 ao_esperar=None, fatia_s: float = 0.02) -> None:
         self.ritmo = ritmo
         self.passo_sim = float(passo_sim)
+        self.ao_esperar = ao_esperar
+        self.fatia_s = max(1e-3, float(fatia_s))
         self.atraso_max = 0.0
         self.atraso_final = 0.0
         self.estouros = 0
         self._deadline = time.perf_counter()
 
+    def _dorme(self, falta: float) -> None:
+        """Dorme `falta` segundos, bombeando o gancho entre as fatias."""
+        if self.ao_esperar is None:
+            time.sleep(falta)
+            return
+        while True:
+            resta = self._deadline - time.perf_counter()
+            if resta <= 0:
+                break
+            time.sleep(min(self.fatia_s, resta))
+            self.ao_esperar()
+
     def espera(self) -> None:
         if not self.ritmo.sim_por_parede:
+            if self.ao_esperar is not None:
+                self.ao_esperar()      # solto: ainda assim bombeia uma vez por passo
             return
         self._deadline += self.passo_sim / float(self.ritmo.sim_por_parede)
         atraso = time.perf_counter() - self._deadline
         if atraso < 0:
-            time.sleep(-atraso)
+            self._dorme(-atraso)
             atraso = 0.0
         else:
             if atraso > self.ritmo.atraso_max_s:
