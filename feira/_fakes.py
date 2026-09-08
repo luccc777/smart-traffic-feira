@@ -176,8 +176,14 @@ class FonteEntradaFake:
         self._i += 1
         return [EventoBotao(indice=i, t_wall=float(self._i)) for i in indices]
 
-    def feedback(self, estados: list[str]) -> None:
+    def feedback(self, estados: list[str], start: str | None = None) -> None:
         self.feedbacks.append(list(valida_estados(estados, self.n_botoes)))
+        if start is not None:
+            self.start = valida_estados([start], 1)[0]
+
+    def feedback_start(self, estado: str) -> None:
+        """O LED do botao grande (C6). Aqui e so estado guardado."""
+        self.start = valida_estados([estado], 1)[0]
 
     def viva(self) -> bool:
         return self._viva

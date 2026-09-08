@@ -1,0 +1,202 @@
+{
+ "janela": [
+  300.0,
+  7500.0
+ ],
+ "seeds": [
+  101
+ ],
+ "linhas": [
+  {
+   "plano": "timer27",
+   "seed": 101,
+   "controlador": "timer:uniforme_27s",
+   "entregues": 6964,
+   "tempo_medio_entregue": 165.93394600804135,
+   "tempo_medio_no_sistema": 164.2008709088355,
+   "fila_media": 56.97388888888889,
+   "espera_media": 688.9247222222223,
+   "inseridos": 6980,
+   "ativos_inicio": 139,
+   "ativos_fim": 155,
+   "backlog_insercao": 0,
+   "perdidos": 0,
+   "conservacao": 0,
+   "travou": false,
+   "lacuna_sobrevivencia": -1.0444367417875193,
+   "sinais": [],
+   "sane": [
+    true,
+    ""
+   ],
+   "sumocfg": "C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\sumo\\aberta\\planos\\demanda_longa\\maquete_aberta_s101.sumocfg",
+   "maior_seca_s": 12.0,
+   "teleportes": 34,
+   "decisoes": 1440,
+   "fila_com_internas": 57.48694444444444,
+   "parede_s": 113.2,
+   "resultado": {
+    "chave": {
+     "cenario": "aberta.maquete",
+     "seed": 101,
+     "janela": {
+      "t0": 300.0,
+      "t1": 7500.0
+     },
+     "demanda_sha": "496a359a51c090601802ddfed1d64b24646926373184806384938257fe6728e7",
+     "restricoes": "di5/vm7/am3/mr0"
+    },
+    "controlador": "timer:uniforme_27s",
+    "entregues": 6964,
+    "tempo_medio_entregue": 165.93394600804135,
+    "tempo_medio_no_sistema": 164.2008709088355,
+    "fila_media": 56.97388888888889,
+    "espera_media": 688.9247222222223,
+    "inseridos": 6980,
+    "ativos_fim": 155,
+    "ativos_inicio": 139,
+    "backlog_insercao": 0,
+    "perdidos": 0,
+    "travou": false
+   }
+  },
+  {
+   "plano": "coordenado_c50",
+   "seed": 101,
+   "controlador": "timer:coordenado_c50",
+   "entregues": 6970,
+   "tempo_medio_entregue": 152.90114777618365,
+   "tempo_medio_no_sistema": 151.43109987357775,
+   "fila_media": 45.214305555555555,
+   "espera_media": 523.8433333333334,
+   "inseridos": 6980,
+   "ativos_inicio": 139,
+   "ativos_fim": 149,
+   "backlog_insercao": 0,
+   "perdidos": 0,
+   "conservacao": 0,
+   "travou": false,
+   "lacuna_sobrevivencia": -0.9614368001721946,
+   "sinais": [],
+   "sane": [
+    true,
+    ""
+   ],
+   "sumocfg": "C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\sumo\\aberta\\planos\\demanda_longa\\maquete_aberta_s101.sumocfg",
+   "maior_seca_s": 15.0,
+   "teleportes": 40,
+   "decisoes": 1440,
+   "fila_com_internas": 45.81027777777778,
+   "parede_s": 112.3,
+   "resultado": {
+    "chave": {
+     "cenario": "aberta.maquete",
+     "seed": 101,
+     "janela": {
+      "t0": 300.0,
+      "t1": 7500.0
+     },
+     "demanda_sha": "496a359a51c090601802ddfed1d64b24646926373184806384938257fe6728e7",
+     "restricoes": "di5/vm7/am3/mr0"
+    },
+    "controlador": "timer:coordenado_c50",
+    "entregues": 6970,
+    "tempo_medio_entregue": 152.90114777618365,
+    "tempo_medio_no_sistema": 151.43109987357775,
+    "fila_media": 45.214305555555555,
+    "espera_media": 523.8433333333334,
+    "inseridos": 6980,
+    "ativos_fim": 149,
+    "ativos_inicio": 139,
+    "backlog_insercao": 0,
+    "perdidos": 0,
+    "travou": false
+   },
+   "n_trocas": 3457,
+   "verde_realizado_medio_s": {
+    "H1V1": 21.96,
+    "H1V2": 21.96,
+    "H1V3": 21.96,
+    "H1V4": 21.96,
+    "H2V1": 21.98,
+    "H2V2": 21.98,
+    "H2V3": 21.98,
+    "H2V4": 22.04,
+    "H3V1": 21.96,
+    "H3V2": 22.04,
+    "H3V3": 22.02,
+    "H3V4": 21.96
+   },
+   "offset_estavel": true
+  },
+  {
+   "plano": "coordenado_c60",
+   "seed": 101,
+   "controlador": "timer:coordenado_c60",
+   "entregues": 6966,
+   "tempo_medio_entregue": 159.25653172552398,
+   "tempo_medio_no_sistema": 157.6890012642225,
+   "fila_media": 51.4075,
+   "espera_media": 712.1741666666667,
+   "inseridos": 6980,
+   "ativos_inicio": 139,
+   "ativos_fim": 153,
+   "backlog_insercao": 0,
+   "perdidos": 0,
+   "conservacao": 0,
+   "travou": false,
+   "lacuna_sobrevivencia": -0.9842801700611568,
+   "sinais": [],
+   "sane": [
+    true,
+    ""
+   ],
+   "sumocfg": "C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\sumo\\aberta\\planos\\demanda_longa\\maquete_aberta_s101.sumocfg",
+   "maior_seca_s": 14.0,
+   "teleportes": 39,
+   "decisoes": 1440,
+   "fila_com_internas": 52.041805555555555,
+   "parede_s": 115.6,
+   "resultado": {
+    "chave": {
+     "cenario": "aberta.maquete",
+     "seed": 101,
+     "janela": {
+      "t0": 300.0,
+      "t1": 7500.0
+     },
+     "demanda_sha": "496a359a51c090601802ddfed1d64b24646926373184806384938257fe6728e7",
+     "restricoes": "di5/vm7/am3/mr0"
+    },
+    "controlador": "timer:coordenado_c60",
+    "entregues": 6966,
+    "tempo_medio_entregue": 159.25653172552398,
+    "tempo_medio_no_sistema": 157.6890012642225,
+    "fila_media": 51.4075,
+    "espera_media": 712.1741666666667,
+    "inseridos": 6980,
+    "ativos_fim": 153,
+    "ativos_inicio": 139,
+    "backlog_insercao": 0,
+    "perdidos": 0,
+    "travou": false
+   },
+   "n_trocas": 2884,
+   "verde_realizado_medio_s": {
+    "H1V1": 26.94,
+    "H1V2": 26.96,
+    "H1V3": 26.96,
+    "H1V4": 27.06,
+    "H2V1": 26.98,
+    "H2V2": 26.96,
+    "H2V3": 26.96,
+    "H2V4": 27.04,
+    "H3V1": 26.94,
+    "H3V2": 27.06,
+    "H3V3": 27.04,
+    "H3V4": 26.94
+   },
+   "offset_estavel": true
+  }
+ ]
+}

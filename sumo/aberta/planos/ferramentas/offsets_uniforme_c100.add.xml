@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-09-07 23:07:00.038286 by Eclipse SUMO tlsCoordinator.py v1_27_0+0000-e238ea04b71
+<configuration>
+    <net-file value="C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\network\maquete_aberta.net.xml"/>
+    <output-file value="C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\ferramentas\offsets_uniforme_c100.add.xml"/>
+    <route-file value="C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\projeto\demanda_projeto_s7.rou.xml"/>
+    <additional-file value="C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\ferramentas\uniforme_c100.add.xml"/>
+</configuration>
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <tlLogic id="H1V1" programID="coordenado" offset="5.64"/>
+    <tlLogic id="H1V2" programID="coordenado" offset="-89.29"/>
+    <tlLogic id="H1V3" programID="coordenado" offset="-75.90"/>
+    <tlLogic id="H1V4" programID="coordenado" offset="15.37"/>
+    <tlLogic id="H2V1" programID="coordenado" offset="16.35"/>
+    <tlLogic id="H2V2" programID="coordenado" offset="0.00"/>
+    <tlLogic id="H2V3" programID="coordenado" offset="-65.19"/>
+    <tlLogic id="H2V4" programID="coordenado" offset="-45.33"/>
+    <tlLogic id="H3V1" programID="coordenado" offset="27.06"/>
+    <tlLogic id="H3V2" programID="coordenado" offset="-10.71"/>
+    <tlLogic id="H3V3" programID="coordenado" offset="-104.48"/>
+    <tlLogic id="H3V4" programID="coordenado" offset="-56.04"/>
+</additional>

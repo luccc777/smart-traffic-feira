@@ -56,6 +56,41 @@ def _rl():
     return ControladorRL(ckpt)
 
 
+def _coordenado():
+    """O baseline honesto do agente A5. A suíte usa a topologia FAKE, então o
+    plano é montado sobre ela em vez de carregado do congelado (que descreve
+    outros `tls_ids`)."""
+    from feira.controladores import ControladorCoordenado, PlanoFixo
+    topo = F.topologia_fake()
+    return ControladorCoordenado(
+        PlanoFixo.uniforme(topo.tls_ids, topo.n_fases_verdes, 27.0, 3.0,
+                           nome="conformidade", cenario="small.maquete"))
+
+
+def _humano():
+    """O braço do público (agente A3), alimentado por uma fonte roteirizada.
+    `reset()` rebobina a fonte — é o que torna o reset idempotente."""
+    from feira.controladores import ControladorHumano
+    from feira.entrada import ReplayInput
+    return ControladorHumano(ReplayInput(12, [[0, 3], [], [5], [], [1]]))
+
+
+def _teclado():
+    from feira.entrada import TecladoInput
+    from feira.entrada.teclado import LeitorRoteirizado
+    return TecladoInput(12, leitor=LeitorRoteirizado(["qr", "", " "]))
+
+
+def _replay():
+    from feira.entrada import ReplayInput
+    return ReplayInput(12, [[0, 3], [], [BOTAO_START]])
+
+
+def _botoeira():
+    from feira.entrada_serial import SerialInput, porta_falsa
+    return SerialInput(porta_falsa())
+
+
 def _gerador_aberto():
     from feira.demanda import GeradorDemandaAberta
     return GeradorDemandaAberta()
@@ -69,7 +104,8 @@ IMPLS_CONTROLADOR = [
     pytest.param(lambda: F.ControladorFake("rng", seed=7), id="fake-rng"),
     pytest.param(_timer, id="timer-27s"),
     pytest.param(_rl, id="rl-ddqn", marks=pytest.mark.sumo),
-    # A3: pytest.param(lambda: ControladorHumano(fonte), id="humano"),
+    pytest.param(_coordenado, id="coordenado"),
+    pytest.param(_humano, id="humano"),
 ]
 
 
@@ -156,8 +192,9 @@ def test_observacao_recusa_shape_inconsistente():
 
 IMPLS_ENTRADA = [
     pytest.param(lambda: F.FonteEntradaFake(12, [[0, 3], [], [BOTAO_START]]), id="fake"),
-    # A3: pytest.param(lambda: TecladoInput(12), id="teclado"),
-    # A4: pytest.param(lambda: SerialInput(porta_falsa()), id="botoeira"),
+    pytest.param(_teclado, id="teclado"),
+    pytest.param(_replay, id="replay"),
+    pytest.param(_botoeira, id="botoeira"),
 ]
 
 

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GERADO por scripts/tune_baseline_plano.py: entrada do tlsCoordinator.py. -->
+<additional>
+    <tlLogic id="H1V1" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="12" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H1V2" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="12" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H1V3" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="12" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H1V4" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="GGGrrrrGGg"/>
+        <phase duration="3" state="yyyrrrryyy"/>
+        <phase duration="12" state="rrrGGGGrrr"/>
+        <phase duration="3" state="rrryyyyrrr"/>
+    </tlLogic>
+    <tlLogic id="H2V1" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="rrrGGGgGGGG"/>
+        <phase duration="3" state="rrryyyyyyyy"/>
+        <phase duration="12" state="GGGrrrrrrrr"/>
+        <phase duration="3" state="yyyrrrrrrrr"/>
+    </tlLogic>
+    <tlLogic id="H2V2" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="GGGGrrrGGG"/>
+        <phase duration="3" state="yyyyrrryyy"/>
+        <phase duration="12" state="rrrrGGGrrr"/>
+        <phase duration="3" state="rrrryyyrrr"/>
+    </tlLogic>
+    <tlLogic id="H2V3" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="rrrGGGGGGG"/>
+        <phase duration="3" state="rrryyyyyyy"/>
+        <phase duration="12" state="GGGrrrrrrr"/>
+        <phase duration="3" state="yyyrrrrrrr"/>
+    </tlLogic>
+    <tlLogic id="H2V4" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="GGGGgrrrGGGGrrrr"/>
+        <phase duration="3" state="yyyyyrrryyyyrrrr"/>
+        <phase duration="12" state="rrrrrGGGrrrrGGGg"/>
+        <phase duration="3" state="rrrrryyyrrrryyyy"/>
+    </tlLogic>
+    <tlLogic id="H3V1" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="12" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H3V2" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="12" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H3V3" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="12" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H3V4" type="static" programID="coordenado" offset="0">
+        <phase duration="17" state="GGgGGGrrrr"/>
+        <phase duration="3" state="yyyyyyrrrr"/>
+        <phase duration="12" state="rrrrrrGGGG"/>
+        <phase duration="3" state="rrrrrryyyy"/>
+    </tlLogic>
+</additional>

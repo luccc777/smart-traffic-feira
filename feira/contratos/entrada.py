@@ -61,8 +61,32 @@ class FonteEntrada(Protocol):
         """Eventos desde a última chamada. NÃO bloqueia. Ordem cronológica."""
         ...
 
-    def feedback(self, estados: list[str]) -> None:
-        """Um estado de `ESTADOS` por botão. Chamado a cada tick de decisão."""
+    def feedback(self, estados: list[str], start: str | None = None) -> None:
+        """Um estado de `ESTADOS` por semáforo, mais (opcionalmente) o do START.
+
+        `estados` tem `n_botoes` posições — uma por semáforo, e o índice do botão
+        continua sendo o índice do semáforo em toda parte.
+
+        `start` é o LED do botão grande, que **não** cabe em `estados`: ele diria
+        "pode começar" / "abortar armado", e a versão anterior deste contrato não
+        tinha como expressá-lo (achado do agente A4 — o quadro do protocolo tem
+        `n+1` posições e o contrato só entregava `n`). Passar `None` significa
+        **deixar como está**, e não "apagar": quem pinta os semáforos a cada tick
+        é o controlador do humano, que não sabe em que fase a rodada está — se o
+        default apagasse, ele desligaria o LED que o motor acabou de acender.
+        """
+        ...
+
+    def feedback_start(self, estado: str) -> None:
+        """Acende SÓ o LED do botão grande, sem repintar os semáforos.
+
+        Existe porque as duas preocupações têm donos diferentes: quem pinta os
+        semáforos é o `ControladorHumano`, a cada tick de decisão, e quem sabe a
+        fase da rodada ("pode começar" / "apertar aborta") é o motor do jogo. Com
+        um método só, um dos dois teria que inventar o estado do outro — e foi
+        por isso que a primeira versão deste contrato acabou com um
+        `feedback_start` improvisado por fora, via `getattr`, em dois lugares.
+        """
         ...
 
     def viva(self) -> bool:

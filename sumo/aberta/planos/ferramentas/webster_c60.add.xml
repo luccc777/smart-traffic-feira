@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-09-07 23:06:50.706117 by Eclipse SUMO tlsCycleAdaptation.py v1_27_0+0000-e238ea04b71
+<configuration>
+    <net-file value="C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\network\maquete_aberta.net.xml"/>
+    <output-file value="C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\ferramentas\webster_c60.add.xml"/>
+    <route-files value="C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\projeto\demanda_projeto_s7.rou.xml"/>
+    <begin value="300.0"/>
+    <yellow-time value="3"/>
+    <min-green value="7"/>
+    <min-cycle value="60"/>
+    <max-cycle value="60"/>
+    <program value="coordenado"/>
+</configuration>
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <tlLogic id="H1V1" type="actuated" programID="coordenado" offset="0">
+        <phase duration="13" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="41" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H1V2" type="actuated" programID="coordenado" offset="0">
+        <phase duration="16" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="38" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H1V3" type="actuated" programID="coordenado" offset="0">
+        <phase duration="15" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="39" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H1V4" type="actuated" programID="coordenado" offset="0">
+        <phase duration="40" state="GGGrrrrGGg"/>
+        <phase duration="3" state="yyyrrrryyy"/>
+        <phase duration="14" state="rrrGGGGrrr"/>
+        <phase duration="3" state="rrryyyyrrr"/>
+    </tlLogic>
+    <tlLogic id="H2V1" type="actuated" programID="coordenado" offset="0">
+        <phase duration="21" state="rrrGGGgGGGG"/>
+        <phase duration="3" state="rrryyyyyyyy"/>
+        <phase duration="33" state="GGGrrrrrrrr"/>
+        <phase duration="3" state="yyyrrrrrrrr"/>
+    </tlLogic>
+    <tlLogic id="H2V2" type="actuated" programID="coordenado" offset="0">
+        <phase duration="19" state="GGGGrrrGGG"/>
+        <phase duration="3" state="yyyyrrryyy"/>
+        <phase duration="35" state="rrrrGGGrrr"/>
+        <phase duration="3" state="rrrryyyrrr"/>
+    </tlLogic>
+    <tlLogic id="H2V3" type="actuated" programID="coordenado" offset="0">
+        <phase duration="19" state="rrrGGGGGGG"/>
+        <phase duration="3" state="rrryyyyyyy"/>
+        <phase duration="35" state="GGGrrrrrrr"/>
+        <phase duration="3" state="yyyrrrrrrr"/>
+    </tlLogic>
+    <tlLogic id="H2V4" type="actuated" programID="coordenado" offset="0">
+        <phase duration="16" state="GGGGgrrrGGGGrrrr"/>
+        <phase duration="3" state="yyyyyrrryyyyrrrr"/>
+        <phase duration="38" state="rrrrrGGGrrrrGGGg"/>
+        <phase duration="3" state="rrrrryyyrrrryyyy"/>
+    </tlLogic>
+    <tlLogic id="H3V1" type="actuated" programID="coordenado" offset="0">
+        <phase duration="40" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="14" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H3V2" type="actuated" programID="coordenado" offset="0">
+        <phase duration="14" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="40" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H3V3" type="actuated" programID="coordenado" offset="0">
+        <phase duration="35" state="GGGrrr"/>
+        <phase duration="3" state="yyyrrr"/>
+        <phase duration="19" state="rrrGGG"/>
+        <phase duration="3" state="rrryyy"/>
+    </tlLogic>
+    <tlLogic id="H3V4" type="actuated" programID="coordenado" offset="0">
+        <phase duration="13" state="GGgGGGrrrr"/>
+        <phase duration="3" state="yyyyyyrrrr"/>
+        <phase duration="41" state="rrrrrrGGGG"/>
+        <phase duration="3" state="rrrrrryyyy"/>
+    </tlLogic>
+</additional>

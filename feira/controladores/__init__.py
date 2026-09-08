@@ -9,7 +9,10 @@ Nada é importado ansiosamente: `ControladorRL` puxa `sim`/`torch` só dentro do
 `reset()`, para importar este pacote não congelar `sim.environment.constants`
 antes de `Cenario.aplicar()` (a armadilha documentada no C1).
 """
+from .coordenado import ControladorCoordenado, PlanoFixo
+from .humano import ControladorHumano
 from .rl import ControladorRL
 from .timer import ControladorTimer
 
-__all__ = ["ControladorRL", "ControladorTimer"]
+__all__ = ["ControladorRL", "ControladorTimer", "ControladorCoordenado",
+           "PlanoFixo", "ControladorHumano"]

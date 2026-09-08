@@ -195,9 +195,14 @@ class SerialInput:
         eventos, self._pendentes = self._pendentes, []
         return eventos
 
-    def feedback(self, estados: list[str]) -> None:
-        """Acende os 12 LEDs dos semáforos. O 13º (START) vem de `feedback_start()`."""
+    def feedback(self, estados: list[str], start: str | None = None) -> None:
+        """Acende os LEDs dos semáforos e, se `start` vier, o do botão grande.
+
+        Um quadro só para os treze: o `LEDS` do protocolo já é `n+1`, e mandar
+        dois quadros faria o START piscar de fora de fase com os semáforos."""
         self._estados = list(valida_estados(list(estados), self.n_botoes))
+        if start is not None:
+            self._estado_start = valida_estados([start], 1)[0]
         self._envia_quadro()
 
     def viva(self) -> bool:

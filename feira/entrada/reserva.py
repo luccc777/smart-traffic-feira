@@ -54,11 +54,11 @@ class FonteComReserva:
                 pass
         return eventos
 
-    def feedback(self, estados: list[str]) -> None:
+    def feedback(self, estados: list[str], start: str | None = None) -> None:
         estados = list(valida_estados(estados, self.n_botoes))
         for fonte in (self.primaria, self.reserva):
             try:
-                fonte.feedback(list(estados))
+                fonte.feedback(list(estados), start)
             except Exception:
                 # LED que não acende não pode derrubar a rodada.
                 pass
@@ -66,11 +66,10 @@ class FonteComReserva:
     def feedback_start(self, estado: str) -> None:
         """O 13º LED (o botão START), repassado a quem souber acendê-lo.
 
-        Fica FORA do `feedback()` porque o C6 define o vetor com `n` estados —
-        um por semáforo — e o quadro `LEDS` do protocolo tem `n+1`. O buraco
-        está reportado ao dono do repo; enquanto ele existe, quem implementa
-        `feedback_start` (o `SerialInput` do agente A4) recebe por aqui e quem
-        não implementa simplesmente não é chamado."""
+        MANTIDO por compatibilidade: o C6 passou a aceitar `feedback(estados,
+        start=...)`, que é o caminho preferido. Este atalho continua útil para
+        acender só o START sem repintar os doze semáforos, e para fontes
+        antigas que ainda não tenham o parâmetro."""
         for fonte in (self.primaria, self.reserva):
             metodo = getattr(fonte, "feedback_start", None)
             if callable(metodo):

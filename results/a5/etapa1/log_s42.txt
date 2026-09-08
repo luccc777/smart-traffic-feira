@@ -1,0 +1,1242 @@
+janela Janela(t0=300.0, t1=3900.0) · 1 seeds · 39 planos + referência
+[timer27] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 61132 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (5ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (23ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 46.93s
+ TraCI-Duration: 40.78s
+ Real time factor: 83.1273
+ UPS: 12377.940675
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 168
+ Waiting: 0
+ Teleports: 15 (Collisions: 15)
+Statistics (avg of 3513):
+ RouteLength: 155.60
+ Speed: 1.02
+ Duration: 160.92
+ WaitingTime: 55.56
+ TimeLoss: 79.70
+ DepartDelay: 0.53
+DijkstraRouter answered 10616 queries and explored 11.82 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.01ms on average).
+  -> 3392 entregues em 48 s de parede
+[uniforme_c20] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 57725 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (5ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (29ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 57.99s
+ TraCI-Duration: 44.57s
+ Real time factor: 67.2691
+ UPS: 26377.627563
+Vehicles:
+ Inserted: 3346 (Loaded: 3774)
+ Running: 1061
+ Waiting: 335
+ Teleports: 19 (Collisions: 19)
+Statistics (avg of 2285):
+ RouteLength: 153.72
+ Speed: 1.00
+ Duration: 218.24
+ WaitingTime: 96.88
+ TimeLoss: 139.08
+ DepartDelay: 1.11
+DijkstraRouter answered 29914 queries and explored 13.17 edges on average.
+DijkstraRouter spent 0.18s answering queries (0.01ms on average).
+  -> 2164 entregues em 59 s de parede
+[webster_c20] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 59910 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (7ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (36ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 62.21s
+ TraCI-Duration: 48.12s
+ Real time factor: 62.708
+ UPS: 24589.126975
+Vehicles:
+ Inserted: 3346 (Loaded: 3774)
+ Running: 1061
+ Waiting: 335
+ Teleports: 19 (Collisions: 19)
+Statistics (avg of 2285):
+ RouteLength: 153.72
+ Speed: 1.00
+ Duration: 218.24
+ WaitingTime: 96.88
+ TimeLoss: 139.08
+ DepartDelay: 1.11
+DijkstraRouter answered 29914 queries and explored 13.17 edges on average.
+DijkstraRouter spent 0.19s answering queries (0.01ms on average).
+  -> 2164 entregues em 63 s de parede
+[coordenado_c20] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 51140 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (10ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (39ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 51.37s
+ TraCI-Duration: 41.81s
+ Real time factor: 75.9452
+ UPS: 23312.755519
+Vehicles:
+ Inserted: 3505 (Loaded: 3774)
+ Running: 810
+ Waiting: 176
+ Teleports: 22 (Collisions: 22)
+Statistics (avg of 2695):
+ RouteLength: 154.66
+ Speed: 0.97
+ Duration: 235.15
+ WaitingTime: 108.04
+ TimeLoss: 155.47
+ DepartDelay: 2.93
+DijkstraRouter answered 23129 queries and explored 13.50 edges on average.
+DijkstraRouter spent 0.15s answering queries (0.01ms on average).
+  -> 2574 entregues em 52 s de parede
+[uniforme_c25] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 55291 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (7ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (31ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 45.36s
+ TraCI-Duration: 37.69s
+ Real time factor: 86.0104
+ UPS: 20543.225664
+Vehicles:
+ Inserted: 3447 (Loaded: 3774)
+ Running: 316
+ Waiting: 234
+ Teleports: 32 (Collisions: 32)
+Statistics (avg of 3131):
+ RouteLength: 159.06
+ Speed: 0.93
+ Duration: 255.34
+ WaitingTime: 124.89
+ TimeLoss: 173.80
+ DepartDelay: 6.94
+DijkstraRouter answered 22040 queries and explored 14.31 edges on average.
+DijkstraRouter spent 0.13s answering queries (0.01ms on average).
+  -> 3010 entregues em 46 s de parede
+[webster_c25] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 56429 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (39ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 42.03s
+ TraCI-Duration: 37.03s
+ Real time factor: 92.8257
+ UPS: 12881.308745
+Vehicles:
+ Inserted: 3588 (Loaded: 3774)
+ Running: 145
+ Waiting: 93
+ Teleports: 30 (Collisions: 30)
+Statistics (avg of 3443):
+ RouteLength: 155.14
+ Speed: 1.12
+ Duration: 153.10
+ WaitingTime: 43.88
+ TimeLoss: 72.22
+ DepartDelay: 26.09
+DijkstraRouter answered 12033 queries and explored 14.17 edges on average.
+DijkstraRouter spent 0.08s answering queries (0.01ms on average).
+  -> 3322 entregues em 43 s de parede
+[coordenado_c25] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 50471 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (8ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (32ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 44.65s
+ TraCI-Duration: 39.16s
+ Real time factor: 87.3684
+ UPS: 11982.978723
+Vehicles:
+ Inserted: 3584 (Loaded: 3774)
+ Running: 139
+ Waiting: 97
+ Teleports: 22 (Collisions: 22)
+Statistics (avg of 3445):
+ RouteLength: 155.22
+ Speed: 1.12
+ Duration: 151.56
+ WaitingTime: 43.72
+ TimeLoss: 70.68
+ DepartDelay: 26.90
+DijkstraRouter answered 12064 queries and explored 14.31 edges on average.
+DijkstraRouter spent 0.08s answering queries (0.01ms on average).
+  -> 3324 entregues em 45 s de parede
+[uniforme_c30] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 50194 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (7ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (34ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 69.77s
+ TraCI-Duration: 56.12s
+ Real time factor: 55.9163
+ UPS: 9777.080198
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 208
+ Waiting: 0
+ Teleports: 39 (Collisions: 39)
+Statistics (avg of 3473):
+ RouteLength: 156.34
+ Speed: 0.99
+ Duration: 187.64
+ WaitingTime: 71.38
+ TimeLoss: 106.33
+ DepartDelay: 1.64
+DijkstraRouter answered 12355 queries and explored 12.67 edges on average.
+DijkstraRouter spent 0.07s answering queries (0.01ms on average).
+  -> 3352 entregues em 71 s de parede
+[webster_c30] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 56624 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (5ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (24ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 58.42s
+ TraCI-Duration: 45.27s
+ Real time factor: 66.7762
+ UPS: 9388.024444
+Vehicles:
+ Inserted: 3518 (Loaded: 3774)
+ Running: 143
+ Waiting: 163
+ Teleports: 46 (Collisions: 46)
+Statistics (avg of 3375):
+ RouteLength: 154.70
+ Speed: 1.08
+ Duration: 158.18
+ WaitingTime: 50.69
+ TimeLoss: 77.27
+ DepartDelay: 38.62
+DijkstraRouter answered 14124 queries and explored 14.94 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.00ms on average).
+  -> 3254 entregues em 59 s de parede
+[coordenado_c30] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 64107 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (5ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (32ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 36.42s
+ TraCI-Duration: 31.96s
+ Real time factor: 107.111
+ UPS: 14568.506315
+Vehicles:
+ Inserted: 3519 (Loaded: 3774)
+ Running: 141
+ Waiting: 162
+ Teleports: 20 (Collisions: 20)
+Statistics (avg of 3378):
+ RouteLength: 154.72
+ Speed: 1.12
+ Duration: 152.99
+ WaitingTime: 46.82
+ TimeLoss: 72.09
+ DepartDelay: 40.68
+DijkstraRouter answered 13961 queries and explored 15.24 edges on average.
+DijkstraRouter spent 0.07s answering queries (0.00ms on average).
+  -> 3257 entregues em 37 s de parede
+[uniforme_c35] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 55482 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (27ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 44.74s
+ TraCI-Duration: 34.86s
+ Real time factor: 87.1907
+ UPS: 36413.267473
+Vehicles:
+ Inserted: 3338 (Loaded: 3774)
+ Running: 1120
+ Waiting: 343
+ Teleports: 20 (Collisions: 20)
+Statistics (avg of 2218):
+ RouteLength: 156.52
+ Speed: 0.96
+ Duration: 200.84
+ WaitingTime: 86.38
+ TimeLoss: 120.06
+ DepartDelay: 0.53
+DijkstraRouter answered 30339 queries and explored 13.27 edges on average.
+DijkstraRouter spent 0.13s answering queries (0.00ms on average).
+  -> 2097 entregues em 45 s de parede
+[webster_c35] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 59737 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (31ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 36.70s
+ TraCI-Duration: 32.13s
+ Real time factor: 106.297
+ UPS: 16478.214665
+Vehicles:
+ Inserted: 3675 (Loaded: 3774)
+ Running: 172
+ Waiting: 6
+ Teleports: 39 (Collisions: 39)
+Statistics (avg of 3503):
+ RouteLength: 155.38
+ Speed: 1.01
+ Duration: 167.55
+ WaitingTime: 58.66
+ TimeLoss: 86.11
+ DepartDelay: 1.00
+DijkstraRouter answered 11063 queries and explored 13.00 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.01ms on average).
+  -> 3382 entregues em 37 s de parede
+[coordenado_c35] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 57412 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (9ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (31ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 36.47s
+ TraCI-Duration: 32.04s
+ Real time factor: 106.973
+ UPS: 15502.536540
+Vehicles:
+ Inserted: 3677 (Loaded: 3774)
+ Running: 160
+ Waiting: 4
+ Teleports: 28 (Collisions: 28)
+Statistics (avg of 3517):
+ RouteLength: 155.63
+ Speed: 1.08
+ Duration: 156.17
+ WaitingTime: 49.60
+ TimeLoss: 74.95
+ DepartDelay: 0.78
+DijkstraRouter answered 10405 queries and explored 13.36 edges on average.
+DijkstraRouter spent 0.05s answering queries (0.01ms on average).
+  -> 3396 entregues em 37 s de parede
+[uniforme_c40] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 57431 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (5ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (27ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 34.94s
+ TraCI-Duration: 30.52s
+ Real time factor: 111.642
+ UPS: 17786.617824
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 160
+ Waiting: 0
+ Teleports: 33 (Collisions: 33)
+Statistics (avg of 3521):
+ RouteLength: 156.23
+ Speed: 0.98
+ Duration: 172.45
+ WaitingTime: 62.29
+ TimeLoss: 90.84
+ DepartDelay: 0.53
+DijkstraRouter answered 11350 queries and explored 11.70 edges on average.
+DijkstraRouter spent 0.04s answering queries (0.00ms on average).
+  -> 3400 entregues em 36 s de parede
+[webster_c40] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 49573 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (28ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 35.60s
+ TraCI-Duration: 31.06s
+ Real time factor: 109.569
+ UPS: 17226.469680
+Vehicles:
+ Inserted: 3620 (Loaded: 3774)
+ Running: 161
+ Waiting: 61
+ Teleports: 42 (Collisions: 42)
+Statistics (avg of 3459):
+ RouteLength: 155.24
+ Speed: 0.99
+ Duration: 172.69
+ WaitingTime: 63.89
+ TimeLoss: 90.89
+ DepartDelay: 17.45
+DijkstraRouter answered 12382 queries and explored 13.56 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.00ms on average).
+  -> 3338 entregues em 36 s de parede
+[coordenado_c40] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 63337 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (29ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 38.94s
+ TraCI-Duration: 34.10s
+ Real time factor: 100.19
+ UPS: 14957.699815
+Vehicles:
+ Inserted: 3631 (Loaded: 3774)
+ Running: 150
+ Waiting: 50
+ Teleports: 19 (Collisions: 19)
+Statistics (avg of 3481):
+ RouteLength: 155.61
+ Speed: 1.05
+ Duration: 163.34
+ WaitingTime: 56.04
+ TimeLoss: 82.22
+ DepartDelay: 14.05
+DijkstraRouter answered 11589 queries and explored 13.77 edges on average.
+DijkstraRouter spent 0.07s answering queries (0.01ms on average).
+  -> 3360 entregues em 40 s de parede
+[uniforme_c45] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 51895 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (9ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (47ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 41.32s
+ TraCI-Duration: 35.43s
+ Real time factor: 94.4163
+ UPS: 16988.382506
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 212
+ Waiting: 0
+ Teleports: 18 (Collisions: 18)
+Statistics (avg of 3469):
+ RouteLength: 159.36
+ Speed: 0.96
+ Duration: 194.44
+ WaitingTime: 79.72
+ TimeLoss: 111.75
+ DepartDelay: 0.53
+DijkstraRouter answered 12678 queries and explored 12.07 edges on average.
+DijkstraRouter spent 0.07s answering queries (0.01ms on average).
+  -> 3348 entregues em 42 s de parede
+[webster_c45] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 58995 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (10ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (30ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 39.77s
+ TraCI-Duration: 34.76s
+ Real time factor: 98.1013
+ UPS: 14578.247202
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 179
+ Waiting: 0
+ Teleports: 29 (Collisions: 29)
+Statistics (avg of 3502):
+ RouteLength: 155.28
+ Speed: 1.02
+ Duration: 159.89
+ WaitingTime: 53.92
+ TimeLoss: 77.92
+ DepartDelay: 0.53
+DijkstraRouter answered 10600 queries and explored 11.94 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.01ms on average).
+  -> 3381 entregues em 40 s de parede
+[coordenado_c45] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 55544 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (7ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (36ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 38.45s
+ TraCI-Duration: 33.84s
+ Real time factor: 101.446
+ UPS: 14188.979040
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 171
+ Waiting: 0
+ Teleports: 17 (Collisions: 17)
+Statistics (avg of 3510):
+ RouteLength: 155.82
+ Speed: 1.10
+ Duration: 150.10
+ WaitingTime: 45.01
+ TimeLoss: 68.85
+ DepartDelay: 0.53
+DijkstraRouter answered 10063 queries and explored 12.42 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.01ms on average).
+  -> 3389 entregues em 39 s de parede
+[uniforme_c50] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 55568 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (30ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 42.33s
+ TraCI-Duration: 36.76s
+ Real time factor: 92.1525
+ UPS: 13846.947935
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 157
+ Waiting: 0
+ Teleports: 13 (Collisions: 13)
+Statistics (avg of 3524):
+ RouteLength: 155.69
+ Speed: 1.02
+ Duration: 162.46
+ WaitingTime: 55.91
+ TimeLoss: 81.20
+ DepartDelay: 0.53
+DijkstraRouter answered 10698 queries and explored 11.88 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.01ms on average).
+  -> 3403 entregues em 43 s de parede
+[webster_c50] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 54925 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (31ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 36.48s
+ TraCI-Duration: 31.98s
+ Real time factor: 106.924
+ UPS: 16235.911632
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 161
+ Waiting: 0
+ Teleports: 23 (Collisions: 23)
+Statistics (avg of 3520):
+ RouteLength: 155.55
+ Speed: 0.99
+ Duration: 164.34
+ WaitingTime: 57.27
+ TimeLoss: 82.20
+ DepartDelay: 0.89
+DijkstraRouter answered 10854 queries and explored 12.14 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.01ms on average).
+  -> 3399 entregues em 37 s de parede
+[coordenado_c50] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 52543 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (31ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 35.14s
+ TraCI-Duration: 31.02s
+ Real time factor: 111.026
+ UPS: 15409.551457
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 148
+ Waiting: 0
+ Teleports: 17 (Collisions: 17)
+Statistics (avg of 3533):
+ RouteLength: 155.70
+ Speed: 1.08
+ Duration: 149.91
+ WaitingTime: 45.01
+ TimeLoss: 68.68
+ DepartDelay: 0.57
+DijkstraRouter answered 9977 queries and explored 12.43 edges on average.
+DijkstraRouter spent 0.04s answering queries (0.00ms on average).
+  -> 3412 entregues em 36 s de parede
+[uniforme_c60] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 57060 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (33ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 34.92s
+ TraCI-Duration: 30.64s
+ Real time factor: 111.722
+ UPS: 16635.793453
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 168
+ Waiting: 0
+ Teleports: 15 (Collisions: 15)
+Statistics (avg of 3513):
+ RouteLength: 155.60
+ Speed: 1.02
+ Duration: 160.92
+ WaitingTime: 55.56
+ TimeLoss: 79.70
+ DepartDelay: 0.53
+DijkstraRouter answered 10616 queries and explored 11.82 edges on average.
+DijkstraRouter spent 0.05s answering queries (0.00ms on average).
+  -> 3392 entregues em 36 s de parede
+[webster_c60] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 52833 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (29ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 34.69s
+ TraCI-Duration: 30.33s
+ Real time factor: 112.469
+ UPS: 17416.721926
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 168
+ Waiting: 0
+ Teleports: 21 (Collisions: 21)
+Statistics (avg of 3513):
+ RouteLength: 155.78
+ Speed: 0.97
+ Duration: 167.51
+ WaitingTime: 60.61
+ TimeLoss: 85.08
+ DepartDelay: 0.59
+DijkstraRouter answered 11014 queries and explored 11.93 edges on average.
+DijkstraRouter spent 0.05s answering queries (0.00ms on average).
+  -> 3392 entregues em 35 s de parede
+[coordenado_c60] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 56395 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (27ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 33.61s
+ TraCI-Duration: 29.59s
+ Real time factor: 116.07
+ UPS: 16645.333095
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 162
+ Waiting: 0
+ Teleports: 33 (Collisions: 33)
+Statistics (avg of 3519):
+ RouteLength: 155.84
+ Speed: 1.04
+ Duration: 154.94
+ WaitingTime: 50.09
+ TimeLoss: 73.50
+ DepartDelay: 0.53
+DijkstraRouter answered 10289 queries and explored 12.14 edges on average.
+DijkstraRouter spent 0.04s answering queries (0.00ms on average).
+  -> 3398 entregues em 34 s de parede
+[uniforme_c70] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 63246 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (29ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 34.67s
+ TraCI-Duration: 30.45s
+ Real time factor: 112.515
+ UPS: 17215.050042
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 167
+ Waiting: 0
+ Teleports: 11 (Collisions: 11)
+Statistics (avg of 3514):
+ RouteLength: 155.36
+ Speed: 0.98
+ Duration: 165.44
+ WaitingTime: 60.14
+ TimeLoss: 84.31
+ DepartDelay: 0.53
+DijkstraRouter answered 10909 queries and explored 11.69 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.01ms on average).
+  -> 3393 entregues em 35 s de parede
+[webster_c70] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 63261 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (8ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (30ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 35.21s
+ TraCI-Duration: 30.58s
+ Real time factor: 110.789
+ UPS: 18377.864872
+Vehicles:
+ Inserted: 3655 (Loaded: 3774)
+ Running: 161
+ Waiting: 26
+ Teleports: 19 (Collisions: 19)
+Statistics (avg of 3494):
+ RouteLength: 155.90
+ Speed: 0.91
+ Duration: 180.85
+ WaitingTime: 72.94
+ TimeLoss: 98.53
+ DepartDelay: 7.15
+DijkstraRouter answered 12010 queries and explored 12.43 edges on average.
+DijkstraRouter spent 0.07s answering queries (0.01ms on average).
+  -> 3373 entregues em 36 s de parede
+[coordenado_c70] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 58594 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (7ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (37ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 35.53s
+ TraCI-Duration: 30.99s
+ Real time factor: 109.785
+ UPS: 17613.542341
+Vehicles:
+ Inserted: 3653 (Loaded: 3774)
+ Running: 167
+ Waiting: 28
+ Teleports: 22 (Collisions: 22)
+Statistics (avg of 3486):
+ RouteLength: 155.84
+ Speed: 0.95
+ Duration: 174.59
+ WaitingTime: 67.21
+ TimeLoss: 93.23
+ DepartDelay: 6.78
+DijkstraRouter answered 11672 queries and explored 12.73 edges on average.
+DijkstraRouter spent 0.05s answering queries (0.00ms on average).
+  -> 3365 entregues em 36 s de parede
+[uniforme_c80] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 59625 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (29ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 38.04s
+ TraCI-Duration: 33.20s
+ Real time factor: 102.539
+ UPS: 16247.345179
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 186
+ Waiting: 0
+ Teleports: 7 (Collisions: 7)
+Statistics (avg of 3495):
+ RouteLength: 155.54
+ Speed: 0.96
+ Duration: 171.43
+ WaitingTime: 66.04
+ TimeLoss: 90.37
+ DepartDelay: 0.53
+DijkstraRouter answered 11268 queries and explored 11.73 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.01ms on average).
+  -> 3374 entregues em 39 s de parede
+[webster_c80] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 59391 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (7ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (37ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 35.68s
+ TraCI-Duration: 31.05s
+ Real time factor: 109.342
+ UPS: 18098.494829
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 168
+ Waiting: 0
+ Teleports: 15 (Collisions: 15)
+Statistics (avg of 3513):
+ RouteLength: 155.81
+ Speed: 0.91
+ Duration: 179.58
+ WaitingTime: 73.17
+ TimeLoss: 97.42
+ DepartDelay: 0.68
+DijkstraRouter answered 11734 queries and explored 12.14 edges on average.
+DijkstraRouter spent 0.05s answering queries (0.00ms on average).
+  -> 3392 entregues em 36 s de parede
+[coordenado_c80] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 54471 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (5ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (29ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 35.17s
+ TraCI-Duration: 30.54s
+ Real time factor: 110.928
+ UPS: 18533.170302
+Vehicles:
+ Inserted: 3666 (Loaded: 3774)
+ Running: 176
+ Waiting: 15
+ Teleports: 26 (Collisions: 26)
+Statistics (avg of 3490):
+ RouteLength: 155.88
+ Speed: 0.91
+ Duration: 181.60
+ WaitingTime: 73.67
+ TimeLoss: 100.13
+ DepartDelay: 4.38
+DijkstraRouter answered 12000 queries and explored 12.49 edges on average.
+DijkstraRouter spent 0.05s answering queries (0.00ms on average).
+  -> 3369 entregues em 36 s de parede
+[uniforme_c90] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 50433 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (5ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (27ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 36.99s
+ TraCI-Duration: 32.18s
+ Real time factor: 105.461
+ UPS: 17394.484996
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 175
+ Waiting: 0
+ Teleports: 11 (Collisions: 11)
+Statistics (avg of 3506):
+ RouteLength: 155.49
+ Speed: 0.92
+ Duration: 178.72
+ WaitingTime: 72.72
+ TimeLoss: 97.63
+ DepartDelay: 0.53
+DijkstraRouter answered 11641 queries and explored 11.77 edges on average.
+DijkstraRouter spent 0.05s answering queries (0.00ms on average).
+  -> 3385 entregues em 38 s de parede
+[webster_c90] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 50469 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (30ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 37.71s
+ TraCI-Duration: 32.75s
+ Real time factor: 103.456
+ UPS: 17034.343756
+Vehicles:
+ Inserted: 3677 (Loaded: 3774)
+ Running: 181
+ Waiting: 4
+ Teleports: 6 (Collisions: 6)
+Statistics (avg of 3496):
+ RouteLength: 155.72
+ Speed: 0.91
+ Duration: 178.59
+ WaitingTime: 73.56
+ TimeLoss: 96.54
+ DepartDelay: 0.53
+DijkstraRouter answered 11667 queries and explored 11.98 edges on average.
+DijkstraRouter spent 0.05s answering queries (0.00ms on average).
+  -> 3375 entregues em 38 s de parede
+[coordenado_c90] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 50592 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (26ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 36.34s
+ TraCI-Duration: 31.53s
+ Real time factor: 107.347
+ UPS: 18324.683544
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 191
+ Waiting: 0
+ Teleports: 13 (Collisions: 13)
+Statistics (avg of 3490):
+ RouteLength: 155.99
+ Speed: 0.89
+ Duration: 185.09
+ WaitingTime: 77.31
+ TimeLoss: 103.47
+ DepartDelay: 0.54
+DijkstraRouter answered 12073 queries and explored 12.05 edges on average.
+DijkstraRouter spent 0.05s answering queries (0.00ms on average).
+  -> 3369 entregues em 37 s de parede
+[uniforme_c100] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 55414 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (7ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (35ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 37.45s
+ TraCI-Duration: 32.58s
+ Real time factor: 104.179
+ UPS: 17656.830017
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 186
+ Waiting: 0
+ Teleports: 11 (Collisions: 11)
+Statistics (avg of 3495):
+ RouteLength: 155.42
+ Speed: 0.90
+ Duration: 183.67
+ WaitingTime: 77.88
+ TimeLoss: 102.62
+ DepartDelay: 0.53
+DijkstraRouter answered 11959 queries and explored 11.72 edges on average.
+DijkstraRouter spent 0.07s answering queries (0.01ms on average).
+  -> 3374 entregues em 38 s de parede
+[webster_c100] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 59307 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (5ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (33ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 37.62s
+ TraCI-Duration: 32.72s
+ Real time factor: 103.698
+ UPS: 17296.499109
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 180
+ Waiting: 0
+ Teleports: 10 (Collisions: 10)
+Statistics (avg of 3501):
+ RouteLength: 155.84
+ Speed: 0.90
+ Duration: 180.96
+ WaitingTime: 76.05
+ TimeLoss: 99.01
+ DepartDelay: 0.53
+DijkstraRouter answered 11840 queries and explored 11.93 edges on average.
+DijkstraRouter spent 0.05s answering queries (0.00ms on average).
+  -> 3380 entregues em 38 s de parede
+[coordenado_c100] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 61041 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (36ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 35.92s
+ TraCI-Duration: 31.14s
+ Real time factor: 108.59
+ UPS: 19315.638570
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 181
+ Waiting: 0
+ Teleports: 18 (Collisions: 18)
+Statistics (avg of 3500):
+ RouteLength: 156.15
+ Speed: 0.86
+ Duration: 193.04
+ WaitingTime: 84.87
+ TimeLoss: 111.29
+ DepartDelay: 0.53
+DijkstraRouter answered 12564 queries and explored 12.01 edges on average.
+DijkstraRouter spent 0.05s answering queries (0.00ms on average).
+  -> 3379 entregues em 36 s de parede
+[uniforme_c120] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 55890 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (5ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (29ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 34.92s
+ TraCI-Duration: 30.16s
+ Real time factor: 111.703
+ UPS: 20295.936775
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 199
+ Waiting: 0
+ Teleports: 16 (Collisions: 16)
+Statistics (avg of 3482):
+ RouteLength: 155.55
+ Speed: 0.87
+ Duration: 197.21
+ WaitingTime: 90.51
+ TimeLoss: 116.17
+ DepartDelay: 0.53
+DijkstraRouter answered 12781 queries and explored 11.77 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.00ms on average).
+  -> 3361 entregues em 36 s de parede
+[webster_c120] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 57249 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (5ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (29ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 34.52s
+ TraCI-Duration: 29.89s
+ Real time factor: 112.997
+ UPS: 20131.825160
+Vehicles:
+ Inserted: 3681 (Loaded: 3774)
+ Running: 190
+ Waiting: 0
+ Teleports: 6 (Collisions: 6)
+Statistics (avg of 3491):
+ RouteLength: 156.40
+ Speed: 0.85
+ Duration: 193.48
+ WaitingTime: 86.37
+ TimeLoss: 110.92
+ DepartDelay: 0.92
+DijkstraRouter answered 12565 queries and explored 12.29 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.00ms on average).
+  -> 3370 entregues em 35 s de parede
+[coordenado_c120] seed 42 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 64578 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../network/maquete_aberta.net.xml' ... done (8ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/maquete_aberta.add.xml' ... done (41ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\config\../demanda/demanda_s42.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 3901.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 34.82s
+ TraCI-Duration: 30.00s
+ Real time factor: 112.024
+ UPS: 21007.925796
+Vehicles:
+ Inserted: 3678 (Loaded: 3774)
+ Running: 205
+ Waiting: 3
+ Teleports: 5 (Collisions: 5)
+Statistics (avg of 3473):
+ RouteLength: 156.28
+ Speed: 0.83
+ Duration: 203.78
+ WaitingTime: 94.69
+ TimeLoss: 121.78
+ DepartDelay: 1.25
+DijkstraRouter answered 13184 queries and explored 12.51 edges on average.
+DijkstraRouter spent 0.06s answering queries (0.00ms on average).
+  -> 3352 entregues em 35 s de parede
+json -> results\a5\etapa1\v3600_s42.json

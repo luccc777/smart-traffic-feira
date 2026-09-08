@@ -1,0 +1,9 @@
+{
+  "seed": 7,
+  "veh_por_hora": 3500.0,
+  "horizonte_s": 5400.0,
+  "sha256": "0dd0d5d5eb22272b66e66237cb4dea5ebda45636d5a120eb6fc8625d7576683d",
+  "n_veiculos": 5253,
+  "versao_gerador": "aberta-1.1",
+  "arquivo": "demanda_projeto_s7.rou.xml"
+}

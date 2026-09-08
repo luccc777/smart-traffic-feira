@@ -134,8 +134,14 @@ class TecladoInput:
                 eventos.append(EventoBotao(indice=i))
         return eventos
 
-    def feedback(self, estados: list[str]) -> None:
+    def feedback(self, estados: list[str], start: str | None = None) -> None:
         self.estados = list(valida_estados(estados, self.n_botoes))
+        if start is not None:
+            self.start = valida_estados([start], 1)[0]
+
+    def feedback_start(self, estado: str) -> None:
+        """O LED do botao grande (C6). Aqui e so estado guardado."""
+        self.start = valida_estados([estado], 1)[0]
 
     def viva(self) -> bool:
         """O teclado é o fallback de todo mundo: ele só morre quando fechado."""

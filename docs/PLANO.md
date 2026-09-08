@@ -323,9 +323,30 @@ Da Onda 1 — **decididas**:
   congelar o plano coordenado, exigindo estabilidade sob **o pior braço que de fato roda,
   que na feira é o humano**. Não alongar o ciclo do baseline para inflar o número.
 
+**Aberta e urgente — o horizonte da demanda canônica.** `HORIZONTE_S = 5400 s`, que
+cobre warm-up (300) + janela de 3600 + folga. Mas o próprio achado do A1 diz para
+**medir 7200 s, nunca 3600** (a malha é metaestável perto da capacidade). Medido por
+mim na seed 42: a partir de t≈5700 a rede fica **vazia** — 0 ativos, 0% parados — e
+qualquer janela de 7200 s está promediando ~25% de rede deserta. O A5 contornou com
+demanda própria de horizonte 8400.
+
+Opções: (a) regerar as 18 seeds canônicas com `horizonte_s = 8400` — muda todo sha256
+de demanda e portanto toda `Chave` já carimbada; a propriedade de prefixo medida pelo
+A1 garante que o conteúdo dos primeiros 5400 s não muda; ou (b) aceitar 3600 s como
+janela padrão e contrariar o próprio achado da metaestabilidade. **Recomendação: (a).**
+
 Ainda abertas:
 - rodada partindo do estado neutro canônico ou da leitura literal (ver acima);
 - modo corredor como plano B ou já de nascença;
 - **a demo roda em seed 42, onde o timer trava em 1h35.** Recomendação: seed held-out
   (100–111) e reinício horário, ou manchete no número held-out com a rodada corrente
   rotulada como "esta rodada".
+- **duas bancadas discordam sobre a mesma condição** (timer 27 s, 3500 veh/h, seed 42):
+  `calibra.py` diz 37,8% parados, a Arena diz 31,4%, com população ativa idêntica.
+  Investigado até aqui — a primeira hipótese (subconjunto de faixas) está **refutada
+  por medição**: fila em lanes de aproximação e em todas as lanes dá o mesmo número.
+  A duração da janela explica ~1,7 pp (33,3% em 600 s → 35,0% em 5400 s). O que sobra
+  é candidato a **ordem de agregação** — `média(parados)/média(ativos)` contra
+  `média(parados/ativos)` divergem bastante quando a cauda drena. Reprodutor em
+  `scripts/divergencia_bancadas.py`. **Enquanto não fechar, não cruze número de regime
+  entre `CALIBRACAO_ABERTA.md` e `BASELINE_ABERTO.md`.**

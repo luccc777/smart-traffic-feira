@@ -1,0 +1,96 @@
+demanda longa: C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\demanda_longa (3500 veh/h, horizonte 8400 s)
+janela Janela(t0=300.0, t1=7500.0) · 1 seeds · 2 planos + referência
+[timer27] seed 107 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 63540 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\demanda_longa\../../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\demanda_longa\../../demanda/maquete_aberta.add.xml' ... done (43ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\demanda_longa\demanda_s107.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 7501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 112.69s
+ TraCI-Duration: 97.93s
+ Real time factor: 66.5608
+ UPS: 10717.606971
+Vehicles:
+ Inserted: 7378 (Loaded: 7531)
+ Running: 151
+ Waiting: 0
+ Teleports: 41 (Collisions: 41)
+Statistics (avg of 7227):
+ RouteLength: 154.94
+ Speed: 0.99
+ Duration: 165.15
+ WaitingTime: 58.98
+ TimeLoss: 84.15
+ DepartDelay: 0.53
+DijkstraRouter answered 21974 queries and explored 11.70 edges on average.
+DijkstraRouter spent 0.17s answering queries (0.01ms on average).
+  -> 7084 entregues em 114 s de parede
+[coordenado_c50] seed 107 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 51868 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\demanda_longa\../../network/maquete_aberta.net.xml' ... done (6ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\demanda_longa\../../demanda/maquete_aberta.add.xml' ... done (46ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\demanda_longa\demanda_s107.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 7501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 113.54s
+ TraCI-Duration: 98.93s
+ Real time factor: 66.0625
+ UPS: 10125.924752
+Vehicles:
+ Inserted: 7372 (Loaded: 7531)
+ Running: 153
+ Waiting: 6
+ Teleports: 50 (Collisions: 50)
+Statistics (avg of 7219):
+ RouteLength: 154.98
+ Speed: 1.05
+ Duration: 157.33
+ WaitingTime: 51.02
+ TimeLoss: 76.37
+ DepartDelay: 12.87
+DijkstraRouter answered 22282 queries and explored 13.10 edges on average.
+DijkstraRouter spent 0.16s answering queries (0.01ms on average).
+  -> 7076 entregues em 114 s de parede
+[coordenado_c60] seed 107 ...
+[routing] 2 edges que não alcançam o núcleo da rede excluídas de origem/destino (bolsões-ralo da borda do recorte).
+[routing] 9 edges de beco sem saída excluídas de O/D (cul-de-sac fica no mapa, sem tráfego).
+***Starting server on port 64217 ***
+Loading net-file from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\demanda_longa\../../network/maquete_aberta.net.xml' ... done (12ms).
+Loading additional-files from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\demanda_longa\../../demanda/maquete_aberta.add.xml' ... done (51ms).
+Loading route-files incrementally from 'C:\Users\lucso\Documents\ic\smart-traffic-feira\sumo\aberta\planos\demanda_longa\demanda_s107.rou.xml'
+Loading done.
+Simulation version 1.27.0 started with time: 0.00.
+Simulation ended at time: 7501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 115.06s
+ TraCI-Duration: 100.47s
+ Real time factor: 65.1915
+ UPS: 10062.879690
+Vehicles:
+ Inserted: 7378 (Loaded: 7531)
+ Running: 147
+ Waiting: 0
+ Teleports: 45 (Collisions: 45)
+Statistics (avg of 7231):
+ RouteLength: 155.16
+ Speed: 1.02
+ Duration: 158.34
+ WaitingTime: 52.89
+ TimeLoss: 77.11
+ DepartDelay: 0.56
+DijkstraRouter answered 21204 queries and explored 12.12 edges on average.
+DijkstraRouter spent 0.13s answering queries (0.01ms on average).
+  -> 7088 entregues em 116 s de parede
+json -> results\a5\heldout\v7200_s107.json

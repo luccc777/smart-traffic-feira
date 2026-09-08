@@ -1,0 +1,190 @@
+{
+  "nome": "coordenado_c50",
+  "cenario": "aberta.maquete",
+  "ciclo_s": 50.0,
+  "amarelo_s": 3.0,
+  "tls": {
+    "H1V1": {
+      "verdes_s": [
+        12.0,
+        32.0
+      ],
+      "offset_s": 10.0
+    },
+    "H1V2": {
+      "verdes_s": [
+        12.0,
+        32.0
+      ],
+      "offset_s": 25.0
+    },
+    "H1V3": {
+      "verdes_s": [
+        12.0,
+        32.0
+      ],
+      "offset_s": 10.0
+    },
+    "H1V4": {
+      "verdes_s": [
+        32.0,
+        12.0
+      ],
+      "offset_s": 15.0
+    },
+    "H2V1": {
+      "verdes_s": [
+        17.0,
+        27.0
+      ],
+      "offset_s": 15.0
+    },
+    "H2V2": {
+      "verdes_s": [
+        17.0,
+        27.0
+      ],
+      "offset_s": 0.0
+    },
+    "H2V3": {
+      "verdes_s": [
+        17.0,
+        27.0
+      ],
+      "offset_s": 15.0
+    },
+    "H2V4": {
+      "verdes_s": [
+        12.0,
+        32.0
+      ],
+      "offset_s": 35.0
+    },
+    "H3V1": {
+      "verdes_s": [
+        32.0,
+        12.0
+      ],
+      "offset_s": 25.0
+    },
+    "H3V2": {
+      "verdes_s": [
+        12.0,
+        32.0
+      ],
+      "offset_s": 40.0
+    },
+    "H3V3": {
+      "verdes_s": [
+        27.0,
+        17.0
+      ],
+      "offset_s": 10.0
+    },
+    "H3V4": {
+      "verdes_s": [
+        12.0,
+        32.0
+      ],
+      "offset_s": 30.0
+    }
+  },
+  "proveniencia": {
+    "gerado_por": "scripts/tune_baseline_plano.py",
+    "demanda_de_projeto": {
+      "seed": 7,
+      "veh_por_hora": 3500.0,
+      "horizonte_s": 5400.0,
+      "sha256": "0dd0d5d5eb22272b66e66237cb4dea5ebda45636d5a120eb6fc8625d7576683d",
+      "n_veiculos": 5253,
+      "versao_gerador": "aberta-1.1",
+      "arquivo": "demanda_projeto_s7.rou.xml"
+    },
+    "restricoes": {
+      "decision_interval": 5,
+      "min_green": 7,
+      "yellow": 3,
+      "max_red": 0.0
+    },
+    "webster": {
+      "ferramenta": "tlsCycleAdaptation.py",
+      "lost_time_s": 4,
+      "begin_s": 300.0,
+      "saturation_headway_s": 2.0,
+      "cmd": "C:\\Users\\lucso\\Documents\\ic\\smart-traffic\\.venv\\Scripts\\python.exe tlsCycleAdaptation.py -n C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\sumo\\aberta\\network\\maquete_aberta.net.xml -r C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\sumo\\aberta\\planos\\projeto\\demanda_projeto_s7.rou.xml -b 300.0 -y 3 -l 4 -g 7 --min-cycle 50 --max-cycle 50 -o C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\sumo\\aberta\\planos\\ferramentas\\webster_c50.add.xml -p coordenado"
+    },
+    "grade_s": 5,
+    "webster_bruto_s": {
+      "H1V1": [
+        11.0,
+        33.0
+      ],
+      "H1V2": [
+        13.0,
+        31.0
+      ],
+      "H1V3": [
+        13.0,
+        31.0
+      ],
+      "H1V4": [
+        33.0,
+        11.0
+      ],
+      "H2V1": [
+        17.0,
+        27.0
+      ],
+      "H2V2": [
+        15.0,
+        29.0
+      ],
+      "H2V3": [
+        15.0,
+        29.0
+      ],
+      "H2V4": [
+        13.0,
+        31.0
+      ],
+      "H3V1": [
+        32.0,
+        12.0
+      ],
+      "H3V2": [
+        12.0,
+        32.0
+      ],
+      "H3V3": [
+        28.0,
+        16.0
+      ],
+      "H3V4": [
+        10.0,
+        34.0
+      ]
+    },
+    "net_file": "maquete_aberta.net.xml",
+    "degrau": "2 · ciclo + split + offset (onda verde)",
+    "offsets": {
+      "ferramenta": "tlsCoordinator.py",
+      "speed_factor": 0.8,
+      "sem_par_coordenado": [],
+      "brutos_s": {
+        "H1V1": 11.64,
+        "H1V2": 26.71,
+        "H1V3": 8.1,
+        "H1V4": 13.37,
+        "H2V1": 16.35,
+        "H2V2": 0.0,
+        "H2V3": 16.81,
+        "H2V4": 36.67,
+        "H3V1": 27.06,
+        "H3V2": 42.29,
+        "H3V3": 9.52,
+        "H3V4": 28.96
+      },
+      "cmd": "C:\\Users\\lucso\\Documents\\ic\\smart-traffic\\.venv\\Scripts\\python.exe tlsCoordinator.py -n C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\sumo\\aberta\\network\\maquete_aberta.net.xml -r C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\sumo\\aberta\\planos\\projeto\\demanda_projeto_s7.rou.xml -a C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\sumo\\aberta\\planos\\ferramentas\\webster_c50.add.xml -o C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\sumo\\aberta\\planos\\ferramentas\\offsets_c50.add.xml"
+    }
+  }
+}

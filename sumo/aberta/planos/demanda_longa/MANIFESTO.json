@@ -1,0 +1,8 @@
+{
+  "horizonte_s": 8400.0,
+  "motivo": "janela de 7200 s n\u00e3o cabe na demanda can\u00f4nica (5400 s)",
+  "sha256_por_seed": {
+    "109": "7b9ae1178c8ee41416fc7c833b92552b8a2e1ed5ac3f74d87d88c88db41974b0"
+  },
+  "taxa_veh_h": 3500.0
+}

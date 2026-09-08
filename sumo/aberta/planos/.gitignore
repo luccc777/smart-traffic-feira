@@ -1,0 +1,9 @@
+# Os planos (*.json) e a saida crua das ferramentas (ferramentas/*.add.xml) VAO
+# versionados: sao eles a proveniencia do baseline. O que fica de fora e o que e
+# grande e regeneravel — e o manifesto com o sha256 de cada um vai versionado,
+# que e o que prova a reprodutibilidade (mesma regra do sumo/aberta/demanda).
+#
+#   ..\smart-traffic\.venv\Scripts\python.exe scripts\tune_baseline_plano.py
+*.rou.xml
+*.sumocfg
+!**/*.manifesto.json

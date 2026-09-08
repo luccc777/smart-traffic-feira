@@ -513,21 +513,17 @@ class MotorDoJogo:
         except Exception:
             pass          # projeção caída não derruba a rodada (risco 7)
 
-    # O 13º LED (o botão START) não cabe no `feedback()` do C6, que define o
-    # vetor com `n` estados — um por semáforo — enquanto o quadro `LEDS` do
-    # protocolo tem `n+1`. Enquanto o contrato não fecha esse buraco, o motor
-    # chama `feedback_start` em quem souber implementá-lo (o `SerialInput` do
-    # agente A4); quem não souber não é chamado.
+    # O LED do botão grande, por fase da rodada. O C6 fechou o buraco que o
+    # agente A4 reportou: `feedback(estados, start=...)` diz o estado do START
+    # junto com o dos semáforos, num quadro só. O `feedback_start` continua
+    # aceito para fontes que ainda não tenham o parâmetro.
     LED_START = {OCIOSO: ARMADO_START, PREPARANDO: NEGADO_START,
                  CONTAGEM: ACEITO_START, JOGANDO: ACEITO_START,
                  RESULTADO: ARMADO_START}
 
     def _led_start(self, fase: str) -> None:
-        metodo = getattr(self.fonte, "feedback_start", None)
-        if not callable(metodo):
-            return
         try:
-            metodo(self.LED_START.get(fase, OFF_START))
+            self.fonte.feedback_start(self.LED_START.get(fase, OFF_START))
         except Exception:
             pass          # LED que não acende não derruba a rodada
 
