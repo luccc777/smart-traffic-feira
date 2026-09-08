@@ -267,8 +267,12 @@ ONDA 1  D2–D8    A1 ✅ ║ A2 ✅ ║ A3 (pendente) ║ A4 (pendente)
               jogo no teclado — pendente (A3)
               ▸ risco 1 (não congestionar) NÃO se materializou
               ▸ risco 2 (travar) é o real: metaestável acima de 3600 veh/h
-ONDA 2  D8–D15   A5 → A6 (encadeados) ║ A7
-        gate D13: a RL vence o baseline coordenado?
+ONDA 2  D8–D15   A5 ✅ → A6 (pendente) ║ A7 (pendente)
+        A5 entregou `coordenado_c60`: +3,78% tempo / +9,43% fila sobre o timer
+        uniforme, 12/12 seeds -- o adversario ficou 4 a 9% mais forte.
+        gate D13: a RL vence o baseline COORDENADO?
+              ▸ hoje a politica atual PERDE ate do timer na rede aberta
+                (93/82 contra 111/109) -- retreino e pre-requisito, nao melhoria
               ▸ NÃO → muda o discurso agora, com 2 semanas de folga
 ONDA 3  D15–D19  A8 ║ integração
 ONDA 4  D19–D21  ensaio com pessoas · congelamento · docs · roteiro
@@ -330,10 +334,10 @@ mim na seed 42: a partir de t≈5700 a rede fica **vazia** — 0 ativos, 0% para
 qualquer janela de 7200 s está promediando ~25% de rede deserta. O A5 contornou com
 demanda própria de horizonte 8400.
 
-Opções: (a) regerar as 18 seeds canônicas com `horizonte_s = 8400` — muda todo sha256
-de demanda e portanto toda `Chave` já carimbada; a propriedade de prefixo medida pelo
-A1 garante que o conteúdo dos primeiros 5400 s não muda; ou (b) aceitar 3600 s como
-janela padrão e contrariar o próprio achado da metaestabilidade. **Recomendação: (a).**
+**DECIDIDO: regerar as 18 seeds canônicas com `horizonte_s = 8400`.** Muda todo sha256
+de demanda e portanto toda `Chave` já carimbada; a propriedade de prefixo medida pelo A1
+garante que o conteúdo dos primeiros 5400 s não muda. É o passo 0 de
+[`PROXIMOS_PASSOS.md`](PROXIMOS_PASSOS.md), antes de qualquer agente da Onda 2.
 
 Ainda abertas:
 - rodada partindo do estado neutro canônico ou da leitura literal (ver acima);
