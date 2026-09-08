@@ -1,14 +1,17 @@
 """Suíte de CONFORMIDADE dos contratos de COMPORTAMENTO (C2, C3, C6).
 
-Parametrizada sobre implementações. Hoje só os fakes estão na lista; quando os
-agentes entregarem o `ControladorRL` (A6), o `ControladorTimer` (A5), o
-`GeradorDemandaAberta` (A1) e o `SerialInput` (A4), cada um entra em `IMPLS_*` e
-passa a ser cobrado pelos MESMOS testes.
+Parametrizada sobre implementações: os fakes de referência e as reais. Já estão
+na lista o `ControladorTimer` e o `ControladorRL` (agente A2) e o
+`GeradorDemandaAberta` (A1); entram, quando forem entregues, o
+`ControladorHumano` e o `TecladoInput` (A3), o `SerialInput` (A4) e o baseline
+coordenado (A5).
 
 É esta suíte que dá sentido a "controladores e camada de input plugáveis e
 testáveis isoladamente": se o real não passa onde o fake passa, o real está errado.
 """
 from __future__ import annotations
+
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -32,14 +35,40 @@ from feira.contratos import (
     valida_estados,
 )
 
+# --------------------------------------------------------------- fábricas reais
+# Importam tarde de propósito: `ControladorRL` puxa torch e `GeradorDemandaAberta`
+# puxa sumolib, e importar qualquer um deles no topo congelaria estado antes de
+# `Cenario.aplicar()` (a armadilha do C1).
+
+
+def _timer():
+    from feira.controladores import ControladorTimer
+    return ControladorTimer(27.0)          # o baseline único do projeto
+
+
+def _rl():
+    from feira.contratos import cenario as _cen
+    from feira.controladores import ControladorRL
+    ckpt = (Path(_cen("small.maquete").net_file).parents[3]
+            / "results" / "maq30_ats_full_best.pt")
+    if not ckpt.exists():
+        pytest.skip("checkpoint da política v2 não encontrado: %s" % ckpt)
+    return ControladorRL(ckpt)
+
+
+def _gerador_aberto():
+    from feira.demanda import GeradorDemandaAberta
+    return GeradorDemandaAberta()
+
+
 # ============================================================ C3 — Controlador
 
 IMPLS_CONTROLADOR = [
     pytest.param(lambda: F.ControladorFake("nunca"), id="fake-nunca"),
     pytest.param(lambda: F.ControladorFake("sempre"), id="fake-sempre"),
     pytest.param(lambda: F.ControladorFake("rng", seed=7), id="fake-rng"),
-    # A5: pytest.param(lambda: ControladorTimer(...), id="timer-coordenado"),
-    # A6: pytest.param(lambda: ControladorRL(ckpt), id="rl-aberta"),
+    pytest.param(_timer, id="timer-27s"),
+    pytest.param(_rl, id="rl-ddqn", marks=pytest.mark.sumo),
     # A3: pytest.param(lambda: ControladorHumano(fonte), id="humano"),
 ]
 
@@ -191,7 +220,7 @@ def test_botao_start_e_reservado():
 
 IMPLS_DEMANDA = [
     pytest.param(F.GeradorDemandaFake, id="fake"),
-    # A1: pytest.param(GeradorDemandaAberta, id="aberta"),
+    pytest.param(_gerador_aberto, id="aberta", marks=pytest.mark.sumo),
 ]
 
 

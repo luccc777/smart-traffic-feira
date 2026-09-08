@@ -78,8 +78,10 @@ def observacao_fake(topo: Topologia, t: float = 0.0, *, dim: int = 26,
 
 
 def chave_fake(seed: int = 42, *, cenario: str = "small.maquete",
-               t0: float = 0.0, t1: float = 120.0, sha: str = "0" * 64) -> Chave:
-    return Chave(cenario=cenario, seed=seed, janela=Janela(t0=t0, t1=t1), demanda_sha=sha)
+               t0: float = 0.0, t1: float = 120.0, sha: str = "0" * 64,
+               restricoes: str = "di10/vm10/am3/mr0") -> Chave:
+    return Chave(cenario=cenario, seed=seed, janela=Janela(t0=t0, t1=t1),
+                 demanda_sha=sha, restricoes=restricoes)
 
 
 def resultado_fake(chave: Chave | None = None, *, controlador: str = "fake",

@@ -1,0 +1,3 @@
+# Os .sumocfg POR SEED sao artefatos: `python -m feira.demanda` recria.
+# O canonico (maquete_aberta.sumocfg) e o .view.xml vao versionados.
+maquete_aberta_s*.sumocfg

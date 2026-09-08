@@ -71,22 +71,43 @@ class Janela:
 class Chave:
     """A condição experimental. Dois resultados só são comparáveis se ela bater.
 
-    `demanda_sha` é o que fecha a porta de verdade: cenário e seed iguais com um
-    gerador de demanda diferente produzem tráfego diferente, e sem o hash isso
-    passaria despercebido.
+    `demanda_sha` fecha a porta do tráfego: cenário e seed iguais com um gerador
+    de demanda diferente produzem trânsito diferente, e sem o hash isso passaria
+    despercebido.
+
+    `restricoes` fecha a porta do ESPAÇO DE AÇÃO, e essa porta estava aberta.
+    Duas corridas com `decision_interval` ou `min_green` diferentes descrevem
+    conjuntos de políticas diferentes — o verde mínimo alcançável vai de 7 s a
+    17 s entre os dois regimes deste projeto. Sem este campo elas tinham chaves
+    idênticas e `comparar()` passava, que é exatamente o que a comparação
+    publicada faz quando alguém troca `ST_MIN_GREEN` entre um braço e outro.
+    Use `Chave.de(...)`, que a preenche a partir do `Cenario`.
     """
 
     cenario: str
     seed: int
     janela: Janela
     demanda_sha: str
+    restricoes: str          # assinatura compacta: "di10/vm10/am3/mr0"
+
+    @staticmethod
+    def de(cenario, seed: int, janela: Janela, demanda_sha: str) -> "Chave":
+        """Constrói a chave a partir de um `Cenario` (C1) — a forma abençoada.
+
+        Montar `Chave` na mão continua possível, mas quem faz isso assume a
+        responsabilidade de preencher `restricoes` com a assinatura certa.
+        """
+        return Chave(cenario=cenario.chave, seed=int(seed), janela=janela,
+                     demanda_sha=demanda_sha,
+                     restricoes=cenario.restricoes.assinatura)
 
     def compativel(self, outra: "Chave") -> bool:
         return self == outra
 
     def descreve(self) -> str:
-        return "%s seed=%d janela=[%g,%g) demanda=%s" % (
-            self.cenario, self.seed, self.janela.t0, self.janela.t1, self.demanda_sha[:12])
+        return "%s seed=%d janela=[%g,%g) demanda=%s acao=%s" % (
+            self.cenario, self.seed, self.janela.t0, self.janela.t1,
+            self.demanda_sha[:12], self.restricoes)
 
 
 @dataclass(frozen=True)
@@ -130,13 +151,59 @@ class Resultado:
     def vazao_por_min(self) -> float:
         return self.entregues / (self.chave.janela.duracao / 60.0)
 
-    def sane(self, *, tol_conservacao: int = 0, backlog_max_frac: float = 0.10) -> tuple[bool, str]:
-        """Checagem de sanidade. Devolve `(ok, motivo)` — motivo vazio quando ok.
+    @property
+    def lacuna_sobrevivencia(self) -> float:
+        """% por que o tempo CENSURADO excede o tempo dos ENTREGUES.
 
-        `backlog_max_frac`: fração do que foi agendado que pode ficar sem entrar.
-        Acima disso o braço está estrangulando a borda, e o resultado dele não é
-        comparável com um que deixou o tráfego entrar — é a versão de rede aberta
-        do artefato de sobrevivência.
+        O detector que de fato funciona, e a correção de um erro de desenho meu:
+        o balanço de conservação + backlog que este contrato propunha é **cego na
+        rede fechada** — conservação fecha em zero e o backlog é zero mesmo com a
+        malha parada, porque o carro não some, ele só nunca chega. Medido
+        (`docs/AUDITORIA_COMPARACAO.md` §10.1): −1,4% a −1,1% em política sã,
+        **+5884% a +7528%** com o farol congelado.
+
+        Model-free de propósito: não usa `N`, não supõe frota fechada nem regime
+        estacionário — por isso vale nos dois cenários, ao contrário do
+        `coherence_gap`, que errar `N` em 27% move 35 pontos percentuais.
+
+        `inf` quando nada foi entregue e ainda há gente presa; `nan` quando não
+        há o que medir.
+        """
+        if self.entregues <= 0:
+            return math.inf if self.ativos_fim > 0 else math.nan
+        if self.tempo_medio_entregue <= 0.0:
+            return math.nan
+        return ((self.tempo_medio_no_sistema - self.tempo_medio_entregue)
+                / self.tempo_medio_entregue * 100.0)
+
+    def sane(self, *, tol_conservacao: int = 0, backlog_max_frac: float = 0.10,
+             perdidos_max_frac: float = 0.005) -> tuple[bool, str]:
+        """Checagem ESTRUTURAL. Devolve `(ok, motivo)` — motivo vazio quando ok.
+
+        Só o que vale em qualquer regime: o balanço de veículos fecha, ninguém
+        evaporou, a borda não foi estrangulada, e a Arena não declarou travamento.
+
+        POR QUE A LACUNA DE SOBREVIVÊNCIA NÃO ESTÁ AQUI, embora seja o detector
+        que de fato pega gridlock: o limiar dela é **dependente do regime**. Os
+        +5884% do farol congelado e os −1,1% da política sã foram medidos em
+        janelas de 1800–10800 s; numa janela de 120 s (a rodada do jogo) metade
+        da população está censurada por construção, e a mesma conta acusa uma
+        corrida perfeitamente sã. Um limiar fixo aqui produziria falso positivo
+        silencioso — o oposto do que este contrato existe para fazer.
+
+        Ela mora, com limiar declarado pelo chamador, em
+        `feira.metricas.sinais_de_travamento`; a Arena a consulta e é ela quem
+        carimba `travou`. `Resultado.lacuna_sobrevivencia` fica exposta aqui como
+        GRANDEZA (isso é regime-independente), só não vira veredito.
+
+        `backlog_max_frac`: fração do agendado que pode ficar sem entrar. Acima
+        disso o braço está estrangulando a borda, e o resultado não é comparável
+        com um que deixou o tráfego entrar — a versão de rede aberta do artefato
+        de sobrevivência.
+
+        `perdidos_max_frac`: veículo perdido (teleporte, colisão, remoção) fecha
+        a conservação em zero quando é CONTABILIZADO, então passava despercebido.
+        Perder veículo continua sendo corrida inválida.
         """
         if self.travou:
             return False, "travamento declarado pela Arena"
@@ -153,6 +220,13 @@ class Resultado:
                            % (self.backlog_insercao, agendados,
                               100.0 * self.backlog_insercao / agendados,
                               100.0 * backlog_max_frac))
+        vistos = self.ativos_inicio + self.inseridos
+        if vistos and (self.perdidos / vistos) > perdidos_max_frac:
+            return False, ("perdidos %d de %d = %.2f%% > %.2f%%: veículo sumiu da rede "
+                           "(teleporte/colisão/remoção) e o balanço fecha assim mesmo, "
+                           "porque ele foi CONTABILIZADO"
+                           % (self.perdidos, vistos, 100.0 * self.perdidos / vistos,
+                              100.0 * perdidos_max_frac))
         if self.entregues == 0:
             return False, "nenhuma viagem concluída na janela"
         return True, ""

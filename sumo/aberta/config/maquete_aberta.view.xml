@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GERADO por build_rede_aberta.py (aberta.maquete/1.0) - NAO EDITAR A MAO.
+     Sob similitude o carro tem 0,58 m: no tamanho fisico ele some na tela.
+     `vehicle_exaggeration` e SO desenho: a pegada real do SUMO continua
+     por baixo (ver PLANO.md, risco 6). O fator definitivo da projecao e
+     decisao do agente A7; aqui fica um valor legivel para inspecao no GUI. -->
+<viewsettings>
+    <scheme name="aberta">
+        <edges widthExaggeration="2.00" laneShowBorders="1"
+               showLinkDecals="1" showLinkRules="1"/>
+        <vehicles vehicleQuality="2" vehicle_minSize="1.00"
+                  vehicle_exaggeration="4.00" vehicle_constantSize="0"
+                  showBlinker="1"/>
+    </scheme>
+    <delay value="60"/>
+</viewsettings>

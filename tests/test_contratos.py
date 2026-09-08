@@ -6,6 +6,7 @@ comentário diz qual número errado ele impede.
 """
 from __future__ import annotations
 
+import dataclasses
 import sys
 
 import pytest
@@ -86,16 +87,25 @@ def test_cenario_fechado_existe_em_disco():
         "precisa estar ao lado deste." % c.net_file)
 
 
-def test_cenario_aberto_ainda_nao_medido():
-    """`aberta.maquete` nasce com warmup_s=None e a Arena RECUSA rodar assim.
+def test_warmup_nao_medido_e_recusado():
+    """A Arena RECUSA rodar cenário com warm-up chutado.
 
-    Não é pendência de implementação: é a recusa de medir uma janela que começa num
-    warm-up chutado. O número sai do agente A1, medido."""
+    Não é pendência de implementação: é a recusa de medir uma janela que começa
+    num transiente. `aberta.maquete` nasceu com `warmup_s=None` justamente para
+    esta guarda valer até alguém medir."""
     c = cenario("aberta.maquete")
-    assert c.warmup_s is None
-    assert c.modelo_demanda == "arquivo"
     with pytest.raises(ArenaNaoConfigurada, match="warmup_s"):
-        janela_padrao(c)
+        janela_padrao(dataclasses.replace(c, warmup_s=None))
+
+
+def test_cenario_aberto_carrega_o_regime_medido():
+    """Os números que o agente A1 mediu (docs/CALIBRACAO_ABERTA.md). Se algum
+    mudar sem o documento mudar junto, a proveniência se perdeu."""
+    c = cenario("aberta.maquete")
+    assert c.warmup_s == 300.0
+    assert c.modelo_demanda == "arquivo"
+    assert (c.reroute_period, c.depart_lane, c.od_weight) == (60, "best", "capacity")
+    assert janela_padrao(c) == Janela(300.0, 3900.0)
 
 
 def test_janela_padrao_do_cenario_fechado():
@@ -104,13 +114,55 @@ def test_janela_padrao_do_cenario_fechado():
     assert janela_padrao(c, rodada=True) == Janela(0.0, 120.0)
 
 
-def test_aplicar_depois_de_importar_sim_levanta(monkeypatch):
-    """A armadilha herdada: `sim.environment.constants` congela os escalares NO
-    IMPORT. Aplicar cenário depois disso não muda nada — só mente. Tem que gritar."""
-    monkeypatch.setitem(sys.modules, "sim.environment.constants", object())
-    monkeypatch.setenv("ST_MIN_GREEN", "10")
-    with pytest.raises(CenarioJaImportado, match="já importado"):
-        cenario("aberta.maquete").aplicar()
+class _ConstantsFalso:
+    """Espelha o que `sim.environment.constants` expõe depois de congelado."""
+
+    def __init__(self, cen):
+        self.NET_FILE = cen.net_file
+        self.SUMOCFG = cen.sumocfg
+        self.MIN_GREEN = cen.restricoes.min_green
+        self.DECISION_INTERVAL = cen.restricoes.decision_interval
+        self.MAX_RED = float(cen.restricoes.max_red)
+        self.YELLOW_DUR = cen.restricoes.yellow
+
+
+def test_aplicar_compara_o_estado_congelado_nao_a_env_var(monkeypatch):
+    """A guarda olha o MÓDULO, não `os.environ` — e a diferença mordeu de verdade.
+
+    A versão anterior comparava env var, então bastava alguém importar `sim` com
+    outra rede e depois devolver a env var ao lugar para a guarda passar. Foi
+    assim que a Arena mediu 12 semáforos onde havia 10, sem erro
+    (docs/AUDITORIA_COMPARACAO.md §12e)."""
+    fechado, aberto = cenario("small.maquete"), cenario("aberta.maquete")
+    monkeypatch.setitem(sys.modules, "sim.environment.constants",
+                        _ConstantsFalso(fechado))
+    # env var "certa" para o cenário aberto — o que enganava a guarda antiga
+    for k, v in aberto.env().items():
+        monkeypatch.setenv(k, v)
+
+    with pytest.raises(CenarioJaImportado, match="NET_FILE"):
+        aberto.aplicar()
+    assert set(aberto.divergencias_congeladas()) >= {"NET_FILE", "SUMOCFG", "MIN_GREEN"}
+    fechado.aplicar()                      # o cenário que de fato está congelado passa
+
+
+def test_aplicar_pega_yellow_que_o_sim_ignora(monkeypatch):
+    """`YELLOW_DUR` é literal 3 no `constants.py`, sem env var. Configurar
+    `yellow != 3` seria mentira silenciosa — tem que falhar alto."""
+    c = cenario("small.maquete")
+    monkeypatch.setitem(sys.modules, "sim.environment.constants", _ConstantsFalso(c))
+    c.aplicar()
+    amarelo4 = dataclasses.replace(
+        c, restricoes=dataclasses.replace(c.restricoes, yellow=4))
+    assert amarelo4.divergencias_congeladas() == {"YELLOW_DUR": (3, 4)}
+    with pytest.raises(CenarioJaImportado, match="YELLOW_DUR"):
+        amarelo4.aplicar()
+
+
+def test_sem_sim_importado_nao_ha_estado_congelado(monkeypatch):
+    monkeypatch.delitem(sys.modules, "sim.environment.constants", raising=False)
+    assert cenario("aberta.maquete").divergencias_congeladas() == {}
+    cenario("aberta.maquete").aplicar()    # não levanta
 
 
 def test_aplicar_escreve_env(monkeypatch):
@@ -213,6 +265,68 @@ def test_backlog_denuncia_estrangulamento_da_borda():
 
 def test_travamento_declarado_nao_e_sano():
     assert not F.resultado_fake(travou=True).sane()[0]
+
+
+def test_sane_e_estrutural_e_nao_ve_gridlock_sozinho():
+    """Limite CONHECIDO do contrato, fixado aqui de propósito.
+
+    Numa frota fechada travada o balanço fecha em zero e o backlog é zero — o
+    carro não some, ele só nunca chega. `sane()` aprova, e está certo: ele é uma
+    checagem estrutural, válida em qualquer regime. Quem enxerga gridlock é a
+    lacuna de sobrevivência, cujo limiar DEPENDE do regime (medida em janelas de
+    1800–10800 s; numa rodada de 120 s metade da população é censurada por
+    construção). Por isso ela vive em `feira.metricas.sinais_de_travamento`, com
+    limiar declarado pelo chamador, e é a Arena que carimba `travou`.
+
+    Se algum dia alguém puser um limiar fixo de lacuna dentro de `sane()`, este
+    teste quebra — e o motivo está escrito acima."""
+    travado = F.resultado_fake(entregues=5, inseridos=5, ativos_inicio=150,
+                               ativos_fim=150, tempo_medio_entregue=60.0,
+                               tempo_medio_no_sistema=3000.0)
+    assert travado.conservacao == 0 and travado.backlog_insercao == 0
+    assert travado.sane()[0]                              # estrutural: passa
+    assert travado.lacuna_sobrevivencia == pytest.approx(4900.0)   # a grandeza acusa
+
+    sao = F.resultado_fake()
+    assert sao.lacuna_sobrevivencia < 25.0
+    assert travado.com(travou=True).sane()[0] is False     # a Arena carimba, aí reprova
+
+
+def test_lacuna_infinita_quando_nada_chega():
+    preso = F.resultado_fake(entregues=0, inseridos=0, ativos_inicio=300, ativos_fim=300)
+    assert preso.lacuna_sobrevivencia == float("inf")
+    assert not preso.sane()[0]      # aqui `sane` pega, por "nenhuma viagem concluída"
+
+
+def test_sane_olha_perdidos():
+    """Veículo perdido que é CONTABILIZADO fecha a conservação em zero e passava
+    despercebido. Perder veículo continua sendo corrida inválida."""
+    r = F.resultado_fake(entregues=280, inseridos=300, ativos_inicio=150,
+                         ativos_fim=150, perdidos=20)
+    assert r.conservacao == 0
+    ok, motivo = r.sane()
+    assert not ok and "perdidos" in motivo
+    assert F.resultado_fake(entregues=299, inseridos=300, ativos_inicio=150,
+                            ativos_fim=150, perdidos=1).sane()[0]   # 0,22% passa
+
+
+def test_chave_carrega_o_espaco_de_acao():
+    """Duas corridas com grades diferentes descrevem conjuntos de políticas
+    diferentes (verde mínimo alcançável de 7 s contra 17 s) e não podem comparar
+    como se fossem a mesma condição."""
+    fechado, aberto = cenario("small.maquete"), cenario("aberta.maquete")
+    j, sha = Janela(0.0, 120.0), "a" * 64
+    k_fechado = Chave.de(fechado, 42, j, sha)
+    k_aberto = Chave.de(aberto, 42, j, sha)
+    assert k_fechado.restricoes == "di10/vm10/am3/mr0"
+    assert k_aberto.restricoes == "di5/vm7/am3/mr0"
+
+    a = F.resultado_fake(k_fechado, controlador="rl@10/10")
+    # mesma rede, mesma seed, mesma demanda, mesma janela -- so a grade muda
+    b = F.resultado_fake(dataclasses.replace(k_aberto, cenario=fechado.chave),
+                         controlador="rl@5/7")
+    with pytest.raises(ChavesIncompativeis, match="condições diferentes"):
+        comparar(a, b)
 
 
 def test_comparacao_avisa_quando_um_lado_e_insano():

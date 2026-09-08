@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GERADO por build_rede_aberta.py (aberta.maquete/1.0) - NAO EDITAR A MAO.
+
+     Config do cenario `aberta.maquete`: rede da maquete em similitude
+     completa, bordas abertas (9 fontes / 9 sorvedouros), 12 semaforos.
+
+     SEM <route-files>: a demanda e um .rou.xml POR SEED, gerado por
+     `feira.demanda.GeradorDemandaAberta`. Quem sobe a simulacao passa
+     `-r <arquivo>` (a opcao route-files). Rodar so com -c da rede vazia,
+     de proposito: nao ha demanda "default" que alguem possa medir sem
+     perceber qual seed estava rodando.
+
+     SEM <end>: a janela e do chamador (a Arena / o TrafficEnv).
+
+     device.rerouting: SEM ele o carro segue a rota de fluxo livre
+     calculada uma vez e nunca desvia, nem com a via parada: na Vila
+     Olimpia a malha travava em 98% parados a qualquer densidade >=400.
+     Os parametros sao os MEDIDOS la (period=60, adaptation 10/18) e
+     espelham `Cenario.reroute_period`. -->
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="../network/maquete_aberta.net.xml"/>
+        <additional-files value="../demanda/maquete_aberta.add.xml"/>
+    </input>
+
+    <time>
+        <begin value="0"/>
+        <step-length value="1.0"/>
+    </time>
+
+    <processing>
+        <time-to-teleport value="-1"/>
+    </processing>
+
+    <routing>
+        <device.rerouting.probability value="1"/>
+        <device.rerouting.period value="60"/>
+        <device.rerouting.adaptation-interval value="10"/>
+        <device.rerouting.adaptation-steps value="18"/>
+        <weights.random-factor value="2.0"/>
+    </routing>
+
+    <report>
+        <no-step-log value="true"/>
+        <duration-log.statistics value="true"/>
+    </report>
+
+</configuration>

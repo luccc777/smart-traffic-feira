@@ -87,7 +87,26 @@ class RestricoesFase:
         resto = (self.min_green + self.yellow) % di
         return self.min_green + (di - resto if resto else 0)
 
+    @property
+    def assinatura(self) -> str:
+        """Assinatura compacta do espaço de ação, para carimbar a `Chave` (C5).
+
+        Duas corridas com grades diferentes descrevem conjuntos de políticas
+        diferentes (verde mínimo alcançável de 7 s contra 17 s, entre os dois
+        regimes deste projeto) e não podem ser comparadas como se fossem a
+        mesma condição.
+        """
+        return "di%d/vm%d/am%d/mr%g" % (self.decision_interval, self.min_green,
+                                        self.yellow, self.max_red)
+
     def env(self) -> dict[str, str]:
+        """As env vars que o pacote `sim` lê no import.
+
+        `yellow` NÃO aparece aqui, e a ausência é o ponto: `sim.environment
+        .constants.YELLOW_DUR` é literal 3, sem env var. Configurar `yellow != 3`
+        aqui seria mentira silenciosa — por isso `Cenario.aplicar()` compara o
+        valor congelado e levanta em vez de deixar passar.
+        """
         return {
             "ST_DECISION_INTERVAL": str(self.decision_interval),
             "ST_MIN_GREEN": str(self.min_green),
@@ -157,27 +176,68 @@ class Cenario:
         e.update(self.env_extra)
         return e
 
+    def divergencias_congeladas(self) -> dict[str, tuple]:
+        """O que `sim.environment.constants` REALMENTE tem vs o que este cenário quer.
+
+        Devolve `{atributo: (congelado, desejado)}`; vazio quando bate, e vazio
+        também quando `sim` ainda não foi importado (aí não há nada congelado).
+
+        Compara o ESTADO DO MÓDULO, não a env var — e a diferença não é
+        acadêmica: a versão anterior comparava `os.environ`, então bastava
+        alguém importar `sim` com outra rede e depois devolver a env var ao lugar
+        para a guarda passar. Aconteceu: a Arena chegou a medir 12 semáforos onde
+        havia 10, sem erro (`docs/AUDITORIA_COMPARACAO.md` §12e).
+
+        `YELLOW_DUR` entra porque ele é literal no `constants.py`, sem env var:
+        é o único jeito de um `RestricoesFase.yellow != 3` falhar alto em vez de
+        ser silenciosamente ignorado.
+        """
+        mod = sys.modules.get("sim.environment.constants")
+        if mod is None:
+            return {}
+        alvo = {
+            "NET_FILE": str(Path(self.net_file)),
+            "SUMOCFG": str(Path(self.sumocfg)),
+            "MIN_GREEN": self.restricoes.min_green,
+            "DECISION_INTERVAL": self.restricoes.decision_interval,
+            "MAX_RED": float(self.restricoes.max_red),
+            "YELLOW_DUR": self.restricoes.yellow,
+        }
+        fora: dict[str, tuple] = {}
+        for attr, quer in alvo.items():
+            tem = getattr(mod, attr, None)
+            if attr in ("NET_FILE", "SUMOCFG"):
+                tem = str(Path(tem)) if tem else tem
+            if tem != quer:
+                fora[attr] = (tem, quer)
+        return fora
+
     def aplicar(self, *, forcar: bool = False) -> None:
         """Escreve as env vars deste cenário no processo.
 
-        DEVE rodar antes do primeiro `import sim.environment...`. Se `sim.environment
-        .constants` já estiver em `sys.modules` com configuração diferente, levanta
-        `CenarioJaImportado` — porque a configuração dele já foi congelada e mudar a
-        env agora não muda nada, só mente.
+        DEVE rodar antes do primeiro `import sim.environment...`. Se `sim` já foi
+        importado com outra configuração, levanta `CenarioJaImportado` — os
+        escalares dele estão congelados desde o import, e mudar a env agora não
+        muda nada, só mente.
+
+        Quem PRECISA trocar de cenário no mesmo processo (a Arena, ao alternar
+        entre a rede fechada e a aberta) não usa `forcar`: descarta os módulos
+        derivados de `constants` de `sys.modules` e reimporta — ver
+        `feira/arena/sumo.py::_amarra_sim`.
         """
-        alvo = self.env()
-        ja = sys.modules.get("sim.environment.constants")
-        if ja is not None and not forcar:
-            divergentes = {k: (os.environ.get(k), v) for k, v in alvo.items()
-                           if os.environ.get(k) != v}
-            if divergentes:
-                raise CenarioJaImportado(
-                    "sim.environment.constants já importado com outra configuração; "
-                    "os escalares dele estão congelados desde o import. Divergências "
-                    "(env_atual -> desejado): %r. Aplique o cenário no topo do "
-                    "processo, antes de qualquer import de `sim`." % divergentes
-                )
-        os.environ.update(alvo)
+        os.environ.update(self.env())
+        if forcar:
+            return
+        fora = self.divergencias_congeladas()
+        if fora:
+            linhas = "\n".join("    %-18s congelado=%r  desejado=%r" % (k, a, b)
+                               for k, (a, b) in sorted(fora.items()))
+            raise CenarioJaImportado(
+                "sim.environment.constants já importado com outra configuração — os "
+                "escalares dele estão congelados desde o import e a env var acima já "
+                "não os alcança:\n%s\nAplique o cenário no topo do processo, antes de "
+                "qualquer import de `sim`, ou reimporte o pacote." % linhas
+            )
 
 
 # ---------------------------------------------------------------------- registro
@@ -225,9 +285,28 @@ def _small_maquete() -> Cenario:
 def _aberta_maquete() -> Cenario:
     """O cenário da feira: geometria da maquete em SIMILITUDE + bordas abertas.
 
-    Os arquivos ainda não existem — são o entregável do agente A1 (Onda 1).
-    `warmup_s=None` e `n_vehicles=0` de propósito: os dois números saem de MEDIÇÃO
-    (docs/CALIBRACAO_ABERTA.md), e até lá a Arena recusa rodar este cenário.
+    Rede e demanda gerados por `sumo/aberta/build_rede_aberta.py` e
+    `feira.demanda.GeradorDemandaAberta`. 12 semáforos, 12 controláveis, 9 fontes
+    e 9 sorvedouros.
+
+    `warmup_s=300.0` é MEDIDO (docs/CALIBRACAO_ABERTA.md §4), não escolhido:
+      - o transiente de enchimento fecha em ~240 s (a população ativa chega a 90%
+        do regime no bloco 120-240 s e a velocidade da rede para de cair);
+      - medir a partir de 120 s já não enviesa a média em mais de 5%, mas 120 s
+        ainda pega a malha meio vazia — o que importaria para uma RODADA de 120 s
+        do modo jogo, que começa exatamente no fim do warm-up;
+      - o `device.rerouting` só tem estimativa de tempo de viagem depois de
+        `adaptation-steps 18 x adaptation-interval 10 s` = 180 s;
+      - 300 s = 5 ciclos inteiros do plano fixo de 60 s, o menor múltiplo do ciclo
+        acima dos três critérios.
+    É MUITO menor que os 1200 s da Vila Olímpia porque esta malha é ~60x menor:
+    a viagem média é muito mais curta e a população de regime é 158 contra 850
+    carros.
+
+    `n_vehicles=0` continua 0 e é correto: a frota aqui não é fixa. A população
+    ativa (~158 carros) é EMERGENTE da taxa de injeção calibrada
+    (`feira.demanda.aberta.VEH_POR_HORA` = 3500 veh/h), e a taxa foi escolhida
+    por ser a maior estável nas 6 seeds por 7200 s — o dobro de `janela_eval_s`.
     """
     return Cenario(
         chave="aberta.maquete",
@@ -238,7 +317,7 @@ def _aberta_maquete() -> Cenario:
         restricoes=RESTRICOES_ABERTA,
         modelo_demanda="arquivo",
         rou_pattern=str(_SUMO_AB / "demanda" / "demanda_s{seed}.rou.xml"),
-        warmup_s=None,                 # <- A1 preenche com o valor MEDIDO
+        warmup_s=300.0,                # MEDIDO (ver docstring e CALIBRACAO_ABERTA.md §4)
         warmup_plano="timer",
         reroute_period=60,             # sem isto a malha trava e não volta (achado da large)
         depart_lane="best",

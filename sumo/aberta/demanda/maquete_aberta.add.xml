@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GERADO por build_rede_aberta.py (aberta.maquete/1.0) - NAO EDITAR A MAO.
+     vType em SIMILITUDE: tudo escala por 1/6 junto com a rede (ao
+     contrario da `maquete`, onde o carro era hardware fixo de 6x4 cm).
+     Com isso a faixa volta a armazenar ~32 carros, que e a capacidade do
+     cenario `real`: o regime em que a politica foi treinada.
+     `sigma` e adimensional e NAO escala. -->
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <vType id="DEFAULT_VEHTYPE" length="0.583" width="0.233" minGap="0.292"
+           accel="0.433" decel="0.750" sigma="0.5" color="1,0.85,0"/>
+</additional>
