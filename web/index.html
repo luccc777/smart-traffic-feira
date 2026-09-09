@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-fase="ocioso" data-hud="1">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SmartTraffic — Projeção da feira</title>
+<link rel="stylesheet" href="./css/projecao.css" />
+</head>
+<body>
+
+<!-- #palco é o que gira/espelha (CSS): canvas E HUD juntos, para o projetor de cabeça
+     para baixo ou num espelho não exigir nada do renderizador. -->
+<div id="palco">
+  <canvas id="cv"></canvas>
+
+  <div id="hud">
+
+    <header id="topo">
+      <span class="marca">SMART<i>·</i>TRAFFIC</span>
+      <span class="chip" id="chip-chave">…</span>
+      <span class="chip" id="chip-janela"></span>
+      <span class="chip" id="chip-rede">…</span>
+      <span class="chip fase">fase <b id="fase-nome">OCIOSO</b></span>
+      <span class="chip live"><i></i><b id="live-txt">conectando</b></span>
+    </header>
+
+    <!-- ================= o placar: a tarja de baixo, sempre no mesmo lugar ======= -->
+    <section id="placar">
+      <div id="placar-cab">
+        <span class="manchete">CARROS ENTREGUES</span>
+        <span class="regua-legenda"><i></i> régua: o timer fixo</span>
+        <span class="relogio">faltam <b id="relogio">—</b> s</span>
+      </div>
+      <div id="placar-linhas"></div>
+      <div id="veredito"></div>
+    </section>
+
+    <!-- ================= telas por fase ========================================= -->
+    <!-- OCIOSO: o mapa é o assunto (é a RL rodando ao vivo). Por isso não há título
+         gigante por cima dele — o placar logo abaixo já nomeia os dois braços, e texto
+         grande sobre a malha some a malha. O que sobra é o convite, numa tarja PRETA
+         encostada no placar, onde não cobre via nenhuma. -->
+    <div class="tela" id="tela-ocioso">
+      <div class="faixa">
+        <div class="convite">APERTE O BOTÃO VERDE PARA JOGAR</div>
+        <div class="media">a rede neural controla os 12 semáforos · o timer fixo é a régua</div>
+      </div>
+    </div>
+
+    <div class="tela" id="tela-preparando">
+      <div class="grande">PREPARANDO A RODADA</div>
+      <div class="media">calculando os adversários desta seed</div>
+      <div class="pontos"><i></i><i></i><i></i></div>
+    </div>
+
+    <div class="tela" id="tela-contagem">
+      <b id="contagem-num">3</b>
+      <div class="media">prepare-se</div>
+    </div>
+
+    <!-- ================= camadas de serviço ===================================== -->
+    <!-- UMA camada de denúncia, dois motivos possíveis (`data-alerta` no <html>):
+         `janela`     — dois braços em janelas diferentes (o frame denuncia);
+         `pareamento` — a rodada não é pareada (`pareado: false` no C7): os braços
+                        partiram de estados diferentes em t0.
+         Nos dois casos o placar SAI da tela. Se a comparação não vale, não há
+         primeiro nem segundo lugar para mostrar. -->
+    <div id="denuncia">
+      <div class="d-titulo" id="denuncia-titulo"></div>
+      <div class="d-corpo" id="denuncia-corpo"></div>
+      <div class="d-nota" id="denuncia-nota"></div>
+    </div>
+
+    <div id="degradado">
+      <b>MODO DEGRADADO</b><span id="degradado-msg"></span>
+    </div>
+
+    <div id="espera">
+      <div class="marca">SMART<i>·</i>TRAFFIC</div>
+      <div id="espera-msg">conectando à simulação…</div>
+      <div class="espera-sub">a projeção começa sozinha assim que o primeiro quadro chegar</div>
+    </div>
+
+    <div id="grade"><i class="cruz cc"></i><i class="borda"></i></div>
+
+    <pre id="diag"></pre>
+    <pre id="bench-out"></pre>
+
+    <footer id="teclas">
+      <b>H</b> hud · <b>G</b> asfalto · <b>D</b> pegada · <b>V</b> carro real ·
+      <b>I</b> régua de bancada · <b>T</b> grade · <b>R</b> girar · <b>M</b> espelhar ·
+      <b>setas</b> alinhar · <b>+ −</b> zoom · <b>, .</b> texto · <b>0</b> reset ·
+      <b>F</b> tela cheia
+    </footer>
+  </div>
+</div>
+
+<script type="module" src="./js/projecao.js"></script>
+</body>
+</html>

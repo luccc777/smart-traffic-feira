@@ -366,6 +366,41 @@ def test_placar_carrega_a_condicao_e_um_t_unico():
     assert d["chave"]["demanda"] == "ab" * 6      # sha[:12]
 
 
+def test_placar_distingue_empate_de_rodada_nao_pareada():
+    """`vencedor=None` tem dois significados OPOSTOS, e o fio tem que separá-los.
+
+    Empate e rodada não pareada saem os dois com o vencedor em branco. Para o
+    público são coisas diferentes: empate é resultado; não pareada quer dizer que
+    os braços partiram de estados diferentes em t0 e a comparação NÃO VALE. Sem
+    `pareado`/`motivo` no fio, a projeção mostrava os dois casos idênticos e o
+    servidor tinha que adivinhar (achado do agente A7).
+    """
+    k = F.chave_fake()
+    linhas = [LinhaPlacar(b, b.upper(), 10, 1.0, 2.0, b != "humano")
+              for b in ("timer", "rl", "humano")]
+
+    empate = Placar.monta("resultado", 120.0, k, linhas).json()
+    assert empate["vencedor"] is None
+    assert empate["pareado"] is True and empate["motivo"] == ""
+
+    torto = Placar.monta("resultado", 120.0, k, linhas, motivo="selo de t0 divergente",
+                         pareado=False).json()
+    assert torto["vencedor"] is None
+    assert torto["pareado"] is False and "selo" in torto["motivo"]
+
+
+def test_placar_sai_com_tipo_e_type():
+    """O frame despacha por `type` (herdado do maquete) e o placar nasceu com
+    `tipo`. Um cliente teria que testar os dois nomes, e o dia em que alguém
+    esquecer a segunda metade a mensagem some sem erro."""
+    k = F.chave_fake()
+    linhas = [LinhaPlacar("rl", "REDE NEURAL", 10, 1.0, 2.0, True)]
+    d = Placar.monta("jogando", 10.0, k, linhas).json()
+    assert d["tipo"] == d["type"] == "placar"
+    assert frame_wire("rl", 1.0, decisao=1, substep=0, politica="x",
+                      tls=[], veiculos=[], heat={}, stats={})["type"] == "frame"
+
+
 def test_frame_wire_recusa_braco_desconhecido():
     with pytest.raises(ValueError, match="braço"):
         frame_wire("nn", 1.0, decisao=1, substep=0, politica="x",

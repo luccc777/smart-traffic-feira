@@ -219,6 +219,42 @@ Reprodutor: `scripts/divergencia_bancadas.py`.
 > `BASELINE_ABERTO.md`.** Cada documento é internamente consistente; a comparação entre
 > eles é que não vale.
 
+### Triagem dos contratos reportados pelo A7 (2026-09-09)
+
+O A7 reportou cinco pontos e não consertou nenhum, como manda a regra. Veredito do
+coordenador:
+
+| # | reportado | veredito |
+|---|---|---|
+| 2 | C7 mistura `tipo` (placar) e `type` (frame) | **procede, corrigido.** `type` é herdado do `snapshot.frame` do maquete e não pode ser renomeado sem quebrar a projeção que já roda; `tipo` é do placar novo. `Placar.json()` passou a emitir **os dois**, com o mesmo valor — o cliente despacha por um nome só e a mensagem para de poder sumir sem erro. |
+| 3 | `Placar` não carrega `motivo` | **procede, e era pior do que ele descreveu — corrigido.** `vencedor=None` tinha dois significados opostos no fio: empate e **rodada não pareada** (selos de t0 divergentes). O motor já escrevia o texto detalhado em `ResultadoRodada.motivo` e o jogava fora. `Placar` ganhou `motivo` e `pareado`; o front foi devolvido ao A7 para denunciar em vez de coroar. Guardado por `test_placar_distingue_empate_de_rodada_nao_pareada` e pela ponta a ponta em `test_selo_divergente_nao_coroa_vencedor`. **Ver a nota abaixo — são quatro desfechos, não três.** |
+| 1 | o motor não expõe gancho de frame | **procede, mas não vou consertar.** O contorno dele — `ArenaPublicada`, decorador do `Arena` (C4), entrando pelo `arena=` que o motor já aceita — é **melhor** que o `MotorDoJogo(ao_quadro=...)` que ele sugeriu: frame é assunto da Arena, não da rodada, e o decorador é testável sozinho. Fica como está. |
+| 4 | `Placar` não anuncia a próxima seed | procede, cosmético. Entra se e quando a tela de `ocioso` precisar. |
+| 5 | `frame_wire` levanta em braço desconhecido | **não é defeito** — é a guarda fazendo o trabalho dela. O nome do controlador é `familia:variante` por convenção dos controladores, e normalizar para o braço é do consumidor, onde o A7 pôs (`braco_do_controlador()`). Se um terceiro consumidor precisar, aí sim sobe para o C7. |
+
+**`vencedor: null` são QUATRO desfechos, não três.** Ao devolver a tarefa eu instruí o
+A7 que "`pareado=true` e `vencedor=null` ⇒ empate". **Estava errado, e ele recusou com
+razão:** rodada abortada pelo operador e rodada em que o SUMO caiu também chegam
+`pareado=true` e sem vencedor, e chamá-las de empate daria ao visitante um resultado que
+ele não fez. Os dois casos já se distinguem no fio, sem campo novo — **uma rodada que não
+aconteceu não tem linha do humano**: `res` só é atribuído numa corrida bem-sucedida, e
+tanto o `RodadaAbortada` quanto a exceção genérica deixam `humano=None`, que o
+`_placar_final` não anexa. Os quatro:
+
+| fio | desfecho | tela |
+|---|---|---|
+| `pareado: false` | não pareada | denúncia + `motivo`, sem coroa e **sem colocação** |
+| `vencedor: "x"` | vencedor | coroa |
+| sem linha do humano | rodada não concluída | "RODADA NÃO CONCLUÍDA" + `motivo` |
+| resto | empate | "EMPATE", neutro |
+
+E `motivo` não vazio **não** invalida sozinho: "modo degradado: sem fantasma de rl" é uma
+rodada boa de dois braços, e ela coroa normalmente.
+
+**A DoD (a) do A7 não é verificável por agente nenhum** — exige o projetor e uma foto.
+Ele tem razão em pedir que o documento separe **DoD do agente** e **DoD do dono**; daqui
+para frente, escreva as duas listas separadas ao abrir uma trilha.
+
 **Outros pontos vivos:**
 - `ArenaSumo` mede a janela em `[t0+1, t1+1)`, não `[t0, t1)` — o `TrafficEnv.reset()` já
   dá um sim-step. Mesma duração, deslocada, **idêntica nos três braços** (pareamento

@@ -333,6 +333,10 @@ def test_selo_divergente_nao_coroa_vencedor(cenario_fake, fantasmaria):
     r = _motor(cenario_fake, fantasmaria, [[0]] * 40).rodada()
     assert not r.selos_batem and r.vencedor is None
     assert "selo de t0 divergente" in r.motivo
+    # e isso tem que CHEGAR no fio: o motor sabia, a projecao nao ficava sabendo.
+    assert r.placar is not None
+    d = r.placar.json()
+    assert d["pareado"] is False and "selo de t0 divergente" in d["motivo"]
 
 
 def test_gravacao_da_rodada_reproduz_o_mesmo_resultado(cenario_fake, fantasmaria):

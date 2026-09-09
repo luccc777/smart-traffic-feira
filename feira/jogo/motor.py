@@ -470,7 +470,8 @@ class MotorDoJogo:
         if t_restante is None:
             t_restante = max(0.0, j.t1 - float(t))
         p = Placar.monta(fase, float(t), self.chave(), self._linhas(t, fantasmas, humano),
-                         t_restante=float(t_restante), vencedor=vencedor)
+                         t_restante=float(t_restante), vencedor=vencedor,
+                         motivo=self.motivo_degradado)
         self.ultimo_placar = p
         return p
 
@@ -498,7 +499,8 @@ class MotorDoJogo:
                 "pareada e o vencedor fica em branco"
                 % (rodada.selo_humano, rodada.selos))
         p = Placar.monta(RESULTADO, t, rodada.chave, linhas, t_restante=0.0,
-                         vencedor=vencedor)
+                         vencedor=vencedor, motivo=rodada.motivo,
+                         pareado=rodada.selos_batem)
         self.ultimo_placar = p
         return p, vencedor
 

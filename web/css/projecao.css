@@ -1,0 +1,388 @@
+/* projecao.css — a folha da projeção da feira.
+ *
+ * DUAS REGRAS QUE EXPLICAM QUASE TUDO AQUI
+ * ----------------------------------------
+ * 1. PRETO É AUSÊNCIA DE LUZ. O projetor soma luz e nunca subtrai, então tudo que não
+ *    é informação tem que ser #000 — cada pixel cinza é luz jogada no chão de graça.
+ *    Não há bordas decorativas, não há caixas, não há sombra. O que existe, informa.
+ *
+ * 2. AS CORES SÃO RESOLVIDAS, NÃO ESCOLHIDAS. Na montagem da feira (torre de 2 m,
+ *    TR 1,10, imagem de 1,82 m no chão, HY320 de 300 lm) o branco na imagem dá 161 lux
+ *    e o ambiente de sala escura entra com 25 lux nos DOIS lados de qualquer par. A
+ *    dinâmica inteira disponível é 7,19 — e é dentro dela que precisam caber quatro
+ *    degraus: preto < trilho < TIMER < REDE < VOCÊ. Cada degrau ficou em ~1,62, e o
+ *    piso do projeto é 1,60. Ou seja: NÃO HÁ FOLGA. Mexer numa destas cores sem rodar
+ *    `python scripts/projecao_contraste.py` quebra a leitura a 2 m em silêncio.
+ *
+ * O TAMANHO DO TEXTO tem a mesma disciplina: `--u` escala tudo com a resolução do
+ * painel para o tipo ter o mesmo tamanho FÍSICO no chão em 720p e em 1080p, e os
+ * corpos abaixo foram escolhidos por tamanho ANGULAR a 2 m (docs/PROJECAO.md §2).
+ * A tecla I mostra a conta na tela, para a foto de bancada.
+ */
+
+:root {
+  --u: 1;
+  /* Altura da tarja do placar a 1080p. Tem que bater com `H_PLACAR` no projecao.js:
+   * é ela que decide o retângulo do mapa, e portanto a escala do sprite (§3 do doc).
+   * O valor sai da conta, não do olho: cabeçalho 36 + 3 linhas de 84 + 2 vãos de 10
+   * + 20 de respiro = 344. */
+  --h-placar: 344px;
+
+  --fundo: #000000;
+  --trilho: #4e5c6c;          /* L=0,104 — degrau 1,64 sobre o preto */
+  --bar-timer: #cb7a18;       /* L=0,267 — degrau 1,62 */
+  --bar-rl: #7fcbfa;          /* L=0,541 — degrau 1,64 */
+  --bar-humano: #fafcff;      /* L=0,972 — degrau 1,61 */
+
+  /* Sobrepostos: ESCUROS. O preto é o único valor garantidamente abaixo de qualquer
+   * fundo, porque o projetor não consegue ir abaixo do próprio preto. Um tick claro
+   * que funciona sobre o trilho some sobre a barra do VOCÊ. */
+  --grade: #060a10;
+  --regua-flanco: #060a10;
+  --regua-nucleo: #ffd98a;
+
+  --texto: #ffffff;
+  --texto-2: #bdd1e7;
+  --texto-3: #8297b0;
+  --vencedor: #6ef5b2;
+  --alerta: #ff4433;
+
+  /* corpos, em px a 1080p (multiplicados por --u) */
+  --f-num: 76px;      /* cap ~55 px = 52 mm = 89' de arco a 2 m */
+  --f-rot: 34px;      /* cap ~24 px = 23 mm = 39' */
+  --f-sec: 24px;      /* cap ~17 px = 16 mm = 28' */
+  --f-chip: 18px;     /* cap ~13 px = 12 mm = 21' — cromo do OPERADOR, não da plateia */
+  --f-grande: 68px;
+  --f-media: 30px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0; width: 100%; height: 100%;
+  background: var(--fundo); color: var(--texto);
+  overflow: hidden;
+  font-family: "Inter", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums lining-nums;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+
+#palco {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: 50% 50%;
+  background: var(--fundo);
+}
+
+#cv { position: absolute; inset: 0; display: block; }
+
+#hud { position: absolute; inset: 0; pointer-events: none; }
+html[data-hud="0"] #hud > *:not(#denuncia):not(#degradado) { display: none; }
+
+/* ------------------------------------------------------------------ topo ---- */
+#topo {
+  position: absolute; left: 0; right: 0; top: 0;
+  height: calc(56px * var(--u));
+  display: flex; align-items: center; gap: calc(14px * var(--u));
+  padding: 0 calc(22px * var(--u));
+  font-size: calc(var(--f-chip) * var(--u));
+  color: var(--texto-3);
+}
+
+.marca { font-weight: 800; letter-spacing: .14em; color: var(--texto-2); }
+.marca i { font-style: normal; opacity: .5; }
+
+.chip { white-space: nowrap; }
+.chip b { color: var(--texto-2); font-weight: 700; }
+.chip.live i {
+  display: inline-block; width: calc(9px * var(--u)); height: calc(9px * var(--u));
+  border-radius: 50%; background: var(--alerta); margin-right: .4em;
+}
+html[data-live="1"] .chip.live i { background: var(--vencedor); }
+#topo .chip:last-child { margin-left: auto; }
+
+/* ---------------------------------------------------------------- placar ---- */
+#placar {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: calc(var(--h-placar) * var(--u));
+  padding: calc(8px * var(--u)) calc(34px * var(--u)) calc(12px * var(--u));
+  display: flex; flex-direction: column; gap: calc(6px * var(--u));
+  background: var(--fundo);
+}
+
+#placar-cab {
+  display: flex; align-items: baseline; gap: calc(22px * var(--u));
+  height: calc(36px * var(--u));
+  font-size: calc(var(--f-sec) * var(--u)); color: var(--texto-3);
+  white-space: nowrap;
+}
+#placar-cab .manchete {
+  font-weight: 800; letter-spacing: .16em; color: var(--texto-2);
+}
+#placar-cab .regua-legenda i {
+  display: inline-block; width: calc(4px * var(--u)); height: calc(15px * var(--u));
+  background: var(--regua-nucleo);
+  outline: calc(2px * var(--u)) solid var(--regua-flanco);
+  vertical-align: -.15em; margin-right: .45em;
+}
+#placar-cab .relogio { margin-left: auto; }
+#placar-cab .relogio b { color: var(--texto); font-size: calc(34px * var(--u)); }
+
+#placar-linhas { flex: 1; display: flex; flex-direction: column;
+                 justify-content: center; gap: calc(10px * var(--u)); }
+
+/* UMA linha de grade por braço, altura FIXA. A versão anterior tinha duas linhas de
+ * grade (secundárias embaixo) e deixava o rótulo quebrar em duas linhas: com três
+ * braços, o terceiro saía da tarja. Aqui tudo é `nowrap` e a altura é conhecida —
+ * é ela que fecha a conta de `--h-placar`. */
+.pl-linha {
+  display: grid;
+  /* 420 px é o que "REDE NEURAL" (34 px, negrito) + o selo "pré-computado" ocupam
+   * sem cortar. Medido na tela, não estimado. */
+  grid-template-columns:
+    calc(450px * var(--u)) 1fr calc(180px * var(--u)) calc(250px * var(--u));
+  align-items: center;
+  column-gap: calc(18px * var(--u));
+  height: calc(84px * var(--u));
+}
+.pl-linha[hidden] { display: none; }
+
+.pl-id { display: flex; align-items: baseline; gap: calc(10px * var(--u));
+         white-space: nowrap; overflow: hidden; }
+.pl-pos { font-size: calc(var(--f-sec) * var(--u)); color: var(--texto-3);
+          font-weight: 800; }
+.pl-rot { font-size: calc(var(--f-rot) * var(--u)); font-weight: 800;
+          letter-spacing: .04em; }
+/* 19 px e não 15: o selo diz "pré-computado" / "ao vivo", e isso é informação de
+ * HONESTIDADE para a plateia (os adversários são fantasmas), não cromo de operador.
+ * A 15 px ele media 17,6' de arco, abaixo do piso de 22' do §2.1. */
+.pl-tag { font-size: calc(19px * var(--u)); color: var(--texto-3); }
+
+.pl-linha[data-braco="timer"] .pl-rot { color: var(--bar-timer); }
+.pl-linha[data-braco="rl"] .pl-rot { color: var(--bar-rl); }
+.pl-linha[data-braco="humano"] .pl-rot { color: var(--bar-humano); }
+
+.pl-trilho {
+  position: relative; height: calc(52px * var(--u));
+  background: var(--trilho);
+  overflow: hidden;
+}
+.pl-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+           transition: width .28s linear; }
+.pl-linha[data-braco="timer"] .pl-fill { background: var(--bar-timer); }
+.pl-linha[data-braco="rl"] .pl-fill { background: var(--bar-rl); }
+.pl-linha[data-braco="humano"] .pl-fill { background: var(--bar-humano); }
+
+/* Ticks de 10 carros: cortes ESCUROS, que se leem sobre o trilho E sobre qualquer
+ * barra. É a âncora absoluta da escala — sem eles a barra só diz "mais" e "menos". */
+.pl-ticks {
+  position: absolute; inset: 0; pointer-events: none;
+  --ticks: 10;
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0, transparent calc(100% / var(--ticks) - 2px),
+    var(--grade) calc(100% / var(--ticks) - 2px), var(--grade) calc(100% / var(--ticks)));
+}
+
+/* A régua do timer: núcleo âmbar entre dois flancos escuros. O sanduíche existe
+ * porque a régua cruza fundos de qualquer luminância — sobre a barra do VOCÊ um
+ * traço claro simplesmente some. */
+.pl-regua {
+  position: absolute; top: 0; bottom: 0; width: calc(4px * var(--u));
+  margin-left: calc(-2px * var(--u));
+  background: var(--regua-nucleo);
+  box-shadow: calc(-3px * var(--u)) 0 0 0 var(--regua-flanco),
+              calc(3px * var(--u)) 0 0 0 var(--regua-flanco);
+}
+
+.pl-moldura {
+  position: absolute; inset: 0; border: calc(5px * var(--u)) solid var(--grade);
+}
+
+.pl-num { text-align: right; }
+.pl-num b { font-size: calc(var(--f-num) * var(--u)); font-weight: 800;
+            line-height: 1; }
+
+.pl-sec {
+  display: none;                      /* só nas fases em que há número a mostrar */
+  gap: calc(20px * var(--u)); white-space: nowrap;
+  font-size: calc(var(--f-sec) * var(--u)); color: var(--texto-2);
+}
+.pl-sec b { color: var(--texto); font-weight: 700; }
+
+/* O VENCEDOR é marcado por GEOMETRIA, nunca por cor de barra: a barra do VOCÊ já é a
+ * mais clara possível e não existe cor acima dela (medido: qualquer realce sobre ela
+ * fica em 1,1 de contraste). Sobram três marcas, e as três funcionam sobre qualquer
+ * barra: moldura escura por dentro, contorno verde por fora (sobre o preto: 5,44) e
+ * o brilho no rótulo.
+ *
+ * E os PERDEDORES NÃO SÃO ESCURECIDOS. A versão anterior baixava a opacidade deles
+ * para 0,78 — e isso quebra a escada de luminância inteira do §4.1: com a REDE
+ * atenuada a 0,42 e o TIMER cheio em 0,267, a razão entre as duas cai para 1,36
+ * (abaixo do piso) e a ORDEM de brilho inverte. Escurecer quem perdeu é editar o
+ * contraste que foi resolvido; quem perdeu já está dito pela barra menor. */
+.pl-linha.venceu .pl-rot { text-shadow: 0 0 calc(10px * var(--u)) var(--vencedor); }
+.pl-linha.venceu .pl-trilho {
+  outline: calc(4px * var(--u)) solid var(--vencedor);
+  outline-offset: calc(3px * var(--u));
+}
+
+/* O veredito muda de COR por estado, e a cor não é decoração: verde é coroa, e coroar
+ * um empate ou uma rodada que não terminou seria dizer que alguém ganhou. Os três
+ * tons já estão auditados contra o preto (5,44 · 4,85 · 2,59). */
+#veredito {
+  text-align: center; font-size: calc(46px * var(--u)); font-weight: 800;
+  letter-spacing: .1em; color: var(--vencedor); display: none;
+}
+#veredito[data-estado="empate"] { color: var(--texto-2); }
+#veredito[data-estado="sem_placar"] { color: var(--alerta); }
+#veredito .motivo {
+  display: block; margin-top: .35em;
+  font-size: calc(22px * var(--u)); font-weight: 500; letter-spacing: .01em;
+  color: var(--texto-2);
+}
+
+/* ------------------------------------------------------------ telas de fase - */
+.tela {
+  position: absolute; left: 0; right: 0; top: calc(56px * var(--u));
+  bottom: calc(var(--h-placar) * var(--u));
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  gap: calc(16px * var(--u)); text-align: center;
+}
+.tela .grande { font-size: calc(var(--f-grande) * var(--u)); font-weight: 800;
+                letter-spacing: .08em; }
+.tela .grande i { font-style: normal; color: var(--texto-3); }
+.tela .media { font-size: calc(var(--f-media) * var(--u)); color: var(--texto-2);
+               line-height: 1.35; }
+.tela .convite {
+  font-size: calc(40px * var(--u)); font-weight: 800; letter-spacing: .1em;
+  color: var(--vencedor); animation: pulso 1.8s ease-in-out infinite;
+}
+@keyframes pulso { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+
+/* O conteúdo das telas fica ACIMA do véu (abaixo). */
+.tela > * { position: relative; }
+
+/* VÉU nas fases em que a rodada está congelada. Sem ele, "PREPARANDO A RODADA" e o
+ * 3-2-1 disputam luminância com a malha inteira e nenhum dos dois se lê. Com ele, a
+ * malha continua visível (é o contexto) e o texto ganha a tela. */
+#tela-preparando::before, #tela-contagem::before {
+  content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, .76);
+}
+
+/* OCIOSO: nada por cima da malha. A tarja preta encosta no placar. */
+#tela-ocioso { justify-content: flex-end; gap: 0; }
+#tela-ocioso .faixa {
+  width: 100%; background: var(--fundo);
+  padding: calc(10px * var(--u)) 0 calc(14px * var(--u));
+  display: flex; flex-direction: column; align-items: center;
+  gap: calc(6px * var(--u));
+}
+
+.pontos { display: flex; gap: calc(14px * var(--u)); }
+.pontos i { width: calc(16px * var(--u)); height: calc(16px * var(--u));
+            border-radius: 50%; background: var(--texto-2);
+            animation: pulso 1.2s ease-in-out infinite; }
+.pontos i:nth-child(2) { animation-delay: .2s; }
+.pontos i:nth-child(3) { animation-delay: .4s; }
+
+#tela-contagem b {
+  font-size: calc(360px * var(--u)); font-weight: 800; line-height: .9;
+  color: var(--texto);
+}
+
+/* Quem aparece em cada fase. É a máquina de estados do C7, em CSS. */
+html[data-fase="ocioso"] #tela-ocioso,
+html[data-fase="preparando"] #tela-preparando,
+html[data-fase="contagem"] #tela-contagem { display: flex; }
+
+html[data-fase="ocioso"] #placar-cab .relogio,
+html[data-fase="resultado"] #placar-cab .relogio,
+html[data-fase="preparando"] #placar-cab .relogio { visibility: hidden; }
+
+/* No RESULTADO o placar toma a tela: a comparação É a mensagem, e o mapa parado
+ * atrás só rouba luz. */
+html[data-fase="resultado"] #placar { height: 78%; }
+html[data-fase="resultado"] #veredito { display: block; }
+html[data-fase="resultado"] .pl-sec,
+html[data-fase="jogando"] .pl-sec { display: flex; }
+html[data-fase="resultado"] .pl-trilho { height: calc(96px * var(--u)); }
+html[data-fase="resultado"] .pl-linha { height: calc(150px * var(--u)); }
+html[data-fase="resultado"] .pl-num b { font-size: calc(104px * var(--u)); }
+html[data-fase="resultado"] #placar-linhas { gap: calc(20px * var(--u)); }
+
+/* ------------------------------------------------------------- serviço ------ */
+#espera {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: calc(12px * var(--u));
+  background: var(--fundo); font-size: calc(var(--f-media) * var(--u));
+  color: var(--texto-2);
+}
+#espera .marca { font-size: calc(54px * var(--u)); }
+.espera-sub { font-size: calc(20px * var(--u)); color: var(--texto-3); }
+html[data-live="1"] #espera { display: none; }
+
+/* A tarja de aviso não é full-bleed: ela divide a linha com a régua de bancada, que
+ * mora na direita. Full-bleed, as duas se sobrepunham quando o operador ligava o `I`. */
+#degradado {
+  position: absolute; left: 0; top: calc(56px * var(--u)); max-width: 62%;
+  display: none; align-items: baseline; gap: calc(16px * var(--u));
+  padding: calc(8px * var(--u)) calc(22px * var(--u));
+  font-size: calc(20px * var(--u)); color: var(--texto-2);
+}
+#degradado b { color: var(--alerta); font-weight: 800; letter-spacing: .12em; }
+html[data-degradado="1"] #degradado { display: flex; }
+
+/* A DENÚNCIA cobre o placar inteiro, e serve a DOIS motivos (`data-alerta`): janelas
+ * diferentes entre os braços, e rodada não pareada (`pareado: false` no C7). Os dois
+ * tiram o placar da tela pela mesma razão — "denunciar, não desenhar": se a comparação
+ * não vale, não há primeiro nem segundo lugar para mostrar. Ver docs/PROJECAO.md §6.4. */
+#denuncia {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: calc(var(--h-placar) * var(--u));
+  display: none; flex-direction: column; justify-content: center;
+  gap: calc(12px * var(--u)); padding: 0 calc(40px * var(--u));
+  background: var(--fundo);
+}
+.d-titulo {
+  font-size: calc(44px * var(--u)); font-weight: 800; letter-spacing: .06em;
+  color: var(--alerta);
+  text-shadow: 0 0 calc(2px * var(--u)) #fff;
+}
+.d-corpo { font-size: calc(26px * var(--u)); color: var(--texto); }
+.d-nota { font-size: calc(19px * var(--u)); color: var(--texto-2); max-width: 62ch; }
+html[data-alerta="janela"] #placar,
+html[data-alerta="pareamento"] #placar { display: none; }
+html[data-alerta="janela"] #denuncia,
+html[data-alerta="pareamento"] #denuncia { display: flex; }
+/* A denúncia de PAREAMENTO aparece no RESULTADO, onde o placar toma 78% da tela:
+ * a faixa cresce junto, senão sobraria um vazio preto onde estavam as barras. */
+html[data-alerta="pareamento"][data-fase="resultado"] #denuncia { height: 78%; }
+
+#grade { position: absolute; inset: 0; display: none; }
+html[data-grade="1"] #grade { display: block; }
+#grade .borda { position: absolute; inset: 0; border: 1px solid #fff; }
+#grade .cruz { position: absolute; left: 50%; top: 50%; width: 2px; height: 60px;
+               margin: -30px 0 0 -1px; background: #fff; }
+#grade .cruz::after { content: ''; position: absolute; left: -29px; top: 29px;
+                      width: 60px; height: 2px; background: #fff; }
+
+#diag, #bench-out {
+  position: absolute; right: calc(16px * var(--u));
+  top: calc(64px * var(--u));
+  margin: 0; display: none; white-space: pre; text-align: right;
+  font-family: "Cascadia Mono", "Consolas", ui-monospace, monospace;
+  font-size: calc(15px * var(--u)); line-height: 1.5; color: var(--texto-2);
+}
+html[data-diag="1"] #diag, html[data-diag="1"] #bench-out { display: block; }
+#bench-out { top: auto; bottom: calc(16px * var(--u)); color: var(--vencedor); }
+
+/* abaixo da tarja de aviso: as duas são do operador e não podem se cobrir */
+#teclas {
+  position: absolute; left: calc(22px * var(--u));
+  top: calc(96px * var(--u));
+  font-size: calc(14px * var(--u)); color: #3d4a5c; display: none;
+}
+html[data-diag="1"] #teclas { display: block; }
+#teclas b { color: var(--texto-3); }

@@ -65,10 +65,20 @@ class Placar:
     chave: dict
     linhas: list[dict]
     vencedor: str | None = None    # só na fase RESULTADO
+    # `vencedor=None` tem DOIS significados opostos, e sem estes dois campos a
+    # projeção não consegue distingui-los: empate (resultado legítimo) e rodada
+    # NÃO PAREADA (os braços partiram de estados diferentes em t0 — a comparação
+    # não vale). O motor já sabia a diferença e escrevia um `motivo` detalhado em
+    # `ResultadoRodada`; ele simplesmente não viajava no fio, então a tela mostrava
+    # os dois casos idênticos. É a mesma família de falha que a janela viajar no
+    # frame fecha do lado do braço: o cliente tem que poder DENUNCIAR, não adivinhar.
+    motivo: str = ""               # por que a rodada terminou assim (livre, humano)
+    pareado: bool = True           # os selos de t0 bateram? False => não compare
 
     @staticmethod
     def monta(fase: str, t: float, chave: Chave, linhas: list[LinhaPlacar],
-              *, t_restante: float = 0.0, vencedor: str | None = None) -> "Placar":
+              *, t_restante: float = 0.0, vencedor: str | None = None,
+              motivo: str = "", pareado: bool = True) -> "Placar":
         if fase not in FASES:
             raise ValueError("fase %r desconhecida (use %r)" % (fase, FASES))
         for ln in linhas:
@@ -84,10 +94,19 @@ class Placar:
                    "demanda": chave.demanda_sha[:12]},
             linhas=[asdict(ln) for ln in linhas],
             vencedor=vencedor,
+            motivo=str(motivo or ""),
+            pareado=bool(pareado),
         )
 
     def json(self) -> dict:
-        return asdict(self)
+        # `type` SAI JUNTO de `tipo`, de propósito. O frame usa `type` porque
+        # espelha o `snapshot.frame` do maquete, e o front de lá despacha por esse
+        # nome — renomear quebraria a projeção que já roda. O placar é mensagem
+        # nova e nasceu em português. Resultado: um cliente teria que despachar por
+        # `m.type || m.tipo`, e o dia em que alguém esquecer a segunda metade a
+        # mensagem some sem erro. Duplicar 16 bytes fecha o buraco sem quebrar
+        # nenhum dos dois lados (achado do agente A7).
+        return {**asdict(self), "type": self.tipo}
 
 
 def frame_wire(braco: str, t: float, *, decisao: int, substep: int, politica: str,

@@ -1,7 +1,7 @@
 {
  "chave": {
   "cenario": "aberta.maquete",
-  "demanda_sha": "af695bc569ba396386692f3c0f716a2f5290731a6ebc6ec58f81dd94f6a013b0",
+  "demanda_sha": "b7439f0da2c68d11cc686f1eec68fd97ffe9b8bf585e429fa61849f2d4464e9c",
   "janela": {
    "t0": 300.0,
    "t1": 420.0
@@ -16,7 +16,7 @@
   "backlog_insercao": 0,
   "chave": {
    "cenario": "aberta.maquete",
-   "demanda_sha": "af695bc569ba396386692f3c0f716a2f5290731a6ebc6ec58f81dd94f6a013b0",
+   "demanda_sha": "b7439f0da2c68d11cc686f1eec68fd97ffe9b8bf585e429fa61849f2d4464e9c",
    "janela": {
     "t0": 300.0,
     "t1": 420.0
