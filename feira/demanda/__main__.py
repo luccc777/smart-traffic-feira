@@ -44,9 +44,13 @@ def main(argv: list[str] | None = None) -> int:
                                                            args.horizonte))
     for seed in (int(x) for x in args.seeds.split(",")):
         man = ger.gera(cen, seed, forcar=args.forcar)
-        print("  seed %3d | %5d veiculos | t %.1f..%.1f | sha %s | cfg %s"
+        # `ultimo_motivo=None` significa "reaproveitei o disco". Qualquer outra
+        # coisa e um arquivo REESCRITO, e a razao aparece: regerar 18 seeds em
+        # silencio e como a demanda errada entra numa comparacao sem ninguem ver.
+        print("  seed %3d | %5d veiculos | t %.1f..%.1f | sha %s | cfg %s | %s"
               % (seed, man.n_veiculos, man.t_primeiro, man.t_ultimo,
-                 man.sha256[:16], man.parametros.get("sumocfg_seed") or "(nenhum)"))
+                 man.sha256[:16], man.parametros.get("sumocfg_seed") or "(nenhum)",
+                 ger.ultimo_motivo or "reaproveitado"))
     return 0
 
 

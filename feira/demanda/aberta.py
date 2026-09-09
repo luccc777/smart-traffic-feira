@@ -74,11 +74,17 @@ VERSAO = "aberta-1.1"
 # fluxo livre desta rede ja e 38%: e o custo do proprio semaforo). Ver §3.5 e §7
 # do documento de calibracao.
 VEH_POR_HORA = 3500.0
-# 5400 s = warm-up medido (300) + janela de avaliacao (3600) + 1500 s de folga.
+# 8400 s = warm-up medido (300) + a janela de 7200 s que a metaestabilidade exige
+# + 900 s de folga. O valor anterior era 5400 (warm-up + 3600 + folga) e NAO
+# sustentava a janela longa: medido na seed 42, a partir de t ~ 5700 a malha fica
+# VAZIA, e toda janela de 7200 s promediava ~25% de rede deserta - o oposto do
+# regime que a calibracao congelou. O proprio A5 ja tinha topado nisso e contornado
+# carimbando o horizonte no nome da pasta (`scripts/tune_baseline_capacidade.py`).
 # E parametro do MANIFESTO: mudar aqui muda o sha256 de toda demanda ja gerada.
 # (Propriedade util: o horizonte so ACRESCENTA veiculos no fim - a demanda de
-# horizonte menor e prefixo exato da de horizonte maior, mesma seed e mesma taxa.)
-HORIZONTE_S = 5400.0      # s de demanda gerada; cobre warm-up + janela de 3600 s
+# horizonte menor e prefixo exato da de horizonte maior, mesma seed e mesma taxa.
+# Por isso os primeiros 5400 s de cada seed continuam byte a byte os de antes.)
+HORIZONTE_S = 8400.0      # s de demanda gerada; cobre warm-up + janela de 7200 s
 MIN_EDGES = 4             # rota minima: os 2 cotos + 2 edges internos (>=2 cruzamentos)
 K_ROTAS = 4               # alternativas por par OD (Yen)
 GAMMA_ROTA = 4.0          # dispersao da escolha de rota: w_i = exp(-g*(c_i-c_0)/c_0)
@@ -100,6 +106,10 @@ def _acumulada(pesos: list[float]) -> list[float]:
         s += p / total
         acc.append(s)
     return acc
+
+
+class _Regerar(Exception):
+    """Sinal interno: o que esta em disco nao e o que este gerador produz hoje."""
 
 
 @dataclass(frozen=True)
@@ -160,6 +170,10 @@ class GeradorDemandaAberta:
         self.escreve_cfg = bool(escreve_cfg)
         self._net_file = str(net_file) if net_file else None
         self._cache_od: dict[tuple[str, str, float], tuple[list[ParOD], list[float]]] = {}
+        # Por que a ultima `gera()` regerou (ou None, se reaproveitou o disco). E o
+        # que deixa a CLI dizer "reescrevi 18 seeds porque o horizonte mudou" em vez
+        # de reescrever 18 arquivos em silencio.
+        self.ultimo_motivo: str | None = None
 
     # ------------------------------------------------------------------ rede/OD
     def _rede(self, cenario: Cenario) -> str:
@@ -221,6 +235,39 @@ class GeradorDemandaAberta:
         self._cache_od[chave] = (pares, cum)
         return pares, cum, malha
 
+    # -------------------------------------------------------------- parametros
+    # Os parametros que DETERMINAM o conteudo do `.rou.xml`. `net_sha256` e
+    # `n_pares_od` ficam de fora de proposito: custam ler a rede e montar os pares
+    # OD, e esta comparacao roda no caminho barato - o de decidir NAO regerar.
+    _PARAMS_GERADOR = ("veh_por_hora", "horizonte_s", "depart_speed",
+                       "min_edges", "k_rotas", "gamma_rota")
+    _PARAMS_CENARIO = ("od_weight", "od_weight_pow", "depart_lane")
+
+    def _divergencias(self, cenario: Cenario, man: ManifestoDemanda) -> list[str]:
+        """O manifesto em disco descreve o que este gerador produziria AGORA?
+
+        `ManifestoDemanda.confere()` prova que o ARQUIVO bate com o MANIFESTO. Nao
+        prova que o manifesto bate com o CODIGO: mudar `horizonte_s` ou a taxa
+        deixava em disco uma demanda de outro regime, com o sha intacto, e o
+        `gera()` a devolvia calada. E a mesma classe de falha que fez a Arena rodar
+        a malha vazia - "esta certo porque nao reclamou" - e a que obrigou o A5 a
+        carimbar o horizonte no nome da pasta em `tune_baseline_capacidade.py`.
+        """
+        def igual(a, b) -> bool:
+            if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+                return float(a) == float(b)     # 1 e 1.0 vem iguais do JSON
+            return a == b
+
+        fora = []
+        if man.versao_gerador != self.versao:
+            fora.append("versao_gerador %r -> %r" % (man.versao_gerador, self.versao))
+        for chave, agora in ([(k, getattr(self, k)) for k in self._PARAMS_GERADOR]
+                             + [(k, getattr(cenario, k)) for k in self._PARAMS_CENARIO]):
+            antes = man.parametros.get(chave)
+            if not igual(antes, agora):
+                fora.append("%s %r -> %r" % (chave, antes, agora))
+        return fora
+
     # ------------------------------------------------------------------ contrato
     def gera(self, cenario: Cenario, seed: int, *, forcar: bool = False) -> ManifestoDemanda:
         rou = cenario.rou_file(seed)
@@ -229,15 +276,23 @@ class GeradorDemandaAberta:
             man = ManifestoDemanda.carrega(man_path)
             try:
                 man.confere(rou)
+                divs = self._divergencias(cenario, man)
+                if divs:
+                    raise _Regerar("; ".join(divs))
                 # O cfg da seed nao vai versionado: pode faltar mesmo com o
                 # `.rou.xml` intacto (clone novo, `git clean`). Recriar e barato e
                 # deterministico; deixar faltando e o que fazia a Arena cair no
                 # canonico e rodar OUTRA demanda.
                 if self.escreve_cfg and not caminho_config_seed(cenario, seed).exists():
                     escreve_config_seed(cenario, seed, rou)
+                self.ultimo_motivo = None
                 return man
-            except Exception:
-                pass                                  # divergiu do manifesto: regera
+            except _Regerar as e:
+                self.ultimo_motivo = str(e)           # parametro mudou: regera
+            except Exception as e:
+                self.ultimo_motivo = "disco divergiu do manifesto (%s)" % type(e).__name__
+        else:
+            self.ultimo_motivo = "forcado" if forcar else "nao existia em disco"
 
         pares, cum, malha = self._pares(cenario)
         texto, n, t0, t1 = self._render(cenario, seed, pares, cum)

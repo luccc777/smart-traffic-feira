@@ -1,32 +1,64 @@
 # Próximos passos — pronto para disparar
 
-Estado em 2026-09-08. **534 testes verdes, `ruff` limpo.** Ondas 0 e 1 concluídas,
-Onda 2 com o baseline (A5) fechado. Falta A6 (treino), A7 (projeção) e A8 (adversários).
+Estado em 2026-09-09. Ondas 0 e 1 concluídas, Onda 2 com o baseline (A5) fechado.
+**Passo 0 executado e verificado** (§0). **A6 e A7 disparados**; falta A8.
 
 Este documento existe para a próxima sessão começar disparando, sem redescobrir nada.
 
 ---
 
-## 0. Antes de qualquer agente — regerar a demanda canônica
+## 0. A demanda canônica — FEITO (2026-09-09)
 
-**Decidido pelo dono do projeto.** O horizonte atual (`HORIZONTE_S = 5400`) não sustenta
-a janela de 7200 s que a metaestabilidade exige: medido na seed 42, a partir de t≈5700 a
-rede fica **vazia**, e toda janela de 7200 s promedia ~25% de rede deserta.
+**Decidido pelo dono do projeto, executado pelo coordenador.** O horizonte era
+`HORIZONTE_S = 5400` e não sustentava a janela de 7200 s que a metaestabilidade exige:
+medido na seed 42, a partir de t≈5700 a rede ficava **vazia**, e toda janela de 7200 s
+promediava ~25% de rede deserta. Hoje `HORIZONTE_S = 8400` (300 de aquecimento + 7200 de
+janela + 900 de folga), e as 18 seeds foram regeradas.
 
-```powershell
-# regerar as 18 seeds canônicas com horizonte 8400
-..\smart-traffic\.venv\Scripts\python.exe -m feira.demanda --horizonte 8400 --todas --forcar
-```
+O que mudou: **o sha256 de toda demanda**, e portanto toda `Chave` (C5) já carimbada. Os
+números medidos antes continuam válidos como medida — o que muda é a proveniência, e eles
+precisam ser re-rodados para voltar a comparar. Cada seed passou de ~5138 para ~8100–8370
+veículos. Vale a propriedade que o A1 mediu: o horizonte só ACRESCENTA no fim, então os
+primeiros 5400 s de cada seed continuam byte a byte os de antes.
 
-O que muda: **o sha256 de toda demanda**, e portanto toda `Chave` (C5) já carimbada. Os
-números medidos continuam válidos como medida — o que muda é a proveniência, e eles têm
-que ser re-rodados para voltar a comparar. O A1 mediu que a demanda de horizonte menor é
-**prefixo exato** da maior, então o conteúdo dos primeiros 5400 s não muda.
+**Um defeito fechado no caminho.** `gera()` decidia não regerar comparando o sha do
+arquivo com o manifesto — o que prova que o ARQUIVO bate com o MANIFESTO, mas não que o
+manifesto bate com o CÓDIGO. Mudar `horizonte_s` deixaria em disco a demanda do regime
+antigo, íntegra e com o sha certo, e o `gera()` a devolveria calada. É a mesma classe de
+falha silenciosa que fez a Arena rodar a malha vazia, e é a razão pela qual o A5 teve de
+carimbar o horizonte no nome da pasta em `tune_baseline_capacidade.py`. Agora
+`GeradorDemandaAberta._divergencias()` compara os parâmetros que determinam o conteúdo
+(taxa, horizonte, `od_weight`, `depart_lane`, `k_rotas`, ...) e regera, dizendo o motivo:
 
-**Verificação obrigatória depois:** rodar `scripts/divergencia_bancadas.py --seed 42
---ate 7200` e conferir que nenhuma fatia de 600 s termina com 0 ativos.
+    seed  42 | 8053 veiculos | ... | horizonte_s 5400.0 -> 8400.0
 
-Quem faz: pode ser o coordenador (é mecânico) ou entrar como passo 1 do agente A6.
+Guardado por `tests/test_a1_demanda.py::test_parametro_mudado_regera_em_vez_de_devolver_o_disco`.
+
+**Verificação (obrigatória, executada).** `scripts/divergencia_bancadas.py --seed 42
+--ate 7200`, timer uniforme de 27 s:
+
+| janela | ativos | % parados | km/h eq. (×6) |
+|---|---|---|---|
+| `[300, 900)` | 149,0 | 33,3% | 21,5 |
+| `[300, 3900)` | 153,2 | 34,8% | 20,9 |
+| `[300, 7500)` | **157,3** | **35,2%** | **20,6** |
+
+6879 inseridos, 6871 entregues. **Nenhuma das 12 fatias de 600 s fica vazia** e a
+população não deriva (141–170 em todas). O regime é estacionário na janela inteira — que
+era exatamente o que o horizonte de 5400 não entregava.
+
+**Confirmação independente:** o A5 já tinha gerado a demanda de 8400 s por conta própria,
+em `sumo/aberta/planos/demanda_longa/`, para poder rodar 7200 s. Os arquivos batem **byte
+a byte** com os canônicos de agora (seed 42: `5f89b4da…`, 1 889 734 bytes nos dois). Dois
+caminhos independentes chegaram ao mesmo arquivo — é o invariante do C2 funcionando.
+
+**O que NÃO mudou, e não deve mudar.** A demanda **de projeto** que alimentou o Webster
+(`sumo/aberta/planos/projeto/demanda_projeto_s7.rou.xml`, seed 7) continua em 5400 s: o
+horizonte dela é a constante própria `HORIZONTE_PROJETO` do
+`scripts/tune_baseline_plano.py`, não o `HORIZONTE_S` do gerador. É separação correta e
+deliberada — a demanda de projeto nunca é avaliada, só desenha o plano, e Webster só
+precisa de taxas de fluxo. **Não "conserte" alinhando os dois horizontes:** isso
+re-derivaria o plano congelado e invalidaria a comparação inteira do A5.
 
 ---
 
@@ -159,8 +191,27 @@ Investigado até aqui:
 - hipótese "subconjunto de faixas" **refutada por medição** (aproximação e todas as
   faixas dão o mesmo número: 49,55 em [300, 900));
 - a **duração da janela** explica ~1,7 pp (33,3% em 600 s → 35,0% em 5400 s);
+- o **horizonte da demanda não era a causa** (medido no passo 0): com a demanda de 8400 s
+  o reprodutor dá 35,0% em `[300, 5700)`, o MESMO número de antes — como manda a
+  propriedade de prefixo. O que a regeração conserta é outra coisa: a janela de 7200 s
+  passou a medir rede com carro dentro em vez de cauda deserta;
 - sobra como candidato a **ordem de agregação**: `média(parados)/média(ativos)` contra
   `média(parados/ativos)` divergem bastante quando a cauda drena.
+
+**O que o passo 0 acrescentou ao caso.** Há hoje quatro leituras da mesma condição:
+
+| leitura | % parados |
+|---|---|
+| `sumo/aberta/calibra.py` (A1) | 37,8% |
+| `_LeitorDeFaixas` do A5 — segundo caminho, independente | 35,3% |
+| `scripts/divergencia_bancadas.py` — observador da Arena, `[300, 7500)` | 35,2% |
+| manchete do `Resultado` da Arena (A2) | 31,4% |
+
+As **duas leituras independentes ao nível de observador batem** (35,3% e 35,2%), e ficam
+entre as duas publicadas. Isso desloca a suspeita: o número fora da curva é a **manchete
+do `Resultado` da Arena**, não o do `calibra.py`. **Ainda é hipótese** — quem fecha é
+comparar as duas ordens de agregação sobre a MESMA série, que é uma tarde de trabalho e
+não precisa de agente.
 
 Reprodutor: `scripts/divergencia_bancadas.py`.
 
@@ -174,6 +225,11 @@ Reprodutor: `scripts/divergencia_bancadas.py`.
   intacto), mas a `Chave` rotula outra coisa.
 - `feira/jogo/estado.py::cenario_da_seed()` é contorno do bug da Arena que já foi
   consertado — hoje é redundante. Simplificar quando alguém encostar no arquivo.
+- `sumo/aberta/planos/demanda_longa/` (34 MB, 56 arquivos) virou **cópia byte a byte** da
+  demanda canônica com o passo 0. Duas fontes de verdade para o mesmo arquivo é como se
+  mede a coisa errada sem perceber. Apagar a pasta e fazer o `--demanda-longa` do
+  `scripts/tune_baseline_varredura.py` apontar para a canônica — pequeno, mas é do A5, e
+  ninguém deve mexer enquanto o A6 estiver medindo.
 - Falha transitória de TraCI (`Connection closed by SUMO` no aquecimento) vista **1 vez em
   30+ corridas**. O motor degrada e o jogo segue; vigiar no ensaio com público.
 - **Limpeza pendente que o sandbox nega:** `Remove-Item -Recurse -Force

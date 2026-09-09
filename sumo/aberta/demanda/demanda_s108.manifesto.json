@@ -1,11 +1,11 @@
 {
   "cenario": "aberta.maquete",
-  "n_veiculos": 5246,
+  "n_veiculos": 8122,
   "parametros": {
     "depart_lane": "best",
     "depart_speed": "max",
     "gamma_rota": 4.0,
-    "horizonte_s": 5400.0,
+    "horizonte_s": 8400.0,
     "k_rotas": 4,
     "min_edges": 4,
     "n_pares_od": 67,
@@ -18,8 +18,8 @@
     "veh_por_hora": 3500.0
   },
   "seed": 108,
-  "sha256": "91d73372551b8163e677bfee8d9604296bdcab35012a0020525feb94abaab9ca",
+  "sha256": "d0d72c53ec161af30926c5e7caf727b7a37084ad56c27883c2e518b54be7a43e",
   "t_primeiro": 0.14,
-  "t_ultimo": 5399.49,
+  "t_ultimo": 8399.06,
   "versao_gerador": "aberta-1.1"
 }

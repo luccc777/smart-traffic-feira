@@ -407,3 +407,38 @@ def test_seeds_diferentes_sobem_trafego_diferente_no_sumo(ger, cen):
     # e o canonico sozinho nao sobe demanda nenhuma - nao ha "demanda default"
     # que alguem meca sem perceber qual seed estava rodando.
     assert inseridos(Path(cen.sumocfg)) == 0
+
+
+def test_parametro_mudado_regera_em_vez_de_devolver_o_disco(cen):
+    """Manifesto que bate com o arquivo mas NAO com o codigo tem que regerar.
+
+    `ManifestoDemanda.confere()` prova que o ARQUIVO bate com o MANIFESTO. Nao
+    prova que o manifesto bate com o GERADOR de hoje. Sem esta guarda, mudar
+    `horizonte_s` (ou a taxa) no codigo deixava em disco a demanda do regime
+    ANTIGO, com o sha intacto, e `gera()` a devolvia calada - a mesma classe de
+    falha silenciosa que fez a Arena rodar a malha vazia. Foi o que obrigou o A5 a
+    carimbar o horizonte no nome da pasta em `tune_baseline_capacidade.py`.
+    """
+    from feira.demanda import GeradorDemandaAberta
+
+    curto = GeradorDemandaAberta(veh_por_hora=3600.0, horizonte_s=600.0)
+    a = curto.gera(cen, 42)
+    assert curto.ultimo_motivo == "nao existia em disco"
+
+    # segunda chamada, MESMOS parametros: reaproveita, nao reescreve
+    b = curto.gera(cen, 42)
+    assert curto.ultimo_motivo is None
+    assert b.sha256 == a.sha256
+
+    # so o horizonte muda. O arquivo em disco continua integro e batendo com o
+    # seu proprio manifesto - e mesmo assim tem que ser reescrito.
+    longo = GeradorDemandaAberta(veh_por_hora=3600.0, horizonte_s=1200.0)
+    c = longo.gera(cen, 42)
+    assert longo.ultimo_motivo and "horizonte_s" in longo.ultimo_motivo
+    assert c.sha256 != a.sha256
+    assert c.t_ultimo > a.t_ultimo
+
+    # e a taxa idem, pelo mesmo motivo
+    outra = GeradorDemandaAberta(veh_por_hora=1800.0, horizonte_s=1200.0)
+    outra.gera(cen, 42)
+    assert outra.ultimo_motivo and "veh_por_hora" in outra.ultimo_motivo
