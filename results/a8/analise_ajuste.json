@@ -1,0 +1,3102 @@
+{
+ "oponentes": {
+  "coordenado_c60@120": {
+   "42": {
+    "entregues": 110,
+    "fila_media": 54.54,
+    "controlador": "timer:coordenado_c60",
+    "crescimento": 17,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 156.3
+   },
+   "43": {
+    "entregues": 118,
+    "fila_media": 62.3,
+    "controlador": "timer:coordenado_c60",
+    "crescimento": 13,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 163.5
+   },
+   "44": {
+    "entregues": 124,
+    "fila_media": 52.46,
+    "controlador": "timer:coordenado_c60",
+    "crescimento": -3,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 163.9
+   },
+   "45": {
+    "entregues": 120,
+    "fila_media": 59.93,
+    "controlador": "timer:coordenado_c60",
+    "crescimento": 2,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 156.9
+   },
+   "46": {
+    "entregues": 116,
+    "fila_media": 52.97,
+    "controlador": "timer:coordenado_c60",
+    "crescimento": -9,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 155.8
+   },
+   "47": {
+    "entregues": 113,
+    "fila_media": 55.14,
+    "controlador": "timer:coordenado_c60",
+    "crescimento": 12,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 154.7
+   },
+   "230": {
+    "entregues": 106,
+    "fila_media": 49.12,
+    "controlador": "timer:coordenado_c60",
+    "crescimento": 5,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 154.3
+   },
+   "231": {
+    "entregues": 116,
+    "fila_media": 53.47,
+    "controlador": "timer:coordenado_c60",
+    "crescimento": 5,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 154.6
+   },
+   "232": {
+    "entregues": 128,
+    "fila_media": 53.51,
+    "controlador": "timer:coordenado_c60",
+    "crescimento": -24,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 157.8
+   },
+   "233": {
+    "entregues": 106,
+    "fila_media": 68.63,
+    "controlador": "timer:coordenado_c60",
+    "crescimento": 21,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 157.0
+   }
+  },
+  "rl@120": {
+   "42": {
+    "entregues": 117,
+    "fila_media": 42.18,
+    "controlador": "rl:v1_queue_di5",
+    "crescimento": 10,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 146.1
+   },
+   "43": {
+    "entregues": 130,
+    "fila_media": 42.76,
+    "controlador": "rl:v1_queue_di5",
+    "crescimento": 1,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 155.1
+   },
+   "44": {
+    "entregues": 133,
+    "fila_media": 36.34,
+    "controlador": "rl:v1_queue_di5",
+    "crescimento": -12,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 158.0
+   },
+   "45": {
+    "entregues": 125,
+    "fila_media": 40.57,
+    "controlador": "rl:v1_queue_di5",
+    "crescimento": -3,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 146.0
+   },
+   "46": {
+    "entregues": 130,
+    "fila_media": 31.45,
+    "controlador": "rl:v1_queue_di5",
+    "crescimento": -23,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 147.9
+   },
+   "47": {
+    "entregues": 125,
+    "fila_media": 38.58,
+    "controlador": "rl:v1_queue_di5",
+    "crescimento": 0,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 146.1
+   },
+   "230": {
+    "entregues": 119,
+    "fila_media": 31.12,
+    "controlador": "rl:v1_queue_di5",
+    "crescimento": -8,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 144.3
+   },
+   "231": {
+    "entregues": 128,
+    "fila_media": 43.4,
+    "controlador": "rl:v1_queue_di5",
+    "crescimento": -7,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 149.6
+   },
+   "232": {
+    "entregues": 124,
+    "fila_media": 41.17,
+    "controlador": "rl:v1_queue_di5",
+    "crescimento": -20,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 149.0
+   },
+   "233": {
+    "entregues": 127,
+    "fila_media": 46.92,
+    "controlador": "rl:v1_queue_di5",
+    "crescimento": 0,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 145.9
+   }
+  },
+  "timer27@120": {
+   "42": {
+    "entregues": 121,
+    "fila_media": 50.34,
+    "controlador": "timer:uniforme_27s",
+    "crescimento": 6,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 154.3
+   },
+   "43": {
+    "entregues": 117,
+    "fila_media": 61.22,
+    "controlador": "timer:uniforme_27s",
+    "crescimento": 14,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 165.3
+   },
+   "44": {
+    "entregues": 122,
+    "fila_media": 52.18,
+    "controlador": "timer:uniforme_27s",
+    "crescimento": -1,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 163.9
+   },
+   "45": {
+    "entregues": 121,
+    "fila_media": 55.08,
+    "controlador": "timer:uniforme_27s",
+    "crescimento": 1,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 151.2
+   },
+   "46": {
+    "entregues": 121,
+    "fila_media": 49.08,
+    "controlador": "timer:uniforme_27s",
+    "crescimento": -14,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 152.4
+   },
+   "47": {
+    "entregues": 107,
+    "fila_media": 54.3,
+    "controlador": "timer:uniforme_27s",
+    "crescimento": 18,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 154.1
+   },
+   "230": {
+    "entregues": 102,
+    "fila_media": 47.88,
+    "controlador": "timer:uniforme_27s",
+    "crescimento": 9,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 151.0
+   },
+   "231": {
+    "entregues": 118,
+    "fila_media": 55.07,
+    "controlador": "timer:uniforme_27s",
+    "crescimento": 3,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 156.1
+   },
+   "232": {
+    "entregues": 112,
+    "fila_media": 56.6,
+    "controlador": "timer:uniforme_27s",
+    "crescimento": -8,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 154.3
+   },
+   "233": {
+    "entregues": 118,
+    "fila_media": 63.65,
+    "controlador": "timer:uniforme_27s",
+    "crescimento": 9,
+    "sinais": [],
+    "sane": true,
+    "tempo_medio_entregue": 152.7
+   }
+  }
+ },
+ "adversarios": {
+  "gulosa_fase:f=0.6@falha=0.05@extra=0.02@120": {
+   "spec": "gulosa_fase:f=0.6@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:gulosa_fase_f0.6+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -6.28,
+    "crescimento_max": 10.0,
+    "crescimento_rel_medio": -0.04047180842316536,
+    "crescimento_rel_max": 0.062111801242236024,
+    "acumulo_excedente_medio": -0.06397413886234445,
+    "acumulo_excedente_max": -0.00662251655629139,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 39.9335,
+    "lacuna_media": -23.585148,
+    "entregues_medio": 125.88,
+    "entregues_dp": 6.690352481486354,
+    "tempo_medio_entregue": 149.02345090237364,
+    "tempo_medio_no_sistema": 113.81067276989619
+   },
+   "ruido": {
+    "dp_intra_seed": 2.12602916254693,
+    "ruido_jogada": 3.0066592756745822,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 28,
+     "p_vitoria": 0.5599999999999999,
+     "ic95": [
+      0.28,
+      0.84
+     ],
+     "p_empate": 0.02,
+     "ic95_empate": [
+      0.0,
+      0.08
+     ],
+     "wilson_ingenuo": [
+      0.4230602801857627,
+      0.6883780079145027
+     ],
+     "margem_media": 0.08000000000000015,
+     "margem_ic95": [
+      -3.3004999999999995,
+      3.44
+     ],
+     "margem_dp_rodada": 5.8722453376985575,
+     "margem_dp_entre_seeds": 5.790567041893796,
+     "seeds_vencidas": [
+      42,
+      44,
+      45,
+      46,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.0,
+      "44": 0.8,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.0,
+      "232": 1.0,
+      "233": 0.8
+     },
+     "margem_por_seed": {
+      "42": 8.0,
+      "43": -7.4,
+      "44": 1.4,
+      "45": 5.0,
+      "46": 3.2,
+      "47": -6.2,
+      "230": -5.6,
+      "231": -5.8,
+      "232": 6.2,
+      "233": 2.0
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 48,
+     "p_vitoria": 0.96,
+     "ic95": [
+      0.86,
+      1.0
+     ],
+     "p_empate": 0.02,
+     "ic95_empate": [
+      0.0,
+      0.08
+     ],
+     "wilson_ingenuo": [
+      0.8653990930933617,
+      0.9889611156753388
+     ],
+     "margem_media": 10.18,
+     "margem_ic95": [
+      6.6,
+      14.22
+     ],
+     "margem_dp_rodada": 6.473462310519332,
+     "margem_dp_entre_seeds": 6.450805289953254,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 0.6,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 15.0,
+      "43": 4.6,
+      "44": 10.4,
+      "45": 10.0,
+      "46": 17.2,
+      "47": 5.8,
+      "230": 7.4,
+      "231": 6.2,
+      "232": 2.2,
+      "233": 23.0
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 50,
+     "p_vitoria": 1.0,
+     "ic95": [
+      1.0,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.9286524008355442,
+      1.0
+     ],
+     "margem_media": 9.98,
+     "margem_ic95": [
+      7.42,
+      12.68
+     ],
+     "margem_dp_rodada": 4.631260241939707,
+     "margem_dp_entre_seeds": 4.39742348805904,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 4.0,
+      "43": 5.6,
+      "44": 12.4,
+      "45": 9.0,
+      "46": 12.2,
+      "47": 11.8,
+      "230": 11.4,
+      "231": 4.2,
+      "232": 18.2,
+      "233": 11.0
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  },
+  "gulosa_fase:f=0.8@falha=0.05@extra=0.02@120": {
+   "spec": "gulosa_fase:f=0.8@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:gulosa_fase_f0.8+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -5.86,
+    "crescimento_max": 13.0,
+    "crescimento_rel_medio": -0.03745175026409719,
+    "crescimento_rel_max": 0.08074534161490683,
+    "acumulo_excedente_medio": -0.06095408070327628,
+    "acumulo_excedente_max": 0.01324503311258278,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 39.7895,
+    "lacuna_media": -23.564445999999997,
+    "entregues_medio": 125.46,
+    "entregues_dp": 7.521967827636595,
+    "tempo_medio_entregue": 148.9172021722655,
+    "tempo_medio_no_sistema": 113.75022116083767
+   },
+   "ruido": {
+    "dp_intra_seed": 2.4124676163629637,
+    "ruido_jogada": 3.411744421846396,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 23,
+     "p_vitoria": 0.45999999999999996,
+     "ic95": [
+      0.2,
+      0.74
+     ],
+     "p_empate": 0.06000000000000001,
+     "ic95_empate": [
+      0.0,
+      0.18
+     ],
+     "wilson_ingenuo": [
+      0.3296965218944554,
+      0.5960112860387011
+     ],
+     "margem_media": -0.33999999999999997,
+     "margem_ic95": [
+      -4.16,
+      3.6804999999999928
+     ],
+     "margem_dp_rodada": 6.70245157706172,
+     "margem_dp_entre_seeds": 6.613823906535966,
+     "seeds_vencidas": [
+      42,
+      45,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.0,
+      "44": 0.4,
+      "45": 1.0,
+      "46": 0.4,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.0,
+      "232": 1.0,
+      "233": 0.8
+     },
+     "margem_por_seed": {
+      "42": 6.4,
+      "43": -7.8,
+      "44": 0.0,
+      "45": 3.6,
+      "46": 0.8,
+      "47": -7.6,
+      "230": -8.2,
+      "231": -4.6,
+      "232": 11.2,
+      "233": 2.8
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 49,
+     "p_vitoria": 0.9800000000000001,
+     "ic95": [
+      0.92,
+      1.0
+     ],
+     "p_empate": 0.02,
+     "ic95_empate": [
+      0.0,
+      0.08
+     ],
+     "wilson_ingenuo": [
+      0.8950455640726042,
+      0.9964607407295184
+     ],
+     "margem_media": 9.760000000000002,
+     "margem_ic95": [
+      6.56,
+      13.8
+     ],
+     "margem_dp_rodada": 6.232109087096389,
+     "margem_dp_entre_seeds": 6.092472586907735,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.8,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 13.4,
+      "43": 4.2,
+      "44": 9.0,
+      "45": 8.6,
+      "46": 14.8,
+      "47": 4.4,
+      "230": 4.8,
+      "231": 7.4,
+      "232": 7.2,
+      "233": 23.8
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 49,
+     "p_vitoria": 0.9800000000000001,
+     "ic95": [
+      0.92,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.8950455640726042,
+      0.9964607407295184
+     ],
+     "margem_media": 9.56,
+     "margem_ic95": [
+      6.58,
+      13.22
+     ],
+     "margem_dp_rodada": 5.824508387768334,
+     "margem_dp_entre_seeds": 5.636231995856018,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 0.8,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 2.4,
+      "43": 5.2,
+      "44": 11.0,
+      "45": 7.6,
+      "46": 9.8,
+      "47": 10.4,
+      "230": 8.8,
+      "231": 5.4,
+      "232": 23.2,
+      "233": 11.8
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  },
+  "gulosa_fase:f=1,margem=2@falha=0.05@extra=0.02@120": {
+   "spec": "gulosa_fase:f=1,margem=2@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:gulosa_fase_f1+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -8.44,
+    "crescimento_max": 9.0,
+    "crescimento_rel_medio": -0.05450278582874732,
+    "crescimento_rel_max": 0.055900621118012424,
+    "acumulo_excedente_medio": -0.07800511626792639,
+    "acumulo_excedente_max": -0.019867549668874173,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 37.99133333333333,
+    "lacuna_media": -23.811916,
+    "entregues_medio": 128.04,
+    "entregues_dp": 6.883757872628844,
+    "tempo_medio_entregue": 149.22622130063326,
+    "tempo_medio_no_sistema": 113.6291344291944
+   },
+   "ruido": {
+    "dp_intra_seed": 2.2203603311174516,
+    "ruido_jogada": 3.1400636936215163,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 29,
+     "p_vitoria": 0.58,
+     "ic95": [
+      0.3,
+      0.86
+     ],
+     "p_empate": 0.08,
+     "ic95_empate": [
+      0.0,
+      0.18
+     ],
+     "wilson_ingenuo": [
+      0.44233441765448356,
+      0.7062499664792034
+     ],
+     "margem_media": 2.24,
+     "margem_ic95": [
+      -1.02,
+      5.56
+     ],
+     "margem_dp_rodada": 5.766051243162474,
+     "margem_dp_entre_seeds": 5.640961304994428,
+     "seeds_vencidas": [
+      42,
+      44,
+      45,
+      46,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.2,
+      "232": 1.0,
+      "233": 0.6
+     },
+     "margem_por_seed": {
+      "42": 9.6,
+      "43": -4.0,
+      "44": 3.4,
+      "45": 6.6,
+      "46": 5.6,
+      "47": -4.6,
+      "230": -4.6,
+      "231": -1.0,
+      "232": 9.8,
+      "233": 1.6
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 50,
+     "p_vitoria": 1.0,
+     "ic95": [
+      1.0,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.9286524008355442,
+      1.0
+     ],
+     "margem_media": 12.34,
+     "margem_ic95": [
+      9.18,
+      15.82
+     ],
+     "margem_dp_rodada": 5.709319270334445,
+     "margem_dp_entre_seeds": 5.577773351038528,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 16.6,
+      "43": 8.0,
+      "44": 12.4,
+      "45": 11.6,
+      "46": 19.6,
+      "47": 7.4,
+      "230": 8.4,
+      "231": 11.0,
+      "232": 5.8,
+      "233": 22.6
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 50,
+     "p_vitoria": 1.0,
+     "ic95": [
+      1.0,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.9286524008355442,
+      1.0
+     ],
+     "margem_media": 12.139999999999999,
+     "margem_ic95": [
+      9.68,
+      14.96
+     ],
+     "margem_dp_rodada": 4.6599027755470415,
+     "margem_dp_entre_seeds": 4.388925456950331,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 5.6,
+      "43": 9.0,
+      "44": 14.4,
+      "45": 10.6,
+      "46": 14.6,
+      "47": 13.4,
+      "230": 12.4,
+      "231": 9.0,
+      "232": 21.8,
+      "233": 10.6
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  },
+  "gulosa_fase:f=1,margem=5@falha=0.05@extra=0.02@120": {
+   "spec": "gulosa_fase:f=1,margem=5@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:gulosa_fase_f1+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -2.3,
+    "crescimento_max": 17.0,
+    "crescimento_rel_medio": -0.014550429634776041,
+    "crescimento_rel_max": 0.10828025477707007,
+    "acumulo_excedente_medio": -0.038052760073955125,
+    "acumulo_excedente_max": 0.04081632653061225,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 46.596833333333336,
+    "lacuna_media": -24.328719999999997,
+    "entregues_medio": 121.9,
+    "entregues_dp": 6.73780076758533,
+    "tempo_medio_entregue": 151.9118511664991,
+    "tempo_medio_no_sistema": 114.88720309537088
+   },
+   "ruido": {
+    "dp_intra_seed": 3.246536616149585,
+    "ruido_jogada": 4.591296113299598,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 15,
+     "p_vitoria": 0.3,
+     "ic95": [
+      0.08,
+      0.56
+     ],
+     "p_empate": 0.04,
+     "ic95_empate": [
+      0.0,
+      0.12
+     ],
+     "wilson_ingenuo": [
+      0.19103553498781273,
+      0.43750350467796956
+     ],
+     "margem_media": -3.9,
+     "margem_ic95": [
+      -7.86,
+      0.52
+     ],
+     "margem_dp_rodada": 7.412757893782634,
+     "margem_dp_entre_seeds": 7.103833081122081,
+     "seeds_vencidas": [
+      42,
+      45,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.0,
+      "44": 0.0,
+      "45": 0.8,
+      "46": 0.0,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.0,
+      "232": 0.6,
+      "233": 0.6
+     },
+     "margem_por_seed": {
+      "42": 6.6,
+      "43": -11.0,
+      "44": -7.4,
+      "45": 6.2,
+      "46": -6.8,
+      "47": -11.2,
+      "230": -7.2,
+      "231": -11.0,
+      "232": 1.2,
+      "233": 1.6
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 40,
+     "p_vitoria": 0.8,
+     "ic95": [
+      0.6,
+      0.96
+     ],
+     "p_empate": 0.04,
+     "ic95_empate": [
+      0.0,
+      0.12
+     ],
+     "wilson_ingenuo": [
+      0.6696289406437537,
+      0.8875624998575729
+     ],
+     "margem_media": 6.200000000000001,
+     "margem_ic95": [
+      1.94,
+      11.1
+     ],
+     "margem_dp_rodada": 7.951382885757569,
+     "margem_dp_entre_seeds": 7.71203964950619,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.6,
+      "44": 0.8,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 0.8,
+      "230": 1.0,
+      "231": 0.6,
+      "232": 0.2,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 13.6,
+      "43": 1.0,
+      "44": 1.6,
+      "45": 11.2,
+      "46": 7.2,
+      "47": 0.8,
+      "230": 5.8,
+      "231": 1.0,
+      "232": -2.8,
+      "233": 22.6
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 41,
+     "p_vitoria": 0.82,
+     "ic95": [
+      0.64,
+      0.96
+     ],
+     "p_empate": 0.02,
+     "ic95_empate": [
+      0.0,
+      0.08
+     ],
+     "wilson_ingenuo": [
+      0.6920394632230499,
+      0.9022980733116982
+     ],
+     "margem_media": 6.000000000000001,
+     "margem_ic95": [
+      3.1995000000000005,
+      8.92
+     ],
+     "margem_dp_rodada": 5.409741779646139,
+     "margem_dp_entre_seeds": 4.743182241678869,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 0.6,
+      "43": 0.8,
+      "44": 0.8,
+      "45": 1.0,
+      "46": 0.8,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 0.2,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 2.6,
+      "43": 2.0,
+      "44": 3.6,
+      "45": 10.2,
+      "46": 2.2,
+      "47": 6.8,
+      "230": 9.8,
+      "231": -1.0,
+      "232": 13.2,
+      "233": 10.6
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  },
+  "gulosa_fase:f=1.3@falha=0.05@extra=0.02@120": {
+   "spec": "gulosa_fase:f=1.3@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:gulosa_fase_f1.3+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -6.7,
+    "crescimento_max": 12.0,
+    "crescimento_rel_medio": -0.04280825110616331,
+    "crescimento_rel_max": 0.07643312101910828,
+    "acumulo_excedente_medio": -0.0663105815453424,
+    "acumulo_excedente_max": -0.00662251655629139,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 39.018,
+    "lacuna_media": -23.44368,
+    "entregues_medio": 126.3,
+    "entregues_dp": 7.8642824704807115,
+    "tempo_medio_entregue": 148.66497797781898,
+    "tempo_medio_no_sistema": 113.75139459836426
+   },
+   "ruido": {
+    "dp_intra_seed": 2.7748873851023217,
+    "ruido_jogada": 3.924283374069717,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 27,
+     "p_vitoria": 0.54,
+     "ic95": [
+      0.26,
+      0.82
+     ],
+     "p_empate": 0.04,
+     "ic95_empate": [
+      0.0,
+      0.12
+     ],
+     "wilson_ingenuo": [
+      0.403988713961299,
+      0.6703034781055446
+     ],
+     "margem_media": 0.4999999999999999,
+     "margem_ic95": [
+      -3.3004999999999995,
+      4.28
+     ],
+     "margem_dp_rodada": 6.707443322039132,
+     "margem_dp_entre_seeds": 6.491875264085444,
+     "seeds_vencidas": [
+      42,
+      44,
+      45,
+      46,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.0,
+      "44": 0.8,
+      "45": 1.0,
+      "46": 0.6,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 7.2,
+      "43": -6.6,
+      "44": 4.0,
+      "45": 6.6,
+      "46": 0.8,
+      "47": -7.2,
+      "230": -7.6,
+      "231": -5.0,
+      "232": 8.6,
+      "233": 4.2
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 48,
+     "p_vitoria": 0.96,
+     "ic95": [
+      0.88,
+      1.0
+     ],
+     "p_empate": 0.02,
+     "ic95_empate": [
+      0.0,
+      0.08
+     ],
+     "wilson_ingenuo": [
+      0.8653990930933617,
+      0.9889611156753388
+     ],
+     "margem_media": 10.6,
+     "margem_ic95": [
+      6.98,
+      14.92
+     ],
+     "margem_dp_rodada": 6.767268161329721,
+     "margem_dp_entre_seeds": 6.559132733999382,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 0.8,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 0.8,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 14.2,
+      "43": 5.4,
+      "44": 13.0,
+      "45": 11.6,
+      "46": 14.8,
+      "47": 4.8,
+      "230": 5.4,
+      "231": 7.0,
+      "232": 4.6,
+      "233": 25.2
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 50,
+     "p_vitoria": 1.0,
+     "ic95": [
+      1.0,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.9286524008355442,
+      1.0
+     ],
+     "margem_media": 10.400000000000002,
+     "margem_ic95": [
+      7.5,
+      13.66
+     ],
+     "margem_dp_rodada": 5.469768491164756,
+     "margem_dp_entre_seeds": 5.072803301265814,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 3.2,
+      "43": 6.4,
+      "44": 15.0,
+      "45": 10.6,
+      "46": 9.8,
+      "47": 10.8,
+      "230": 9.4,
+      "231": 5.0,
+      "232": 20.6,
+      "233": 13.2
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  },
+  "gulosa_fase:f=1.6@falha=0.05@extra=0.02@120": {
+   "spec": "gulosa_fase:f=1.6@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:gulosa_fase_f1.6+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -5.98,
+    "crescimento_max": 12.0,
+    "crescimento_rel_medio": -0.0385483752641158,
+    "crescimento_rel_max": 0.07453416149068323,
+    "acumulo_excedente_medio": -0.06205070570329489,
+    "acumulo_excedente_max": 0.0,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 39.28266666666667,
+    "lacuna_media": -23.423470000000002,
+    "entregues_medio": 125.58,
+    "entregues_dp": 7.100129346335452,
+    "tempo_medio_entregue": 148.7479791303059,
+    "tempo_medio_no_sistema": 113.845112669714
+   },
+   "ruido": {
+    "dp_intra_seed": 2.3937418407171647,
+    "ruido_jogada": 3.3852621759621515,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 24,
+     "p_vitoria": 0.4800000000000001,
+     "ic95": [
+      0.2,
+      0.76
+     ],
+     "p_empate": 0.04,
+     "ic95_empate": [
+      0.0,
+      0.12
+     ],
+     "wilson_ingenuo": [
+      0.34797135283731545,
+      0.6148825511292628
+     ],
+     "margem_media": -0.2200000000000001,
+     "margem_ic95": [
+      -3.74,
+      3.24
+     ],
+     "margem_dp_rodada": 6.102157530792879,
+     "margem_dp_entre_seeds": 5.954232854775575,
+     "seeds_vencidas": [
+      42,
+      44,
+      45,
+      46,
+      232
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.0,
+      "44": 0.8,
+      "45": 1.0,
+      "46": 0.6,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.0,
+      "232": 1.0,
+      "233": 0.4
+     },
+     "margem_por_seed": {
+      "42": 7.2,
+      "43": -8.4,
+      "44": 3.0,
+      "45": 6.2,
+      "46": 0.0,
+      "47": -6.2,
+      "230": -7.4,
+      "231": -3.2,
+      "232": 6.8,
+      "233": -0.2
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 49,
+     "p_vitoria": 0.9800000000000001,
+     "ic95": [
+      0.92,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.8950455640726042,
+      0.9964607407295184
+     ],
+     "margem_media": 9.879999999999999,
+     "margem_ic95": [
+      6.64,
+      13.42
+     ],
+     "margem_dp_rodada": 5.826189989686087,
+     "margem_dp_entre_seeds": 5.645214295706094,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 0.8,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 14.2,
+      "43": 3.6,
+      "44": 12.0,
+      "45": 11.2,
+      "46": 14.0,
+      "47": 5.8,
+      "230": 5.6,
+      "231": 8.8,
+      "232": 2.8,
+      "233": 20.8
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 49,
+     "p_vitoria": 0.9800000000000001,
+     "ic95": [
+      0.92,
+      1.0
+     ],
+     "p_empate": 0.02,
+     "ic95_empate": [
+      0.0,
+      0.08
+     ],
+     "wilson_ingenuo": [
+      0.8950455640726042,
+      0.9964607407295184
+     ],
+     "margem_media": 9.68,
+     "margem_ic95": [
+      7.12,
+      12.5
+     ],
+     "margem_dp_rodada": 4.842161770557124,
+     "margem_dp_entre_seeds": 4.520766896593247,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 0.8,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 3.2,
+      "43": 4.6,
+      "44": 14.0,
+      "45": 10.2,
+      "46": 9.0,
+      "47": 11.8,
+      "230": 9.6,
+      "231": 6.8,
+      "232": 18.8,
+      "233": 8.8
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  },
+  "gulosa_fase:f=1@falha=0.05@extra=0.02@120": {
+   "spec": "gulosa_fase:f=1@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:gulosa_fase_f1+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -7.04,
+    "crescimento_max": 11.0,
+    "crescimento_rel_medio": -0.04512246177211817,
+    "crescimento_rel_max": 0.06832298136645963,
+    "acumulo_excedente_medio": -0.06862479221129726,
+    "acumulo_excedente_max": 0.00662251655629139,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 39.297000000000004,
+    "lacuna_media": -23.492828,
+    "entregues_medio": 126.64,
+    "entregues_dp": 7.50716664397482,
+    "tempo_medio_entregue": 148.8160760726851,
+    "tempo_medio_no_sistema": 113.78430761575216
+   },
+   "ruido": {
+    "dp_intra_seed": 2.1656407827707715,
+    "ruido_jogada": 3.062678566222711,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 26,
+     "p_vitoria": 0.52,
+     "ic95": [
+      0.23950000000000016,
+      0.8
+     ],
+     "p_empate": 0.06000000000000001,
+     "ic95_empate": [
+      0.0,
+      0.16
+     ],
+     "wilson_ingenuo": [
+      0.38511744887073723,
+      0.6520286471626846
+     ],
+     "margem_media": 0.8400000000000001,
+     "margem_ic95": [
+      -2.7,
+      4.3
+     ],
+     "margem_dp_rodada": 6.065492896841332,
+     "margem_dp_entre_seeds": 5.990956147023241,
+     "seeds_vencidas": [
+      42,
+      44,
+      45,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 0.4,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.0,
+      "232": 1.0,
+      "233": 0.8
+     },
+     "margem_por_seed": {
+      "42": 5.0,
+      "43": -7.2,
+      "44": 5.2,
+      "45": 7.0,
+      "46": 0.4,
+      "47": -4.8,
+      "230": -6.4,
+      "231": -3.2,
+      "232": 9.8,
+      "233": 2.6
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 50,
+     "p_vitoria": 1.0,
+     "ic95": [
+      1.0,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.9286524008355442,
+      1.0
+     ],
+     "margem_media": 10.940000000000001,
+     "margem_ic95": [
+      7.86,
+      14.52
+     ],
+     "margem_dp_rodada": 5.751344119740486,
+     "margem_dp_entre_seeds": 5.643521359340579,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 12.0,
+      "43": 4.8,
+      "44": 14.2,
+      "45": 12.0,
+      "46": 14.4,
+      "47": 7.2,
+      "230": 6.6,
+      "231": 8.8,
+      "232": 5.8,
+      "233": 23.6
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 48,
+     "p_vitoria": 0.96,
+     "ic95": [
+      0.84,
+      1.0
+     ],
+     "p_empate": 0.02,
+     "ic95_empate": [
+      0.0,
+      0.08
+     ],
+     "wilson_ingenuo": [
+      0.8653990930933617,
+      0.9889611156753388
+     ],
+     "margem_media": 10.739999999999998,
+     "margem_ic95": [
+      7.4,
+      14.16
+     ],
+     "margem_dp_rodada": 5.830286862407303,
+     "margem_dp_entre_seeds": 5.731046055380195,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 0.6,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 1.0,
+      "43": 5.8,
+      "44": 16.2,
+      "45": 11.0,
+      "46": 9.4,
+      "47": 13.2,
+      "230": 10.6,
+      "231": 6.8,
+      "232": 21.8,
+      "233": 11.6
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  },
+  "gulosa_fila:k=12,limiar=3@falha=0.05@extra=0.02@120": {
+   "spec": "gulosa_fila:k=12,limiar=3@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:gulosa_fila_k12+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -4.18,
+    "crescimento_max": 11.0,
+    "crescimento_rel_medio": -0.027141444897928125,
+    "crescimento_rel_max": 0.07006369426751592,
+    "acumulo_excedente_medio": -0.05064377533710722,
+    "acumulo_excedente_max": 0.01324503311258278,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 43.96983333333333,
+    "lacuna_media": -23.763602000000002,
+    "entregues_medio": 123.78,
+    "entregues_dp": 6.201678508801518,
+    "tempo_medio_entregue": 149.72954295623805,
+    "tempo_medio_no_sistema": 114.06841795044755
+   },
+   "ruido": {
+    "dp_intra_seed": 2.7037011669191546,
+    "ruido_jogada": 3.823610858861032,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 18,
+     "p_vitoria": 0.36,
+     "ic95": [
+      0.12,
+      0.62
+     ],
+     "p_empate": 0.08,
+     "ic95_empate": [
+      0.0,
+      0.2
+     ],
+     "wilson_ingenuo": [
+      0.24138749649462618,
+      0.4985898312714214
+     ],
+     "margem_media": -2.02,
+     "margem_ic95": [
+      -4.86,
+      0.92
+     ],
+     "margem_dp_rodada": 5.200039246319715,
+     "margem_dp_entre_seeds": 4.790221521205696,
+     "seeds_vencidas": [
+      42,
+      45,
+      46,
+      232
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.0,
+      "44": 0.0,
+      "45": 0.8,
+      "46": 0.6,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.0,
+      "232": 0.8,
+      "233": 0.4
+     },
+     "margem_por_seed": {
+      "42": 5.6,
+      "43": -7.2,
+      "44": -2.4,
+      "45": 2.4,
+      "46": 1.6,
+      "47": -8.6,
+      "230": -6.6,
+      "231": -5.6,
+      "232": 1.0,
+      "233": -0.4
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 45,
+     "p_vitoria": 0.9,
+     "ic95": [
+      0.7,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.7863976855921404,
+      0.956524235076295
+     ],
+     "margem_media": 8.080000000000002,
+     "margem_ic95": [
+      4.24,
+      12.2
+     ],
+     "margem_dp_rodada": 6.820856370915097,
+     "margem_dp_entre_seeds": 6.645432851047235,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 0.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 12.6,
+      "43": 4.8,
+      "44": 6.6,
+      "45": 7.4,
+      "46": 15.6,
+      "47": 3.4,
+      "230": 6.4,
+      "231": 6.4,
+      "232": -3.0,
+      "233": 20.6
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 47,
+     "p_vitoria": 0.9400000000000001,
+     "ic95": [
+      0.82,
+      1.0
+     ],
+     "p_empate": 0.02,
+     "ic95_empate": [
+      0.0,
+      0.08
+     ],
+     "wilson_ingenuo": [
+      0.8378290830794766,
+      0.9793850296558022
+     ],
+     "margem_media": 7.879999999999998,
+     "margem_ic95": [
+      5.74,
+      9.92
+     ],
+     "margem_dp_rodada": 4.038791494332664,
+     "margem_dp_entre_seeds": 3.356188314144485,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 0.6,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 0.8,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 1.6,
+      "43": 5.8,
+      "44": 8.6,
+      "45": 6.4,
+      "46": 10.6,
+      "47": 9.4,
+      "230": 10.4,
+      "231": 4.4,
+      "232": 13.0,
+      "233": 8.6
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  },
+  "gulosa_fila:k=12@falha=0.05@extra=0.02@120": {
+   "spec": "gulosa_fila:k=12@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:gulosa_fila_k12+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -2.8,
+    "crescimento_max": 12.0,
+    "crescimento_rel_medio": -0.01823508705322058,
+    "crescimento_rel_max": 0.07453416149068323,
+    "acumulo_excedente_medio": -0.041737417492399675,
+    "acumulo_excedente_max": 0.026490066225165566,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 44.10849999999999,
+    "lacuna_media": -23.114984000000003,
+    "entregues_medio": 122.4,
+    "entregues_dp": 6.094494002200441,
+    "tempo_medio_entregue": 148.51412774012192,
+    "tempo_medio_no_sistema": 114.1045697897997
+   },
+   "ruido": {
+    "dp_intra_seed": 2.8513154858766505,
+    "ruido_jogada": 4.032369030731191,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 9,
+     "p_vitoria": 0.18,
+     "ic95": [
+      0.02,
+      0.38
+     ],
+     "p_empate": 0.04,
+     "ic95_empate": [
+      0.0,
+      0.12
+     ],
+     "wilson_ingenuo": [
+      0.09770192668830174,
+      0.30796053677695
+     ],
+     "margem_media": -3.4,
+     "margem_ic95": [
+      -5.7,
+      -0.98
+     ],
+     "margem_dp_rodada": 4.485805276602166,
+     "margem_dp_entre_seeds": 3.8320287635199772,
+     "seeds_vencidas": [
+      42
+     ],
+     "p_vitoria_por_seed": {
+      "42": 0.8,
+      "43": 0.0,
+      "44": 0.4,
+      "45": 0.4,
+      "46": 0.0,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.0,
+      "232": 0.2,
+      "233": 0.0
+     },
+     "margem_por_seed": {
+      "42": 1.8,
+      "43": -8.6,
+      "44": 0.2,
+      "45": 1.8,
+      "46": -4.4,
+      "47": -7.2,
+      "230": -7.2,
+      "231": -5.8,
+      "232": -2.2,
+      "233": -2.4
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 45,
+     "p_vitoria": 0.9,
+     "ic95": [
+      0.7,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.7863976855921404,
+      0.956524235076295
+     ],
+     "margem_media": 6.7,
+     "margem_ic95": [
+      2.86,
+      10.42
+     ],
+     "margem_dp_rodada": 6.449964404268176,
+     "margem_dp_entre_seeds": 6.170359254803025,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 0.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 8.8,
+      "43": 3.4,
+      "44": 9.2,
+      "45": 6.8,
+      "46": 9.6,
+      "47": 4.8,
+      "230": 5.8,
+      "231": 6.2,
+      "232": -6.2,
+      "233": 18.6
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 44,
+     "p_vitoria": 0.8800000000000001,
+     "ic95": [
+      0.7,
+      1.0
+     ],
+     "p_empate": 0.02,
+     "ic95_empate": [
+      0.0,
+      0.08
+     ],
+     "wilson_ingenuo": [
+      0.7619518261345741,
+      0.9438239985004393
+     ],
+     "margem_media": 6.499999999999998,
+     "margem_ic95": [
+      3.9395000000000002,
+      8.860499999999993
+     ],
+     "margem_dp_rodada": 4.7045353714500315,
+     "margem_dp_entre_seeds": 4.107716316073121,
+     "seeds_vencidas": [
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 0.2,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 0.8,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 0.8,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": -2.2,
+      "43": 4.4,
+      "44": 11.2,
+      "45": 5.8,
+      "46": 4.6,
+      "47": 10.8,
+      "230": 9.8,
+      "231": 4.2,
+      "232": 9.8,
+      "233": 6.6
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  },
+  "gulosa_fila:k=6@falha=0.05@extra=0.02@120": {
+   "spec": "gulosa_fila:k=6@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:gulosa_fila_k6+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -5.42,
+    "crescimento_max": 13.0,
+    "crescimento_rel_medio": -0.034954016241294614,
+    "crescimento_rel_max": 0.08074534161490683,
+    "acumulo_excedente_medio": -0.0584563466804737,
+    "acumulo_excedente_max": 0.01986754966887417,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 43.63516666666666,
+    "lacuna_media": -23.518176000000008,
+    "entregues_medio": 125.02,
+    "entregues_dp": 6.929646455628166,
+    "tempo_medio_entregue": 149.24862530219056,
+    "tempo_medio_no_sistema": 114.05044773988435
+   },
+   "ruido": {
+    "dp_intra_seed": 3.3196385345395663,
+    "ruido_jogada": 4.694677837722201,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 26,
+     "p_vitoria": 0.52,
+     "ic95": [
+      0.26,
+      0.8
+     ],
+     "p_empate": 0.02,
+     "ic95_empate": [
+      0.0,
+      0.08
+     ],
+     "wilson_ingenuo": [
+      0.38511744887073723,
+      0.6520286471626846
+     ],
+     "margem_media": -0.78,
+     "margem_ic95": [
+      -3.9,
+      2.44
+     ],
+     "margem_dp_rodada": 5.838961327818082,
+     "margem_dp_entre_seeds": 5.2276614699542705,
+     "seeds_vencidas": [
+      42,
+      44,
+      45,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 0.4,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.2,
+      "232": 0.8,
+      "233": 0.8
+     },
+     "margem_por_seed": {
+      "42": 6.0,
+      "43": -7.4,
+      "44": 2.4,
+      "45": 6.8,
+      "46": -0.2,
+      "47": -6.0,
+      "230": -6.0,
+      "231": -5.8,
+      "232": 1.8,
+      "233": 0.6
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 45,
+     "p_vitoria": 0.9,
+     "ic95": [
+      0.72,
+      1.0
+     ],
+     "p_empate": 0.02,
+     "ic95_empate": [
+      0.0,
+      0.08
+     ],
+     "wilson_ingenuo": [
+      0.7863976855921404,
+      0.956524235076295
+     ],
+     "margem_media": 9.320000000000002,
+     "margem_ic95": [
+      5.4595,
+      13.280499999999993
+     ],
+     "margem_dp_rodada": 6.88221606455244,
+     "margem_dp_entre_seeds": 6.46371066459163,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.8,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 0.2,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 13.0,
+      "43": 4.6,
+      "44": 11.4,
+      "45": 11.8,
+      "46": 13.8,
+      "47": 6.0,
+      "230": 7.0,
+      "231": 6.2,
+      "232": -2.2,
+      "233": 21.6
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 48,
+     "p_vitoria": 0.96,
+     "ic95": [
+      0.88,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.8653990930933617,
+      0.9889611156753388
+     ],
+     "margem_media": 9.120000000000001,
+     "margem_ic95": [
+      6.6,
+      11.46
+     ],
+     "margem_dp_rodada": 4.851425206123685,
+     "margem_dp_entre_seeds": 3.97905628119142,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 0.8,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 0.8,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 2.0,
+      "43": 5.6,
+      "44": 13.4,
+      "45": 10.8,
+      "46": 8.8,
+      "47": 12.0,
+      "230": 11.0,
+      "231": 4.2,
+      "232": 13.8,
+      "233": 9.6
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  },
+  "gulosa_fila:k=8@falha=0.05@extra=0.02@120": {
+   "spec": "gulosa_fila:k=8@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:gulosa_fila_k8+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -5.32,
+    "crescimento_max": 9.0,
+    "crescimento_rel_medio": -0.03470978124797588,
+    "crescimento_rel_max": 0.055900621118012424,
+    "acumulo_excedente_medio": -0.058212111687154955,
+    "acumulo_excedente_max": 0.00662251655629139,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 43.56933333333333,
+    "lacuna_media": -23.545386000000004,
+    "entregues_medio": 124.92,
+    "entregues_dp": 6.036758151490901,
+    "tempo_medio_entregue": 149.1433924033299,
+    "tempo_medio_no_sistema": 113.95614877182302
+   },
+   "ruido": {
+    "dp_intra_seed": 2.306512518934159,
+    "ruido_jogada": 3.261901286060018,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 20,
+     "p_vitoria": 0.4,
+     "ic95": [
+      0.14,
+      0.66
+     ],
+     "p_empate": 0.08,
+     "ic95_empate": [
+      0.0,
+      0.18
+     ],
+     "wilson_ingenuo": [
+      0.2760838972770309,
+      0.5381856225558603
+     ],
+     "margem_media": -0.8800000000000001,
+     "margem_ic95": [
+      -3.24,
+      1.52
+     ],
+     "margem_dp_rodada": 4.382898118638779,
+     "margem_dp_entre_seeds": 4.023486602990551,
+     "seeds_vencidas": [
+      42,
+      44,
+      45,
+      46,
+      232
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 0.0,
+      "44": 0.8,
+      "45": 0.8,
+      "46": 0.8,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.0,
+      "232": 0.6,
+      "233": 0.0
+     },
+     "margem_por_seed": {
+      "42": 5.0,
+      "43": -6.4,
+      "44": 2.8,
+      "45": 1.4,
+      "46": 2.0,
+      "47": -3.6,
+      "230": -4.8,
+      "231": -4.4,
+      "232": 2.6,
+      "233": -3.4
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 46,
+     "p_vitoria": 0.9199999999999999,
+     "ic95": [
+      0.74,
+      1.0
+     ],
+     "p_empate": 0.04,
+     "ic95_empate": [
+      0.0,
+      0.14
+     ],
+     "wilson_ingenuo": [
+      0.8116175307839263,
+      0.9684504859179309
+     ],
+     "margem_media": 9.219999999999999,
+     "margem_ic95": [
+      5.8395,
+      12.48
+     ],
+     "margem_dp_rodada": 5.636216707642654,
+     "margem_dp_entre_seeds": 5.4645931026726755,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 0.2,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 12.0,
+      "43": 5.6,
+      "44": 11.8,
+      "45": 6.4,
+      "46": 16.0,
+      "47": 8.4,
+      "230": 8.2,
+      "231": 7.6,
+      "232": -1.4,
+      "233": 17.6
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 47,
+     "p_vitoria": 0.9400000000000001,
+     "ic95": [
+      0.78,
+      1.0
+     ],
+     "p_empate": 0.04,
+     "ic95_empate": [
+      0.0,
+      0.16
+     ],
+     "wilson_ingenuo": [
+      0.8378290830794766,
+      0.9793850296558022
+     ],
+     "margem_media": 9.02,
+     "margem_ic95": [
+      6.1795,
+      11.84
+     ],
+     "margem_dp_rodada": 5.012189223914689,
+     "margem_dp_entre_seeds": 4.756702873022681,
+     "seeds_vencidas": [
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 0.4,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 1.0,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 1.0,
+      "43": 6.6,
+      "44": 13.8,
+      "45": 5.4,
+      "46": 11.0,
+      "47": 14.4,
+      "230": 12.2,
+      "231": 5.6,
+      "232": 14.6,
+      "233": 5.6
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  },
+  "martelo@falha=0.05@extra=0.02@120": {
+   "spec": "martelo@falha=0.05@extra=0.02",
+   "duracao_s": 120.0,
+   "n_rodadas": 50,
+   "controlador": "humano:martelo+falha0.05+extra0.02",
+   "reps": 5,
+   "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    230,
+    231,
+    232,
+    233
+   ],
+   "saude": {
+    "n": 50,
+    "nao_sa": [],
+    "com_sinais": [],
+    "travou": 0,
+    "inseridos_min": 104,
+    "backlog_max": 1,
+    "perdidos_max": 0,
+    "conservacao_max_abs": 0,
+    "crescimento_medio": -2.88,
+    "crescimento_max": 11.0,
+    "crescimento_rel_medio": -0.018739039916277293,
+    "crescimento_rel_max": 0.07006369426751592,
+    "acumulo_excedente_medio": -0.04224137035545638,
+    "acumulo_excedente_max": 0.026490066225165566,
+    "acumulo_acima_do_limiar": 0,
+    "limiar_acumulo": 0.2,
+    "fila_media": 45.325333333333326,
+    "lacuna_media": -23.176904,
+    "entregues_medio": 122.48,
+    "entregues_dp": 5.838786566695907,
+    "tempo_medio_entregue": 148.9882063851632,
+    "tempo_medio_no_sistema": 114.38364726484347
+   },
+   "ruido": {
+    "dp_intra_seed": 2.611512971440119,
+    "ruido_jogada": 3.6932370625238775,
+    "gl": 40
+   },
+   "confrontos": {
+    "rl": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 11,
+     "p_vitoria": 0.22000000000000003,
+     "ic95": [
+      0.06,
+      0.42
+     ],
+     "p_empate": 0.06000000000000001,
+     "ic95_empate": [
+      0.0,
+      0.18
+     ],
+     "wilson_ingenuo": [
+      0.12753915968557453,
+      0.3524154958465209
+     ],
+     "margem_media": -3.3199999999999994,
+     "margem_ic95": [
+      -5.42,
+      -1.1
+     ],
+     "margem_dp_rodada": 4.127755727624732,
+     "margem_dp_entre_seeds": 3.5342137267950653,
+     "seeds_vencidas": [
+      42
+     ],
+     "p_vitoria_por_seed": {
+      "42": 0.8,
+      "43": 0.0,
+      "44": 0.4,
+      "45": 0.4,
+      "46": 0.0,
+      "47": 0.0,
+      "230": 0.0,
+      "231": 0.0,
+      "232": 0.2,
+      "233": 0.4
+     },
+     "margem_por_seed": {
+      "42": 2.8,
+      "43": -5.8,
+      "44": 0.2,
+      "45": -1.8,
+      "46": -4.6,
+      "47": -8.4,
+      "230": -5.8,
+      "231": -6.4,
+      "232": -3.4,
+      "233": 0.0
+     },
+     "faltando": []
+    },
+    "coordenado_c60": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 44,
+     "p_vitoria": 0.8800000000000001,
+     "ic95": [
+      0.6795000000000002,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.7619518261345741,
+      0.9438239985004393
+     ],
+     "margem_media": 6.780000000000001,
+     "margem_ic95": [
+      2.4995000000000003,
+      11.06
+     ],
+     "margem_dp_rodada": 7.175041776170779,
+     "margem_dp_entre_seeds": 7.0707221067661195,
+     "seeds_vencidas": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 1.0,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 0.8,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 0.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": 9.8,
+      "43": 6.2,
+      "44": 9.2,
+      "45": 3.2,
+      "46": 9.4,
+      "47": 3.6,
+      "230": 7.2,
+      "231": 5.6,
+      "232": -7.4,
+      "233": 21.0
+     },
+     "faltando": []
+    },
+    "timer27": {
+     "n": 50,
+     "n_seeds": 10,
+     "vitorias": 46,
+     "p_vitoria": 0.9199999999999999,
+     "ic95": [
+      0.76,
+      1.0
+     ],
+     "p_empate": 0.0,
+     "ic95_empate": [
+      0.0,
+      0.0
+     ],
+     "wilson_ingenuo": [
+      0.8116175307839263,
+      0.9684504859179309
+     ],
+     "margem_media": 6.58,
+     "margem_ic95": [
+      3.96,
+      8.98
+     ],
+     "margem_dp_rodada": 4.629497261902116,
+     "margem_dp_entre_seeds": 4.156333854626107,
+     "seeds_vencidas": [
+      43,
+      44,
+      45,
+      46,
+      47,
+      230,
+      231,
+      232,
+      233
+     ],
+     "p_vitoria_por_seed": {
+      "42": 0.4,
+      "43": 1.0,
+      "44": 1.0,
+      "45": 0.8,
+      "46": 1.0,
+      "47": 1.0,
+      "230": 1.0,
+      "231": 1.0,
+      "232": 1.0,
+      "233": 1.0
+     },
+     "margem_por_seed": {
+      "42": -1.2,
+      "43": 7.2,
+      "44": 11.2,
+      "45": 2.2,
+      "46": 4.4,
+      "47": 9.6,
+      "230": 11.2,
+      "231": 3.6,
+      "232": 8.6,
+      "233": 9.0
+     },
+     "faltando": []
+    }
+   },
+   "pareado": {}
+  }
+ },
+ "duracoes": [
+  120.0
+ ],
+ "calibracao_acumulo": {
+  "limiar": 0.2,
+  "n_referencia": 30,
+  "crescimento_rel_max_referencia": 0.1242603550295858,
+  "crescimento_rel_medio_referencia": 0.0026311440296755296,
+  "falsos_positivos_referencia": 0,
+  "n_referencia_pareavel": 20
+ },
+ "meta": {
+  "arquivos": [
+   "results/a8/ajuste_fora_da_amostra.json"
+  ],
+  "n_linhas": 630,
+  "ruido_jogada_a3": 3.39
+ }
+}

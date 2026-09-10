@@ -26,3 +26,6 @@ sumo/aberta/demanda/*.rou.xml
 *.egg-info/
 build/
 dist/
+
+# diarios de campanha do A8: duplicata dos .json ao lado, e sao grandes
+results/a8/*.jsonl
