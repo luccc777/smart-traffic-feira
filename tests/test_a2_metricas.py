@@ -267,3 +267,71 @@ def test_resumo_pareado_reporta_travamento_por_seed_e_nao_na_media():
     assert r["saude_novo"]["travamentos"] == 1
     assert r["saude_novo"]["nao_sa"][0][0] == 44
     assert r["saude_base"]["travamentos"] == 0
+
+
+# ---------------------------------------------------------- acúmulo excedente
+# Os sinais acima são CEGOS em janela de 120 s. Medido pelo agente A8 em 4752
+# rodadas: zero disparos, nem para o farol congelado que entrega 36 carros contra
+# os 112 do timer. Estes testes guardam o portão que funciona lá.
+
+
+def _rodada(controlador: str, ini: int, fim: int, *, entregues: int = 112,
+            seed: int = 100) -> Resultado:
+    """Uma rodada de 120 s com a população indo de `ini` a `fim`.
+
+    `inseridos` sai da identidade de conservação do C5 — quem cresce na janela é
+    porque entrou mais do que saiu. Sem isso o fake dispararia o sinal de
+    conservação e mascararia o que estes testes medem.
+    """
+    return F.resultado_fake(F.chave_fake(seed=seed, t0=300.0, t1=420.0),
+                            controlador=controlador, entregues=entregues,
+                            inseridos=entregues + fim - ini,
+                            ativos_inicio=ini, ativos_fim=fim)
+
+
+def test_acumulo_excedente_e_pareado_e_nao_absoluto():
+    """Crescimento ABSOLUTO não serve de limiar, e o motivo foi medido: nas seeds
+    103 e 107 a demanda sobe dentro da janela e TODOS os braços acumulam — o
+    `coordenado_c60` chega a +37,5% na seed 107 sem nada de errado."""
+    from feira.metricas import acumulo_excedente, crescimento_relativo
+
+    timer = _rodada("timer:uniforme_27s", 150, 206)          # +37,3%: a demanda subiu
+    humano = _rodada("humano", 150, 210)                     # +40,0%
+    assert crescimento_relativo(timer) == pytest.approx(0.3733, abs=1e-3)
+    # os dois cresceram MUITO, e mesmo assim o excedente é pequeno
+    assert acumulo_excedente(humano, timer) == pytest.approx(2.67, abs=0.1)
+    assert sinais_de_travamento(humano, referencia=timer) == []
+
+
+def test_rodada_curta_travada_so_e_pega_com_referencia():
+    """O achado do A8, em miniatura: sem `referencia` o portão fica DESLIGADO."""
+    timer = _rodada("timer:uniforme_27s", 150, 160)          # +6,7%
+    congelado = _rodada("humano", 150, 210, entregues=36)    # +40,0% -> excedente 33,3 pp
+
+    # os sinais de janela longa não veem nada de errado — é exatamente o buraco
+    assert sinais_de_travamento(congelado) == []
+    assert congelado.sane()[0] is True
+
+    fora = sinais_de_travamento(congelado, referencia=timer)
+    assert len(fora) == 1 and "acúmulo excedente" in fora[0]
+    assert "+33.3 pp" in fora[0]
+
+
+def test_o_limiar_cai_no_vazio_entre_os_dois_grupos():
+    """+18,1 pp foi o pior adversário SÃO; +26 pp o melhor da família congelada."""
+    from feira.metricas import LIMIAR_ACUMULO_PP
+
+    timer = _rodada("timer:uniforme_27s", 100, 100)
+    sao = _rodada("humano", 100, 118)                        # +18 pp: o pior são
+    congelado = _rodada("humano", 100, 126)                  # +26 pp: o melhor ruim
+    assert 18.1 < LIMIAR_ACUMULO_PP < 26.0
+    assert sinais_de_travamento(sao, referencia=timer) == []
+    assert sinais_de_travamento(congelado, referencia=timer) != []
+
+
+def test_referencia_de_outra_condicao_levanta():
+    """Pareado quer dizer MESMA seed e MESMA janela — senão não cancela nada."""
+    timer = _rodada("timer:uniforme_27s", 150, 160)
+    outra = _rodada("humano", 150, 210, seed=101)
+    with pytest.raises(ChavesIncompativeis):
+        sinais_de_travamento(outra, referencia=timer)

@@ -449,3 +449,40 @@ def test_fantasma_round_trip_em_disco(tmp_path):
     assert lido.chave == g.chave
     assert lido.serie == g.serie
     assert lido.final == g.final
+
+
+def test_chave_separa_aquecimentos_diferentes():
+    """QUAL plano aquece nao e neutro em janela curta, e isso esta MEDIDO.
+
+    Numa rodada de 120 s, trocar o aquecimento do timer uniforme para o proprio
+    plano coordenado move o braco `coordenado_c60` em +5,17 carros (10/12 seeds) e
+    o braco `timer27` em +0,08 (ruido): so o plano travado no relogio absoluto tem
+    fase para perder. Duas corridas com aquecimentos diferentes sao experimentos
+    diferentes -- e antes deste campo elas tinham chave IDENTICA.
+    """
+    import dataclasses
+
+    from feira.contratos import ChavesIncompativeis, cenario, comparar
+
+    base = cenario("aberta.maquete")
+    outro = dataclasses.replace(base, warmup_plano="coordenado:coordenado_c60")
+    assert outro.chave == base.chave, "o cenario e o mesmo; e o aquecimento que muda"
+
+    jan = Janela(t0=300.0, t1=420.0)
+    ka = Chave.de(base, 100, jan, "ab" * 32)
+    kb = Chave.de(outro, 100, jan, "ab" * 32)
+    assert ka.aquecimento == "timer"
+    assert kb.aquecimento == "coordenado:coordenado_c60"
+    assert ka != kb
+    with pytest.raises(ChavesIncompativeis):
+        comparar(F.resultado_fake(ka), F.resultado_fake(kb))
+
+
+def test_chave_gravada_sem_aquecimento_le_como_timer():
+    """O default nao e frouxidao: e o que TODO artefato ja gravado de fato usou."""
+    from feira.contratos.fantasma import _chave_de
+
+    k = _chave_de({"cenario": "aberta.maquete", "seed": 100,
+                   "janela": {"t0": 300.0, "t1": 420.0},
+                   "demanda_sha": "cd" * 32, "restricoes": "di5/vm7/am3/mr0"})
+    assert k.aquecimento == "timer"

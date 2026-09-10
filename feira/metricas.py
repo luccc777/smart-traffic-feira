@@ -52,13 +52,16 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 
-from .contratos import Chave, Resultado
+from .contratos import Chave, ChavesIncompativeis, Resultado
 
 __all__ = [
     "Contabilidade",
+    "acumulo_excedente",
+    "crescimento_relativo",
     "diagnostico",
     "lacuna_sobrevivencia",
     "sinais_de_travamento",
+    "LIMIAR_ACUMULO_PP",
 ]
 
 
@@ -269,11 +272,62 @@ def lacuna_sobrevivencia(res: Resultado) -> float:
     return res.lacuna_sobrevivencia
 
 
+def crescimento_relativo(res: Resultado) -> float:
+    """`(ativos_fim − ativos_inicio) / ativos_inicio` — o acúmulo da janela.
+
+    Em regime a população ativa deveria ficar aproximadamente constante (Lei de
+    Little); crescimento sustentado é fila se formando.
+    """
+    base = max(1, int(res.ativos_inicio))
+    return (int(res.ativos_fim) - int(res.ativos_inicio)) / base
+
+
+def acumulo_excedente(res: Resultado, referencia: Resultado) -> float:
+    """Quanto ESTE braço acumulou a mais que a referência, em pontos percentuais.
+
+    Pareado, como o resto do projeto — e por um motivo medido, não por simetria: o
+    crescimento **absoluto** não serve de limiar porque a demanda não é plana
+    dentro da janela. Nas seeds 103 e 107 ela sobe, e **todos** os braços acumulam;
+    o `coordenado_c60` chega a +37,5% na seed 107 sem nada de errado. Subtrair a
+    referência da MESMA seed cancela isso.
+    """
+    return 100.0 * (crescimento_relativo(res) - crescimento_relativo(referencia))
+
+
+# Limiar do acúmulo excedente, em pontos percentuais. Medido pelo agente A8 em
+# 4092 rodadas humanas de 120 s (`docs/DIFICULDADE.md` §7): adversário SÃO fica
+# entre −8 e **+18,1** pp; a família que congela o farol (parado, sabotador,
+# arterial, aleatória rala) fica entre **+26** e +71. O limiar cai no vazio entre
+# os dois grupos — zero falso positivo em 96 rodadas de referência, e 528 de 528
+# rodadas congeladas pegas.
+LIMIAR_ACUMULO_PP = 20.0
+
+
 def sinais_de_travamento(res: Resultado, *, lacuna_max: float = 25.0,
                          backlog_max_frac: float = 0.10,
                          tol_conservacao: int = 0,
-                         perdidos_max_frac: float = 0.005) -> list[str]:
-    """Os quatro sinais do detector novo, avaliados. Lista vazia = corrida sã.
+                         perdidos_max_frac: float = 0.005,
+                         referencia: Resultado | None = None,
+                         acumulo_max_pp: float = LIMIAR_ACUMULO_PP) -> list[str]:
+    """Os sinais do detector, avaliados. Lista vazia = corrida sã.
+
+    JANELA CURTA PRECISA DE `referencia` — OS OUTROS SINAIS SÃO CEGOS LÁ
+    ---------------------------------------------------------------------
+    Achado do agente A8, medido em **4752 rodadas de 120 s**: nenhum dos sinais
+    abaixo disparou uma única vez, **nem para o farol congelado que entrega 36
+    carros contra os 112 do timer**. Os três motivos são estruturais, não
+    ajustáveis:
+
+    * `Resultado.travou` não PODE disparar — o critério da Arena é 600 s sem
+      chegada, e a rodada inteira tem 120 s;
+    * a lacuna de sobrevivência sai **negativa para todo mundo**, porque em 120 s
+      metade da população está censurada por construção. Pior: ela move para o
+      lado errado — o farol congelado tem a lacuna MENOS negativa;
+    * o backlog do pior caso é 6,9% dos agendados, abaixo do teto de 10%.
+
+    Por isso, para janela curta, **passe `referencia`** — o mesmo cenário, a mesma
+    seed e a mesma janela, rodados por um braço conhecido (o `timer27` do jogo
+    serve). Sem ela este portão fica desligado, e uma rodada travada passa.
 
     `lacuna_max=25%` é o piso escolhido a partir dos números MEDIDOS na rede
     fechada (`docs/AUDITORIA_COMPARACAO.md` §10.1): política sã fica entre −1,4%
@@ -303,6 +357,16 @@ def sinais_de_travamento(res: Resultado, *, lacuna_max: float = 25.0,
     if math.isinf(lac) or (not math.isnan(lac) and lac > lacuna_max):
         fora.append("lacuna de sobrevivência %s > %.0f%% (há população presa fora da média)"
                     % ("infinita" if math.isinf(lac) else "%.1f%%" % lac, lacuna_max))
+    if referencia is not None:
+        if referencia.chave != res.chave:
+            raise ChavesIncompativeis(
+                "referência de outra condição: %s contra %s"
+                % (referencia.chave.descreve(), res.chave.descreve()))
+        exc = acumulo_excedente(res, referencia)
+        if exc > acumulo_max_pp:
+            fora.append("acúmulo excedente +%.1f pp sobre %s > %.0f pp "
+                        "(a malha encheu neste braço e não no de referência)"
+                        % (exc, referencia.controlador, acumulo_max_pp))
     return fora
 
 

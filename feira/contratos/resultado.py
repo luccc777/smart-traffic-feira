@@ -81,6 +81,19 @@ class Chave:
     17 s entre os dois regimes deste projeto. Sem este campo elas tinham chaves
     idênticas e `comparar()` passava, que é exatamente o que a comparação
     publicada faz quando alguém troca `ST_MIN_GREEN` entre um braço e outro.
+
+    `aquecimento` fecha a porta do ESTADO INICIAL, e ela também estava aberta. Os
+    três braços partem do mesmo estado — é o que torna a rodada pareada —, mas
+    QUAL plano produz esse estado não é neutro em janela curta, e está medido: numa
+    rodada de 120 s, trocar o aquecimento do timer uniforme para o próprio plano
+    coordenado move o braço `coordenado_c60` em **+5,17 carros** (10/12 seeds) e o
+    braço `timer27` em **+0,08** (ruído) — porque só o plano travado no relógio
+    absoluto tem fase para perder. Duas corridas com aquecimentos diferentes
+    descrevem experimentos diferentes; sem este campo elas tinham chave idêntica.
+
+    O default `"timer"` não é uma frouxidão: é o que TODO artefato já gravado
+    usou, então uma chave antiga lida sem o campo continua descrevendo a verdade.
+
     Use `Chave.de(...)`, que a preenche a partir do `Cenario`.
     """
 
@@ -89,25 +102,27 @@ class Chave:
     janela: Janela
     demanda_sha: str
     restricoes: str          # assinatura compacta: "di10/vm10/am3/mr0"
+    aquecimento: str = "timer"   # `Cenario.warmup_plano` — quem produziu o t0
 
     @staticmethod
     def de(cenario, seed: int, janela: Janela, demanda_sha: str) -> "Chave":
         """Constrói a chave a partir de um `Cenario` (C1) — a forma abençoada.
 
         Montar `Chave` na mão continua possível, mas quem faz isso assume a
-        responsabilidade de preencher `restricoes` com a assinatura certa.
+        responsabilidade de preencher `restricoes` e `aquecimento` corretamente.
         """
         return Chave(cenario=cenario.chave, seed=int(seed), janela=janela,
                      demanda_sha=demanda_sha,
-                     restricoes=cenario.restricoes.assinatura)
+                     restricoes=cenario.restricoes.assinatura,
+                     aquecimento=str(getattr(cenario, "warmup_plano", "timer")))
 
     def compativel(self, outra: "Chave") -> bool:
         return self == outra
 
     def descreve(self) -> str:
-        return "%s seed=%d janela=[%g,%g) demanda=%s acao=%s" % (
+        return "%s seed=%d janela=[%g,%g) demanda=%s acao=%s aquec=%s" % (
             self.cenario, self.seed, self.janela.t0, self.janela.t1,
-            self.demanda_sha[:12], self.restricoes)
+            self.demanda_sha[:12], self.restricoes, self.aquecimento)
 
 
 @dataclass(frozen=True)

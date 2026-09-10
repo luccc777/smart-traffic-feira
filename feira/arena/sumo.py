@@ -952,12 +952,36 @@ def _plano_de_aquecimento(cenario: Cenario):
     """O controlador que roda o aquecimento — IGUAL nos três braços.
 
     É isto que torna a rodada pareada: os três partem do MESMO estado, e nenhum
-    herda uma rede arrumada pelo concorrente."""
-    from ..controladores import ControladorTimer
+    herda uma rede arrumada pelo concorrente.
 
-    if cenario.warmup_plano != "timer":
-        raise ArenaNaoConfigurada(
-            "warmup_plano=%r não implementado (só 'timer')" % cenario.warmup_plano)
-    from sim.environment import constants as C
+    QUAL plano aquece não é neutro em janela CURTA, e isso está medido. O agente
+    A8 mediu que numa rodada de 120 s o `coordenado_c60` fica ABAIXO do timer
+    uniforme (109,2 contra 112,5) — invertendo o resultado da janela de 7200 s —
+    porque, aquecido pelo timer uniforme, ele entra fora de fase e gasta um ciclo
+    inteiro (60 s, metade da rodada) se prendendo ao relógio absoluto. Aquecer com
+    o próprio plano coordenado tira esse transiente: os três braços continuam
+    partindo do mesmo estado — o que o pareamento exige —, só que de um estado que
+    não penaliza especificamente o plano travado no relógio.
 
-    return ControladorTimer(float(C.BASELINE_GREEN), nome="aquecimento")
+    `"coordenado:<nome>"` carrega o plano em `sumo/aberta/planos/<nome>.json`.
+    """
+    if cenario.warmup_plano == "timer":
+        from sim.environment import constants as C
+
+        from ..controladores import ControladorTimer
+
+        return ControladorTimer(float(C.BASELINE_GREEN), nome="aquecimento")
+
+    if cenario.warmup_plano.startswith("coordenado:"):
+        from ..controladores import ControladorCoordenado
+
+        nome = cenario.warmup_plano.split(":", 1)[1]
+        raiz = Path(__file__).resolve().parents[2]
+        plano = raiz / "sumo" / "aberta" / "planos" / ("%s.json" % nome)
+        if not plano.exists():
+            raise ArenaNaoConfigurada("plano de aquecimento não existe: %s" % plano)
+        return ControladorCoordenado(plano, nome="aquecimento")
+
+    raise ArenaNaoConfigurada(
+        "warmup_plano=%r não implementado (use 'timer' ou 'coordenado:<plano>')"
+        % cenario.warmup_plano)

@@ -77,13 +77,65 @@ class Remetente:
         self.thread.join(timeout=2.0)
 
 
+class _Encheu(RuntimeError):
+    """A volta encheu a malha e foi abortada pelo vigia."""
+
+
+class _Vigia:
+    """Vigia de população para a volta do feed ocioso.
+
+    O relógio sozinho não protege: `--duracao` é uma aposta sobre quando a malha
+    degrada, e a resposta depende do braço, da seed e do regime. Este vigia olha o
+    sintoma em vez do calendário — população ativa acima do teto por
+    `segundos` seguidos —, então uma volta que azede aos 400 s morre aos 460 e não
+    fica 1400 s no projetor mostrando congestionamento que ninguém pediu.
+
+    Exige persistência de propósito: um pico isolado é flutuação de inserção, não
+    acúmulo.
+    """
+
+    def __init__(self, teto: int, segundos: float) -> None:
+        self.teto = int(teto or 0)
+        self.segundos = float(segundos)
+        self.pico = 0
+        self._desde: float | None = None
+
+    def ve(self, quadro) -> None:
+        n = len(getattr(quadro, "veiculos", ()) or ())
+        self.pico = max(self.pico, n)
+        if not self.teto:
+            return
+        t = float(getattr(quadro, "t", 0.0))
+        if n <= self.teto:
+            self._desde = None
+            return
+        if self._desde is None:
+            self._desde = t
+        elif t - self._desde >= self.segundos:
+            raise _Encheu("abortada: %d ativos (teto %d) por %.0f s seguidos"
+                          % (n, self.teto, t - self._desde))
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="feed ao vivo da tela ociosa")
     p.add_argument("--cenario", default="aberta.maquete")
     p.add_argument("--braco", choices=("rl", "timer"), default="rl")
-    p.add_argument("--seed", type=int, default=100)
+    # RODÍZIO DE SEEDS, não uma só. Uma seed fixa faz a feira inteira assistir à
+    # MESMA hora de trânsito em laço; e, pior, se aquela seed for uma das ruins
+    # para o braço exibido, ela é ruim em todas as voltas do dia.
+    p.add_argument("--seeds", default=",".join(str(s) for s in range(100, 112)),
+                   help="seeds em rodízio, uma por volta")
     p.add_argument("--duracao", type=float, default=1800.0,
                    help="segundos simulados por volta (depois recomeça)")
+    # O TETO DE POPULAÇÃO — o vigia que o relógio sozinho não substitui.
+    # O regime calibrado é 157 ativos (141-170 nas fatias de 600 s,
+    # `docs/CALIBRACAO_ABERTA.md`). O dobro disso não é flutuação: é a malha
+    # enchendo. Medido pelo A1 a 3800 veh/h, as seeds que travam vão a 552-582.
+    # Exigir `--teto-segundos` seguidos acima do teto evita abortar num pico.
+    p.add_argument("--teto-ativos", type=int, default=320,
+                   help="aborta a volta se a população passar disto (0 = sem vigia)")
+    p.add_argument("--teto-segundos", type=float, default=60.0,
+                   help="por quantos segundos seguidos o teto tem de ser excedido")
     p.add_argument("--host", default="127.0.0.1")
     p.add_argument("--porta", type=int, default=8080)
     p.add_argument("--ckpt", default=None)
@@ -121,23 +173,41 @@ def main(argv: list[str] | None = None) -> int:
 
     arena = ArenaSumo()
     jan = (janela.t0, janela.t1)
+    seeds = [int(x) for x in str(a.seeds).split(",") if str(x).strip()]
+    if not seeds:
+        print("--seeds vazio", file=sys.stderr)
+        return 2
     n = 0
-    print("ocioso: braço=%s seed=%d janela=[%g, %g] -> %s"
-          % (a.braco, a.seed, jan[0], jan[1], rem.url))
+    print("ocioso: braço=%s seeds=%s janela=[%g, %g] teto=%s -> %s"
+          % (a.braco, ",".join(str(s) for s in seeds), jan[0], jan[1],
+             a.teto_ativos or "sem vigia", rem.url))
     try:
         while a.voltas <= 0 or n < a.voltas:
-            def observa(quadro):
+            seed = seeds[n % len(seeds)]
+            vigia = _Vigia(a.teto_ativos, a.teto_segundos)
+
+            def observa(quadro, _v=vigia):
+                _v.ve(quadro)
                 pub.frame(quadro, braco=a.braco, janela=jan,
                           politica=getattr(ctrl, "nome", a.braco))
 
-            res = arena.roda(cen, a.seed, ctrl, janela,
-                             ritmo=Ritmo(sim_por_parede=1.0), observador=observa)
+            motivo = "completou"
+            try:
+                res = arena.roda(cen, seed, ctrl, janela,
+                                 ritmo=Ritmo(sim_por_parede=1.0), observador=observa)
+                inseridos, entregues = res.inseridos, res.entregues
+            except _Encheu as exc:
+                # Não é falha da corrida: é o vigia fazendo o trabalho dele. A volta
+                # morre, a próxima seed entra, e o público nunca vê a malha travada.
+                motivo, inseridos, entregues = str(exc), -1, -1
             n += 1
             # A checagem barata que pega a classe de falha que já custou uma trilha:
             # corrida sem inserção nenhuma é malha vazia, não é resultado.
-            print("volta %d: inseridos=%d entregues=%d  (enviadas=%d descartadas=%d)"
-                  % (n, res.inseridos, res.entregues, rem.enviadas, rem.descartadas))
-            if res.inseridos <= 0:
+            print("volta %d seed %d: inseridos=%d entregues=%d pico=%d ativos | %s"
+                  " (enviadas=%d descartadas=%d)"
+                  % (n, seed, inseridos, entregues, vigia.pico, motivo,
+                     rem.enviadas, rem.descartadas))
+            if inseridos == 0:
                 print("  ATENÇÃO: inseridos=0 — a malha rodou vazia", file=sys.stderr)
     except KeyboardInterrupt:
         print("\nencerrado pelo operador")
