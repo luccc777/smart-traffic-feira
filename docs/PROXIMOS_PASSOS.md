@@ -1,7 +1,7 @@
 # Próximos passos — pronto para disparar
 
-Estado em 2026-09-09. Ondas 0 e 1 concluídas, Onda 2 com o baseline (A5) fechado.
-**Passo 0 executado e verificado** (§0). **A6 e A7 disparados**; falta A8.
+Estado em 2026-09-09. **Ondas 0, 1 e 2 concluídas.** Passo 0 executado e verificado
+(§0); A6 e A7 entregues e conferidos. **Falta o A8** — e ele é a Onda 3 inteira.
 
 Este documento existe para a próxima sessão começar disparando, sem redescobrir nada.
 
@@ -62,84 +62,111 @@ re-derivaria o plano congelado e invalidaria a comparação inteira do A5.
 
 ---
 
-## 1. Agente A6 — Política RL no cenário aberto  ← **caminho crítico**
+## 1. Agente A6 — Política RL no cenário aberto  ✅ **entregue**
 
-**O que é.** Retreinar a DDQN+GNN no `aberta.maquete` contra o baseline coordenado
-congelado, e validar em held-out.
+**Fechou a DoD (a) em 12/12.** Checkpoint vencedor `results/rl/v1_queue_di5.pt` —
+recompensa `queue`, grade do contrato (`di5/vm7/am3/mr0`), warm start de
+`maq30_ats_di5_full_best.pt`. Held-out, 12 seeds (100–111), janela de 7200 s, pareado,
+contra `coordenado_c60`:
 
-**Por que é urgente.** Medido pelo A3: a política atual **perde** para o timer na rede
-aberta — 93 e 82 entregues contra 111 e 109. Esperado (o checkpoint foi treinado na rede
-fechada, grade 10/10), mas até isto rodar **não existe Frente 2, e o jogo mostraria a RL
-perdendo no projetor**.
+| métrica | `coordenado_c60` | RL v1 | Δ+ | vitórias | p |
+|---|---|---|---|---|---|
+| entregues | 7000,9 | **7025,7** | +0,35% | 12/12 | 8,2e-08 |
+| tempo no sistema | 159,06 s | **137,20 s** | +13,73% | 12/12 | 4,6e-12 |
+| fila média | 52,69 | **31,22** | +40,71% | 12/12 | 5,2e-13 |
+| espera média | 733,8 | **188,4** | +74,26% | 12/12 | 1,0e-13 |
 
-**Depende de:** passo 0, A1 (rede+demanda ✅), A2 (Arena ✅), A5 (baseline congelado ✅).
+Vitórias na **trinca** (as três na mesma seed): 12/12. Zero travamentos, `sane()` verde
+12/12, `sinais_de_travamento` vazio em 12/12, lacuna de sobrevivência −1,14% a −0,68%
+(faixa sã: −1,4% a −0,2%).
 
-**Escreve só em:** `feira/treino/**`, `scripts/treina*.py`, `experiments/**`,
-`results/rl/**`, `tests/test_a6_*.py`, `docs/RESULTADOS_ABERTA.md`.
-**Não edita:** `feira/contratos/**`, `feira/arena/**`, `feira/metricas.py`,
-`feira/demanda/**`, `feira/controladores/{timer,coordenado,humano,rl}.py`,
-`sumo/aberta/{network,demanda,config,planos}/**`, `tests/test_{contratos,conformidade,pacote_sim}.py`,
-`docs/PLANO.md`, `README.md`.
+**Conferido fora da bancada do A6.** O coordenador rodou a seed 100 num script próprio,
+sem importar nada de `feira/treino` nem ler `results/rl/*.json`: +0,27% / +13,49% /
++40,62% / +74,02%, chaves idênticas nos dois braços. E o braço `coordenado_c60` medido
+pelo A6 devolve 7000,9 entregues e fila 52,69 — os mesmos 7001 e 52,69 do
+`BASELINE_ABERTO.md` §4.5, no dígito.
 
-**Alavancas, em ordem de aposta** (todas com o porquê já medido):
-1. **Warm start** dos pesos de `results/maq30_ats_full_best.pt` — a GNN é N-agnóstica e
-   os pesos transferem. Treino do zero custou 42 min na rede fechada; aqui espere 2–4 h.
-2. **Espaço de ação 5/7** (já é o default do cenário; verde mínimo alcançável 7 s contra
-   17 s). A/B contra 10/10 — se 10/10 vencer, o `RESTRICOES_ABERTA` do C1 muda **e o jogo
-   herda a grade mais grossa**, porque as restrições são as mesmas para os três braços.
-3. **`MAX_RED > 0`** — agora há aproximações de borda com starvation real. O shield já
-   existe no `TrafficEnv`; o C1 valida que `max_red > min_green + yellow`.
-4. **Recompensa `pressure` contra `queue`** — max-pressure é derivado para redes
-   **abertas** com demanda exógena. `queue` venceu na rede fechada; a chance de virar
-   aqui é real.
+**O "antes", na mesma bancada:** a política que estava em produção
+(`maq30_ats_full_best.pt`) entrega 3140,8 contra 7001 (**−55,1%**), fila 667,8, e
+**trava em 3 de 12 seeds**. O "93 e 82 contra 111 e 109" que o A3 mediu era o começo
+desse colapso, numa janela curta demais para mostrá-lo inteiro.
 
-**DoD:**
-- (a) vence o **`coordenado_c60`** (não o uniforme de 27 s) nas três métricas em ≥10 de
-  12 seeds held-out, p<0,01, janela de 7200 s;
-- (b) zero travamentos e `sane()` verde em 12/12; lacuna de sobrevivência na faixa sã
-  (política sã fica entre −1,4% e −0,2%; ver `metricas.sinais_de_travamento`);
-- (c) seleção de checkpoint **por vazão**, nunca por tempo de viagem — é a métrica que o
-  artefato de sobrevivência não engana;
-- (d) toda variante descartada documentada com o motivo;
-- (e) `pytest -q` verde, `ruff` limpo.
+### Variantes descartadas, com o número
 
-**Se (a) falhar, reporta como está.** Dispara a decisão de discurso do risco 4 do plano:
-"a RL iguala um plano coordenado sem precisar ser projetada para esta demanda" é um
-resultado verdadeiro e defensável — mas é outro roteiro, e precisa de tempo para mudar.
+| variante | resultado | por que caiu |
+|---|---|---|
+| v2 `pressure` | +0,39% / +35,94% / +11,66% | perde do `queue` (+0,44 / +41,55 / +14,11). **Max-pressure refutado também na rede aberta.** |
+| v4 `pressure`+`max_red 60` | +0,37% / +34,86% / +10,95% | e instável: duas validações colapsadas |
+| v5 grade 10/10 | +2,96% em percentual | perde em absoluto (7016,5 contra 7025,7; fila 40,03 contra 31,22). **`RESTRICOES_ABERTA` fica 5/7.** |
+| v6 sem warm start | +0,43% / +38,47% / +12,81% | empata com o v1 — o warm start comprou ~70 min, não qualidade |
+| v3 `queue`+`max_red 60` | held-out melhor: 7029,0 / 30,45 / 135,66 | **perdeu no critério declarado** (vazão, por 0,02 pp) na seleção. Não foi promovido de propósito: trocar por causa da held-out é escolher no conjunto de teste — o erro que o `BASELINE_ABERTO.md` §4.6 documenta para o `c50`. A troca é uma linha, se o dono quiser, com esta nota junto. |
 
-**Vigiar:** treinar em regime metaestável produz política que não reproduz. O ponto de
-operação congelado é 3500 veh/h; **não subir sem medir 7200 s**.
+### Dois achados do A6 que mudam leitura
+
+1. **O A/B de grade não compara o mesmo adversário.** Em `di10` o `coordenado_c60` perde
+   6 dos 12 splits e a onda verde quebra: ele cai de 7000,9 para 6814,6 entregues. Os
+   +2,96% do braço 10/10 mediam o adversário **mutilado**. Foi o que salvou a grade 5/7
+   de ser trocada por um número que não existia.
+2. **`sane()` sozinho não pega o colapso** — uma validação com lacuna de 94,1% e backlog
+   de 660 passou, porque o backlog ficou em 9,8% dos agendados, um décimo de ponto abaixo
+   do teto do C5. É o mesmo achado que `test_sane_e_estrutural_e_nao_ve_gridlock_sozinho`
+   já guarda: `sane()` é **estrutural**, e o veredito de saúde é do
+   `sinais_de_travamento`, onde quem chama declara o limiar. A porta de seleção do A6
+   passou a exigir os dois.
+
+### Consertado pelo coordenador ao integrar
+
+**O cache de fantasmas não sabia QUEM o gerou.** `Fantasma.confere()` compara a `Chave`
+(C5) — cenário, seed, janela, demanda, restrições —, que descreve a **condição** e
+deliberadamente não diz quem jogou. Duas políticas na mesma condição produzem fantasmas
+de chave idêntica. Consequência concreta: trocar `CKPT_PADRAO` para a política nova
+reaproveitaria **em silêncio** o fantasma da velha, e o projetor exibiria a RL antiga —
+perdendo — com o nome da nova. O nome do controlador já viajava no arquivo desde sempre
+(`rl:maq30_ats_full_best`); só nunca era comparado. Provado ao vivo nos fantasmas reais
+em disco. No mesmo lugar, o subprocesso do prefetch não recebia `--ckpt` e caía no
+default. Guardado por dois testes em `tests/test_a3_jogo.py`.
+
+**E o ponteiro foi trocado:** `feira/jogo/fantasmas.py::CKPT_PADRAO` aponta agora para
+`results/rl/v1_queue_di5.pt`.
+
+### Onde o A6 discorda de decisão já tomada — e ele tem razão
+
+**A DoD exigia `p<0,01` na vazão, que é a métrica de MENOR resolução deste regime.** Com
+`inseridos` idêntico nos dois braços e backlog zero, a identidade do C5 reduz a diferença
+de vazão a `ativos_fim` — o teto útil é ~+0,4%. A prova é direta: **o próprio
+`coordenado_c60` reprovaria nessa cláusula** (8/12, p = 0,19 contra o timer27, mesmas
+seeds e mesma janela), e ele já foi aceito como melhoria por este projeto.
+
+**Adotado para o A8:** a vazão entra como **porta** (não pode cair, backlog zero) e não
+como uma das três com `p<0,01`. Não muda nada no A6, que passou 12/12 com p = 8,2e-08.
+Fica registrado porque o critério vai ser reusado, e porque é decisão que o dono pode
+querer rever se o regime subir para 3800–4000.
+
+### Aberto no A6
+
+- sem varredura de hiperparâmetro; **uma semente de treino por variante** — o ranking
+  *interno* das cinco variantes de 5/7 (dentro de 0,07 pp) não é confiável; só o ranking
+  contra o baseline é;
+- `espera_media` **+74,3%** é grande demais para virar manchete sem alguém auditar a
+  métrica na rede aberta. **Não use esse número em slide antes disso.**
+- lixo de fumaça que o sandbox não deixou apagar: `experiments/_smoke_a6/`,
+  `experiments/_smoke2/`, `results/rl/smoke_a6.pt`, `results/rl/smoke2.pt`.
+
+Documento completo, com tabela seed a seed e reprodução: [`docs/RESULTADOS_ABERTA.md`](RESULTADOS_ABERTA.md).
 
 ---
 
-## 2. Agente A7 — Projeção & Placar
+## 2. Agente A7 — Projeção & Placar  ✅ **entregue**
 
-**Depende de:** A3 (motor do jogo ✅). Melhor **depois** do A6, para não calibrar a arte
-contra números que vão mudar.
-
-**Escreve só em:** `web/**`, `feira/jogo/web*.py`, `tests/test_a7_*.py`,
-`docs/PROJECAO.md`.
-
-**Escopo:** a rodada na projeção (congelamento, contagem, três barras vivas em carros
-entregues, tela de resultado), o **fator de exagero de sprite** (sob similitude o carro
-mede ~7 mm na mesa) e o modo degradado.
-
-**DoD:**
-- (a) legível a 2 m da mesa, em foto do projetor real;
-- (b) 180+ carros a 1 Hz sem perder frame no notebook da feira, **medido**;
-- (c) contraste ≥ o piso de `smart-traffic-maquete/scripts/projecao/contraste.py` para
-  todos os elementos novos;
-- (d) se o jogo cair, a projeção volta sozinha para RL × timer em ≤3 s.
-
-**Herança:** a projeção atual vive em `smart-traffic-maquete/dashboard/frontend/projecao/`
-(commit `18ea6dd`). `paint.js` já desenha a pegada real do SUMO por baixo do sprite —
-sprite exagerado + pegada verdadeira continua honesto.
+Ver [`docs/PROJECAO.md`](PROJECAO.md) e a triagem de contratos no §5 deste documento.
 
 ---
 
-## 3. Agente A8 — Adversários & Calibração de Dificuldade
+## 3. Agente A8 — Adversários & Calibração de Dificuldade  ← **o que falta**
 
-**Depende de:** A3 ✅, A5 ✅, A6.
+**Depende de:** A3 ✅, A5 ✅, A6 ✅ — **está desbloqueado.** O adversário é a política
+`results/rl/v1_queue_di5.pt`, e o critério de vazão entra como porta, não como cláusula
+de `p<0,01` (ver §1).
 
 **Escreve só em:** `feira/adversarios/**`, `scripts/adversarios*.py`,
 `results/a8/**`, `tests/test_a8_*.py`, `docs/DIFICULDADE.md`.

@@ -1,0 +1,623 @@
+{
+  "n_seeds": 12,
+  "seeds": [
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111
+  ],
+  "base": "timer:coordenado_c60",
+  "novo": "rl:transferida_maq30_ats_full",
+  "testes": {
+    "entregues": {
+      "campo": "entregues",
+      "n_seeds": 12,
+      "base_media": 7000.916666666667,
+      "base_desvio": 95.4315159809601,
+      "novo_media": 3140.8333333333335,
+      "novo_desvio": 1309.1753013622622,
+      "delta_pct": -55.137305030103796,
+      "vitorias": 0,
+      "t": -10.21117936338912,
+      "p": 5.99732294962082e-07,
+      "nota": ""
+    },
+    "tempo_medio_no_sistema": {
+      "campo": "tempo_medio_no_sistema",
+      "n_seeds": 12,
+      "base_media": 159.06208244861998,
+      "base_desvio": 2.787217032557856,
+      "novo_media": 1348.5686547457383,
+      "novo_desvio": 609.9666562387738,
+      "delta_pct": -745.0411825309661,
+      "vitorias": 0,
+      "t": 6.7707029987068506,
+      "p": 3.071322178060938e-05,
+      "nota": ""
+    },
+    "fila_media": {
+      "campo": "fila_media",
+      "n_seeds": 12,
+      "base_media": 52.68982638888889,
+      "base_desvio": 2.3435273134950276,
+      "novo_media": 667.8138657407408,
+      "novo_desvio": 216.22362273927274,
+      "delta_pct": -1163.2147077097181,
+      "vitorias": 0,
+      "t": 9.897085260210677,
+      "p": 8.197317097263877e-07,
+      "nota": ""
+    },
+    "tempo_medio_entregue": {
+      "campo": "tempo_medio_entregue",
+      "n_seeds": 12,
+      "base_media": 160.57351876233596,
+      "base_desvio": 2.7826089478115037,
+      "novo_media": 278.2564041089989,
+      "novo_desvio": 19.351024129812554,
+      "delta_pct": -73.30043434911012,
+      "vitorias": 0,
+      "t": 21.42658142689505,
+      "p": 2.5488985415049974e-10,
+      "nota": ""
+    },
+    "espera_media": {
+      "campo": "espera_media",
+      "n_seeds": 12,
+      "base_media": 733.8045717592591,
+      "base_desvio": 45.88218524016946,
+      "novo_media": 947235.8150694445,
+      "novo_desvio": 584169.3978081387,
+      "delta_pct": -127547.11903489985,
+      "vitorias": 0,
+      "t": 5.612906898476114,
+      "p": 0.0001572566533614512,
+      "nota": ""
+    }
+  },
+  "saude_base": {
+    "travamentos": 0,
+    "nao_sa": []
+  },
+  "saude_novo": {
+    "travamentos": 3,
+    "nao_sa": [
+      [
+        100,
+        "backlog de inserção 3136/6954 = 45.1% > 10.0%: a borda está estrangulada e a métrica premia isso"
+      ],
+      [
+        101,
+        "backlog de inserção 3931/6980 = 56.3% > 10.0%: a borda está estrangulada e a métrica premia isso"
+      ],
+      [
+        102,
+        "travamento declarado pela Arena"
+      ],
+      [
+        103,
+        "backlog de inserção 3375/7131 = 47.3% > 10.0%: a borda está estrangulada e a métrica premia isso"
+      ],
+      [
+        104,
+        "backlog de inserção 3117/7189 = 43.4% > 10.0%: a borda está estrangulada e a métrica premia isso"
+      ],
+      [
+        106,
+        "backlog de inserção 3739/6856 = 54.5% > 10.0%: a borda está estrangulada e a métrica premia isso"
+      ],
+      [
+        107,
+        "backlog de inserção 1324/7123 = 18.6% > 10.0%: a borda está estrangulada e a métrica premia isso"
+      ],
+      [
+        108,
+        "travamento declarado pela Arena"
+      ],
+      [
+        109,
+        "backlog de inserção 1598/6930 = 23.1% > 10.0%: a borda está estrangulada e a métrica premia isso"
+      ],
+      [
+        110,
+        "backlog de inserção 2062/7017 = 29.4% > 10.0%: a borda está estrangulada e a métrica premia isso"
+      ],
+      [
+        111,
+        "travamento declarado pela Arena"
+      ]
+    ]
+  },
+  "por_seed": [
+    {
+      "seed": 100,
+      "base": {
+        "entregues": 6942,
+        "tempo_medio_no_sistema": 155.87425910245554,
+        "fila_media": 49.60791666666667,
+        "tempo_medio_entregue": 157.2702391241717,
+        "espera_media": 676.9261111111111,
+        "inseridos": 6954,
+        "ativos_inicio": 132,
+        "ativos_fim": 144,
+        "backlog_insercao": 0,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 2623,
+        "tempo_medio_no_sistema": 1490.979240506329,
+        "fila_media": 743.82,
+        "tempo_medio_entregue": 272.38276782310334,
+        "espera_media": 1078332.12,
+        "inseridos": 3818,
+        "ativos_inicio": 132,
+        "ativos_fim": 1327,
+        "backlog_insercao": 3136,
+        "perdidos": 0
+      },
+      "base_lacuna": -0.8876,
+      "novo_lacuna": 447.3838,
+      "novo_sinais": [
+        "backlog de inserção 45.1% dos agendados (borda estrangulada)",
+        "lacuna de sobrevivência 447.4% > 25% (há população presa fora da média)"
+      ],
+      "base_sinais": [],
+      "novo_sane": false,
+      "base_sane": true,
+      "novo_backlog": 3136,
+      "base_backlog": 0,
+      "novo_travou": false,
+      "base_travou": false
+    },
+    {
+      "seed": 101,
+      "base": {
+        "entregues": 6966,
+        "tempo_medio_no_sistema": 157.6890012642225,
+        "fila_media": 51.4075,
+        "tempo_medio_entregue": 159.25653172552398,
+        "espera_media": 712.1741666666667,
+        "inseridos": 6980,
+        "ativos_inicio": 139,
+        "ativos_fim": 153,
+        "backlog_insercao": 0,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 1893,
+        "tempo_medio_no_sistema": 2076.242158092848,
+        "fila_media": 863.4359722222222,
+        "tempo_medio_entregue": 255.75118858954042,
+        "espera_media": 1835674.4281944444,
+        "inseridos": 3049,
+        "ativos_inicio": 139,
+        "ativos_fim": 1295,
+        "backlog_insercao": 3931,
+        "perdidos": 0
+      },
+      "base_lacuna": -0.9843,
+      "novo_lacuna": 711.8211,
+      "novo_sinais": [
+        "backlog de inserção 56.3% dos agendados (borda estrangulada)",
+        "lacuna de sobrevivência 711.8% > 25% (há população presa fora da média)"
+      ],
+      "base_sinais": [],
+      "novo_sane": false,
+      "base_sane": true,
+      "novo_backlog": 3931,
+      "base_backlog": 0,
+      "novo_travou": false,
+      "base_travou": false
+    },
+    {
+      "seed": 102,
+      "base": {
+        "entregues": 6978,
+        "tempo_medio_no_sistema": 162.9772791023843,
+        "fila_media": 55.28611111111111,
+        "tempo_medio_entregue": 164.37775867010606,
+        "espera_media": 780.5322222222222,
+        "inseridos": 6992,
+        "ativos_inicio": 138,
+        "ativos_fim": 152,
+        "backlog_insercao": 0,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 1646,
+        "tempo_medio_no_sistema": 2291.4623724489797,
+        "fila_media": 932.9795833333334,
+        "tempo_medio_entregue": 306.0176184690158,
+        "espera_media": 1660823.735138889,
+        "inseridos": 2998,
+        "ativos_inicio": 138,
+        "ativos_fim": 1490,
+        "backlog_insercao": 3994,
+        "perdidos": 0
+      },
+      "base_lacuna": -0.852,
+      "novo_lacuna": 648.8008,
+      "novo_sinais": [
+        "backlog de inserção 57.1% dos agendados (borda estrangulada)",
+        "lacuna de sobrevivência 648.8% > 25% (há população presa fora da média)"
+      ],
+      "base_sinais": [],
+      "novo_sane": false,
+      "base_sane": true,
+      "novo_backlog": 3994,
+      "base_backlog": 0,
+      "novo_travou": true,
+      "base_travou": false
+    },
+    {
+      "seed": 103,
+      "base": {
+        "entregues": 7058,
+        "tempo_medio_no_sistema": 164.5058790980772,
+        "fila_media": 57.71513888888889,
+        "tempo_medio_entregue": 166.03825446302068,
+        "espera_media": 834.585,
+        "inseridos": 7104,
+        "ativos_inicio": 125,
+        "ativos_fim": 171,
+        "backlog_insercao": 27,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 2531,
+        "tempo_medio_no_sistema": 1527.0649317186292,
+        "fila_media": 761.5526388888889,
+        "tempo_medio_entregue": 267.26629790596604,
+        "espera_media": 1226102.882361111,
+        "inseridos": 3756,
+        "ativos_inicio": 125,
+        "ativos_fim": 1350,
+        "backlog_insercao": 3375,
+        "perdidos": 0
+      },
+      "base_lacuna": -0.9229,
+      "novo_lacuna": 471.3646,
+      "novo_sinais": [
+        "backlog de inserção 47.3% dos agendados (borda estrangulada)",
+        "lacuna de sobrevivência 471.4% > 25% (há população presa fora da média)"
+      ],
+      "base_sinais": [],
+      "novo_sane": false,
+      "base_sane": true,
+      "novo_backlog": 3375,
+      "base_backlog": 27,
+      "novo_travou": false,
+      "base_travou": false
+    },
+    {
+      "seed": 104,
+      "base": {
+        "entregues": 7222,
+        "tempo_medio_no_sistema": 159.87043820377153,
+        "fila_media": 54.36708333333333,
+        "tempo_medio_entregue": 161.30102464691223,
+        "espera_media": 756.4293055555555,
+        "inseridos": 7189,
+        "ativos_inicio": 182,
+        "ativos_fim": 149,
+        "backlog_insercao": 0,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 2885,
+        "tempo_medio_no_sistema": 1421.4823695345558,
+        "fila_media": 770.6608333333334,
+        "tempo_medio_entregue": 299.6578856152513,
+        "espera_media": 1078170.8791666667,
+        "inseridos": 4072,
+        "ativos_inicio": 182,
+        "ativos_fim": 1369,
+        "backlog_insercao": 3117,
+        "perdidos": 0
+      },
+      "base_lacuna": -0.8869,
+      "novo_lacuna": 374.3684,
+      "novo_sinais": [
+        "backlog de inserção 43.4% dos agendados (borda estrangulada)",
+        "lacuna de sobrevivência 374.4% > 25% (há população presa fora da média)"
+      ],
+      "base_sinais": [],
+      "novo_sane": false,
+      "base_sane": true,
+      "novo_backlog": 3117,
+      "base_backlog": 0,
+      "novo_travou": false,
+      "base_travou": false
+    },
+    {
+      "seed": 105,
+      "base": {
+        "entregues": 6941,
+        "tempo_medio_no_sistema": 158.38723344160428,
+        "fila_media": 51.57541666666667,
+        "tempo_medio_entregue": 159.76170580607982,
+        "espera_media": 717.7909722222222,
+        "inseridos": 6933,
+        "ativos_inicio": 148,
+        "ativos_fim": 140,
+        "backlog_insercao": 0,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 6064,
+        "tempo_medio_no_sistema": 330.73015873015873,
+        "fila_media": 198.93472222222223,
+        "tempo_medio_entregue": 275.1883245382586,
+        "espera_media": 13735.524027777778,
+        "inseridos": 6719,
+        "ativos_inicio": 148,
+        "ativos_fim": 803,
+        "backlog_insercao": 214,
+        "perdidos": 0
+      },
+      "base_lacuna": -0.8603,
+      "novo_lacuna": 20.1832,
+      "novo_sinais": [],
+      "base_sinais": [],
+      "novo_sane": true,
+      "base_sane": true,
+      "novo_backlog": 214,
+      "base_backlog": 0,
+      "novo_travou": false,
+      "base_travou": false
+    },
+    {
+      "seed": 106,
+      "base": {
+        "entregues": 6854,
+        "tempo_medio_no_sistema": 161.77640017101325,
+        "fila_media": 53.8375,
+        "tempo_medio_entregue": 163.17070323898454,
+        "espera_media": 766.4568055555555,
+        "inseridos": 6856,
+        "ativos_inicio": 161,
+        "ativos_fim": 163,
+        "backlog_insercao": 0,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 1977,
+        "tempo_medio_no_sistema": 2006.9588163514338,
+        "fila_media": 863.1420833333333,
+        "tempo_medio_entregue": 284.96054628224584,
+        "espera_media": 1534852.7015277778,
+        "inseridos": 3117,
+        "ativos_inicio": 161,
+        "ativos_fim": 1301,
+        "backlog_insercao": 3739,
+        "perdidos": 0
+      },
+      "base_lacuna": -0.8545,
+      "novo_lacuna": 604.2936,
+      "novo_sinais": [
+        "backlog de inserção 54.5% dos agendados (borda estrangulada)",
+        "lacuna de sobrevivência 604.3% > 25% (há população presa fora da média)"
+      ],
+      "base_sinais": [],
+      "novo_sane": false,
+      "base_sane": true,
+      "novo_backlog": 3739,
+      "base_backlog": 0,
+      "novo_travou": false,
+      "base_travou": false
+    },
+    {
+      "seed": 107,
+      "base": {
+        "entregues": 7088,
+        "tempo_medio_no_sistema": 157.38051140290256,
+        "fila_media": 52.00861111111111,
+        "tempo_medio_entregue": 158.8497460496614,
+        "espera_media": 711.7113888888889,
+        "inseridos": 7123,
+        "ativos_inicio": 112,
+        "ativos_fim": 147,
+        "backlog_insercao": 0,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 4675,
+        "tempo_medio_no_sistema": 624.8665200473694,
+        "fila_media": 413.12805555555553,
+        "tempo_medio_entregue": 310.9724064171123,
+        "espera_media": 198831.70791666667,
+        "inseridos": 5799,
+        "ativos_inicio": 112,
+        "ativos_fim": 1236,
+        "backlog_insercao": 1324,
+        "perdidos": 0
+      },
+      "base_lacuna": -0.9249,
+      "novo_lacuna": 100.9395,
+      "novo_sinais": [
+        "backlog de inserção 18.6% dos agendados (borda estrangulada)",
+        "lacuna de sobrevivência 100.9% > 25% (há população presa fora da média)"
+      ],
+      "base_sinais": [],
+      "novo_sane": false,
+      "base_sane": true,
+      "novo_backlog": 1324,
+      "base_backlog": 0,
+      "novo_travou": false,
+      "base_travou": false
+    },
+    {
+      "seed": 108,
+      "base": {
+        "entregues": 6999,
+        "tempo_medio_no_sistema": 159.2070410729254,
+        "fila_media": 52.82763888888889,
+        "tempo_medio_entregue": 160.69838548364052,
+        "espera_media": 735.98875,
+        "inseridos": 6997,
+        "ativos_inicio": 161,
+        "ativos_fim": 159,
+        "backlog_insercao": 6,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 2420,
+        "tempo_medio_no_sistema": 1539.6860077021822,
+        "fila_media": 762.3231944444444,
+        "tempo_medio_entregue": 249.84338842975205,
+        "espera_media": 1014866.1623611111,
+        "inseridos": 3734,
+        "ativos_inicio": 161,
+        "ativos_fim": 1475,
+        "backlog_insercao": 3269,
+        "perdidos": 0
+      },
+      "base_lacuna": -0.928,
+      "novo_lacuna": 516.2605,
+      "novo_sinais": [
+        "backlog de inserção 46.7% dos agendados (borda estrangulada)",
+        "lacuna de sobrevivência 516.3% > 25% (há população presa fora da média)"
+      ],
+      "base_sinais": [],
+      "novo_sane": false,
+      "base_sane": true,
+      "novo_backlog": 3269,
+      "base_backlog": 6,
+      "novo_travou": true,
+      "base_travou": false
+    },
+    {
+      "seed": 109,
+      "base": {
+        "entregues": 6917,
+        "tempo_medio_no_sistema": 155.82417737607682,
+        "fila_media": 49.78722222222222,
+        "tempo_medio_entregue": 157.40696833887523,
+        "espera_media": 672.9651388888889,
+        "inseridos": 6930,
+        "ativos_inicio": 151,
+        "ativos_fim": 164,
+        "backlog_insercao": 0,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 4164,
+        "tempo_medio_no_sistema": 769.2863395951122,
+        "fila_media": 499.8923611111111,
+        "tempo_medio_entregue": 279.5458693563881,
+        "espera_media": 348035.94430555555,
+        "inseridos": 5332,
+        "ativos_inicio": 151,
+        "ativos_fim": 1319,
+        "backlog_insercao": 1598,
+        "perdidos": 0
+      },
+      "base_lacuna": -1.0055,
+      "novo_lacuna": 175.1915,
+      "novo_sinais": [
+        "backlog de inserção 23.1% dos agendados (borda estrangulada)",
+        "lacuna de sobrevivência 175.2% > 25% (há população presa fora da média)"
+      ],
+      "base_sinais": [],
+      "novo_sane": false,
+      "base_sane": true,
+      "novo_backlog": 1598,
+      "base_backlog": 0,
+      "novo_travou": false,
+      "base_travou": false
+    },
+    {
+      "seed": 110,
+      "base": {
+        "entregues": 6991,
+        "tempo_medio_no_sistema": 158.74699804523877,
+        "fila_media": 52.8875,
+        "tempo_medio_entregue": 160.85395508510942,
+        "espera_media": 738.84125,
+        "inseridos": 7017,
+        "ativos_inicio": 145,
+        "ativos_fim": 171,
+        "backlog_insercao": 0,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 3851,
+        "tempo_medio_no_sistema": 857.7925490196078,
+        "fila_media": 524.8602777777778,
+        "tempo_medio_entregue": 276.29602700597246,
+        "espera_media": 502898.5961111111,
+        "inseridos": 4955,
+        "ativos_inicio": 145,
+        "ativos_fim": 1249,
+        "backlog_insercao": 2062,
+        "perdidos": 0
+      },
+      "base_lacuna": -1.3099,
+      "novo_lacuna": 210.4614,
+      "novo_sinais": [
+        "backlog de inserção 29.4% dos agendados (borda estrangulada)",
+        "lacuna de sobrevivência 210.5% > 25% (há população presa fora da média)"
+      ],
+      "base_sinais": [],
+      "novo_sane": false,
+      "base_sane": true,
+      "novo_backlog": 2062,
+      "base_backlog": 0,
+      "novo_travou": false,
+      "base_travou": false
+    },
+    {
+      "seed": 111,
+      "base": {
+        "entregues": 7055,
+        "tempo_medio_no_sistema": 156.50577110276734,
+        "fila_media": 50.97027777777778,
+        "tempo_medio_entregue": 157.89695251594614,
+        "espera_media": 701.25375,
+        "inseridos": 7046,
+        "ativos_inicio": 145,
+        "ativos_fim": 136,
+        "backlog_insercao": 0,
+        "perdidos": 0
+      },
+      "novo": {
+        "entregues": 2961,
+        "tempo_medio_no_sistema": 1246.2723932016536,
+        "fila_media": 679.0366666666666,
+        "tempo_medio_entregue": 261.19452887537994,
+        "espera_media": 874505.0997222222,
+        "inseridos": 4209,
+        "ativos_inicio": 145,
+        "ativos_fim": 1393,
+        "backlog_insercao": 2837,
+        "perdidos": 0
+      },
+      "base_lacuna": -0.8811,
+      "novo_lacuna": 377.1434,
+      "novo_sinais": [
+        "backlog de inserção 40.3% dos agendados (borda estrangulada)",
+        "lacuna de sobrevivência 377.1% > 25% (há população presa fora da média)"
+      ],
+      "base_sinais": [],
+      "novo_sane": false,
+      "base_sane": true,
+      "novo_backlog": 2837,
+      "base_backlog": 0,
+      "novo_travou": true,
+      "base_travou": false
+    }
+  ],
+  "vitorias_trinca": 0,
+  "ckpt": "../smart-traffic-maquete/results/maq30_ats_full_best.pt",
+  "janela_s": 7200.0,
+  "plano": "C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\sumo\\aberta\\planos\\coordenado_c60.json",
+  "restricoes": "di5/vm7/am3/mr0"
+}

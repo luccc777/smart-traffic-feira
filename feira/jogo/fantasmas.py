@@ -50,10 +50,18 @@ __all__ = ["Fantasmaria", "ColetorDeSerie", "TarefaFantasma", "RAIZ_PADRAO"]
 _RAIZ_REPO = Path(__file__).resolve().parents[2]
 RAIZ_PADRAO = _RAIZ_REPO / "results"
 
-# O baseline único do projeto enquanto o plano coordenado do agente A5 não
-# congela. Trocar isto muda o adversário exibido — não é detalhe de jogo.
+# Trocar qualquer um dos dois muda o ADVERSÁRIO EXIBIDO — não é detalhe de jogo.
 VERDE_TIMER_PADRAO = 27.0
-CKPT_PADRAO = _RAIZ_REPO.parent / "smart-traffic-maquete" / "results" / "maq30_ats_full_best.pt"
+
+# A política do agente A6, treinada NA REDE ABERTA. A anterior
+# (`maq30_ats_full_best.pt`, da rede fechada) não serve mais aqui: medida nesta
+# mesma bancada ela entrega 3140,8 contra 7001 do plano coordenado (−55,1%) e
+# TRAVA em 3 de 12 seeds held-out. Era ela que o projetor mostraria perdendo.
+#
+# Held-out, 12 seeds, janela de 7200 s, contra `coordenado_c60`: +0,35% de vazão,
+# +13,73% de tempo no sistema, +40,71% de fila — 12/12 na trinca inteira.
+# Reproduzido fora da bancada do A6 na seed 100 (+0,27 / +13,49 / +40,62).
+CKPT_PADRAO = _RAIZ_REPO / "results" / "rl" / "v1_queue_di5.pt"
 
 
 class ColetorDeSerie:
@@ -217,11 +225,32 @@ class Fantasmaria:
         return fant
 
     def carrega(self, seed: int, braco: str) -> Fantasma:
-        """Do disco, CONFERINDO a chave. Fantasma velho parece válido na tela."""
+        """Do disco, conferindo a chave E QUEM O GEROU.
+
+        A `Chave` (C5) descreve a CONDIÇÃO — cenário, seed, janela, demanda,
+        restrições — e deliberadamente não diz quem jogou. Duas políticas
+        diferentes na mesma condição produzem fantasmas de chave IDÊNTICA, então
+        `confere()` sozinho aceita um pelo outro. Consequência concreta: trocar
+        `CKPT_PADRAO` para a política nova reaproveitaria em silêncio o fantasma
+        da velha, e o projetor exibiria a RL antiga — perdendo — com o nome da
+        nova. O nome do controlador já viajava no arquivo desde sempre
+        (`rl:maq30_ats_full_best`); ele só nunca era comparado.
+
+        Nome divergente levanta `FantasmaIncompativel`, que é o que o `garante()`
+        já trata recalculando — cache frio custa uma rodada, cache errado custa a
+        credibilidade do número na tela.
+        """
         janela = self.janela()
         chave = self.chave(seed, janela)
         fant = Fantasma.carrega(self.caminho(seed, braco, janela))
         fant.confere(chave)
+        # `.nome` é barato nos dois braços: o `ControladorRL` só importa torch
+        # dentro do `reset()`, então isto não paga o custo de subir a política.
+        esperado = self.controlador(braco).nome
+        if fant.controlador != esperado:
+            raise FantasmaIncompativel(
+                "fantasma gerado por %r, esperado %r — mesma condição, outro jogador"
+                % (fant.controlador, esperado))
         selo = _le_selo(self.caminho(seed, braco, janela))
         if selo:
             self.selos[(int(seed), braco)] = selo
@@ -264,10 +293,14 @@ class Fantasmaria:
                     continue
                 except Exception:
                     pass
+            # `--ckpt` explícito: sem ele o subprocesso caía no `CKPT_PADRAO` e
+            # uma `Fantasmaria(ckpt_rl=outro)` calcularia o fantasma com a política
+            # ERRADA — que a checagem de `carrega()` passaria a rejeitar em laço.
             cmd = [sys.executable, "-m", "feira.jogo.fantasmas",
                    "--cenario", self.cenario.chave, "--seed", str(int(seed)),
                    "--braco", braco, "--raiz", str(self.raiz),
-                   "--verde-timer", str(self.verde_timer)]
+                   "--verde-timer", str(self.verde_timer),
+                   "--ckpt", str(self.ckpt_rl)]
             proc = subprocess.Popen(cmd, cwd=str(_RAIZ_REPO),
                                     stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
             tarefas.append(TarefaFantasma(int(seed), braco, caminho, proc,

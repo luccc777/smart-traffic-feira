@@ -252,7 +252,7 @@ def braco_do_controlador(nome: str | None) -> str | None:
     """`"timer:uniforme_27s"` -> `"timer"`. Devolve None para o que não é braço.
 
     Os controladores se nomeiam `familia:variante` (`humano:teclado`,
-    `rl:maq30_ats_full_best`, e o coordenado também se chama `timer:...` porque é
+    `rl:v1_queue_di5`, e o coordenado também se chama `timer:...` porque é
     a régua de plano fixo). `frame_wire` recusa braço fora de `BRACOS` — e recusar
     no caminho do jogo seria exatamente o que este módulo não pode fazer, então a
     normalização mora aqui e o desconhecido vira descarte contado, não exceção.

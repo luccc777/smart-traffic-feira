@@ -1,0 +1,14 @@
+{
+  "nome": "v5_queue_di10",
+  "dir": "C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\experiments\\v5_queue_di10",
+  "restricoes": "di10/vm10/am3/mr0",
+  "recompensa": "queue",
+  "warm_start": "../smart-traffic-maquete/results/maq30_ats_full_best.pt",
+  "episodios": 160,
+  "melhor_episodio": 160,
+  "melhor_vazao_validacao": 6999.5,
+  "baseline_vazao_validacao": 6830.0,
+  "checkpoint": "C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\experiments\\v5_queue_di10\\checkpoints\\best_vazao.pt",
+  "copia_results": "C:\\Users\\lucso\\Documents\\ic\\smart-traffic-feira\\results\\rl\\v5_queue_di10.pt",
+  "minutos": 141.8
+}

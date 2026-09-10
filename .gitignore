@@ -7,6 +7,9 @@ __pycache__/
 
 # saidas de run: os checkpoints campeoes vao versionados (results/), o resto nao
 experiments/*/checkpoints/ckpt_*.pt
+# corridas de fumaca: existem para provar que o pipeline sobe, nao para guardar
+experiments/_smoke*/
+results/rl/smoke*.pt
 *.log
 *.tmp
 

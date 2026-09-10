@@ -188,6 +188,58 @@ def test_fantasma_de_outro_espaco_de_acao_e_recusado(fantasmaria, cenario_fake):
         f.confere(Fantasmaria(outro, raiz=fantasmaria.raiz).chave(100))
 
 
+def test_fantasma_de_outra_politica_e_recusado_na_mesma_condicao(fantasmaria):
+    """A `Chave` descreve a CONDICAO, nao quem jogou -- e o cache confiava so nela.
+
+    Duas politicas na mesma seed, janela e grade produzem fantasmas de chave
+    IDENTICA. Sem esta checagem, trocar o checkpoint da RL reaproveitava em
+    silencio o fantasma da politica velha, e o projetor exibia a RL antiga com o
+    nome da nova. O nome do controlador ja viajava no arquivo desde sempre; so
+    nao era comparado.
+    """
+    f = fantasmaria.calcula(100, "timer")
+    assert f.controlador == "timer:uniforme_27s"
+
+    # mesmo arquivo, mesma chave -- so o jogador muda
+    fantasmaria.verde_timer = 40.0
+    assert fantasmaria.chave(100) == f.chave, "a condicao NAO mudou; e esse o ponto"
+    with pytest.raises(FantasmaIncompativel, match="outro jogador"):
+        fantasmaria.carrega(100, "timer")
+
+    # e o `garante()` trata isso recalculando, em vez de derrubar a rodada
+    antes = len(fantasmaria.custos)
+    out = fantasmaria.garante(100, ("timer",))
+    assert len(fantasmaria.custos) > antes                    # recalculou
+    assert out["timer"].controlador == "timer:uniforme_40s"
+
+
+def test_prefetch_leva_o_checkpoint_para_o_subprocesso(fantasmaria, monkeypatch):
+    """Sem `--ckpt` o subprocesso caia no CKPT_PADRAO e computava outra politica."""
+    import pathlib
+    fantasmaria.ckpt_rl = pathlib.Path("uma_politica_qualquer.pt")
+    vistos = []
+    monkeypatch.setattr("subprocess.Popen",
+                        lambda cmd, **kw: vistos.append(cmd) or _PopenFalso())
+    fantasmaria.agenda(100, ("rl",))
+    assert vistos, "nada foi disparado"
+    cmd = vistos[0]
+    assert "--ckpt" in cmd
+    assert cmd[cmd.index("--ckpt") + 1] == str(fantasmaria.ckpt_rl)
+
+
+class _PopenFalso:
+    returncode = 0
+
+    def poll(self):
+        return 0
+
+    def wait(self, timeout=None):
+        return 0
+
+    def kill(self):
+        pass
+
+
 def test_garante_usa_o_cache_e_nao_recalcula(fantasmaria):
     fantasmaria.calcula(100, "timer")
     antes = len(fantasmaria.custos)

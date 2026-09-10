@@ -1,0 +1,20 @@
+{
+  "230": {
+    "entregues": 6985,
+    "fila_media": 50.72958333333333,
+    "tempo_medio_no_sistema": 155.4956048555881,
+    "tempo_medio_entregue": 156.9358625626342,
+    "espera_media": 702.9744444444444,
+    "inseridos": 7024,
+    "backlog_insercao": 0
+  },
+  "231": {
+    "entregues": 6974,
+    "fila_media": 51.872083333333336,
+    "tempo_medio_no_sistema": 158.34074908476487,
+    "tempo_medio_entregue": 159.63966160022943,
+    "espera_media": 722.4152777777778,
+    "inseridos": 6955,
+    "backlog_insercao": 0
+  }
+}
