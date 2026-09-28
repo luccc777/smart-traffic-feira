@@ -8,6 +8,10 @@ entra num quadro de recordes que expira, para o campeão mudar ao longo do dia.
 
 Iniciação Científica · FIAP.
 
+> **Para quem vai apresentar:** o guia da feira, passo a passo —
+> **[ler online](https://claude.ai/artifact/LfHvi68uhsrk8PAc744zqW)** ou
+> [`docs/GUIA_DA_FEIRA.html`](docs/GUIA_DA_FEIRA.html) no repo.
+>
 > **Relatório de validação:** o sistema rodando de verdade, com screenshot de cada
 > tela e o checklist com evidência.
 > **[Ler online](https://claude.ai/artifact/T8yZoRSHVVnuGrs9AaqR27)** (abre bem no
@@ -361,6 +365,7 @@ encolha a margem publicada — ver [`docs/PLANO.md`](docs/PLANO.md).
 | arquivo | sobre |
 |---|---|
 | [`docs/GUIA_DA_FEIRA.html`](docs/GUIA_DA_FEIRA.html) | **o guia de quem apresenta**: a proposta em 30 s, o fluxo tela por tela, as regras e o que responder ao visitante |
+| [Deck da banca](https://claude.ai/artifact/GJmyzdNpByefRPrjdy1J7J) | os 17 slides da apresentação final (problema → agente → resultados → a feira → método) |
 | [`docs/validation/relatorio.html`](docs/validation/relatorio.html) | **a validação ponta a ponta**, com screenshots e checklist |
 | [`docs/PROJECAO.md`](docs/PROJECAO.md) | a montagem do projetor, a conta de legibilidade, o layout |
 | [`docs/JOGO.md`](docs/JOGO.md) | o modo jogo: fases, fantasmas, portão de saúde |
