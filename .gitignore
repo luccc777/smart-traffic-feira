@@ -88,3 +88,7 @@ results/jogo/rodadas/rodadas/
 # relatorio.html, so o envelope muda, e sai de `python scripts/relatorio_validacao.py`.
 # Versionar as duas dobraria 1,2 MB por nada.
 docs/validation/relatorio.artifact.html
+
+# variante do guia para publicar como Artifact: mesmo conteudo do GUIA_DA_FEIRA.html,
+# sai de `python scripts/guia_feira.py`.
+docs/GUIA_DA_FEIRA.artifact.html

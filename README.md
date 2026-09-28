@@ -79,7 +79,7 @@ ic\
 .\run_testes.ps1
 ```
 
-O passo 4 tem de terminar em `784 passed`. Se não terminar, pare aqui — não adianta
+O passo 4 tem de terminar em `802 passed`. Se não terminar, pare aqui — não adianta
 subir a feira com a suíte vermelha.
 
 ## 3. Como rodar
@@ -360,6 +360,7 @@ encolha a margem publicada — ver [`docs/PLANO.md`](docs/PLANO.md).
 
 | arquivo | sobre |
 |---|---|
+| [`docs/GUIA_DA_FEIRA.html`](docs/GUIA_DA_FEIRA.html) | **o guia de quem apresenta**: a proposta em 30 s, o fluxo tela por tela, as regras e o que responder ao visitante |
 | [`docs/validation/relatorio.html`](docs/validation/relatorio.html) | **a validação ponta a ponta**, com screenshots e checklist |
 | [`docs/PROJECAO.md`](docs/PROJECAO.md) | a montagem do projetor, a conta de legibilidade, o layout |
 | [`docs/JOGO.md`](docs/JOGO.md) | o modo jogo: fases, fantasmas, portão de saúde |

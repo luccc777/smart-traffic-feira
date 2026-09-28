@@ -954,11 +954,17 @@ function demo(qual) {
   }
   if (qual === 'denuncia') {
     // A ARMADILHA (b) em imagem: dois braços em janelas diferentes.
+    recebe(pl('jogando'));
     recebe(demoFrame('timer', 372, n, J));
     recebe(demoFrame('rl', 372, n, [300, 900]));
-    recebe(pl('jogando'));
     return;
   }
+  // A ORDEM AQUI IMPORTA, E E A DA RODADA: o PLACAR da fase primeiro, os quadros
+  // depois. Trocar de fase comeca uma epoca e descarta os quadros da anterior
+  // (`poeFase`), entao um quadro publicado ANTES do placar que muda a fase e apagado
+  // por ele. Na rodada de verdade a fase ja esta posta quando a Arena comeca a
+  // espelhar; o demo estava fazendo o inverso, e as fotos de bancada de `contagem` e
+  // `jogando` sairam SEM MAPA — pretas, com so a tarja embaixo.
   if (qual === 'ocioso') {
     // COM mensagem `placar`, e passou a ter: no ocioso de verdade quem monta as duas
     // linhas é o SERVIDOR (`EstadoProjecao.placar_ocioso`), que alinha os dois braços
@@ -967,21 +973,21 @@ function demo(qual) {
     // `base`, nao `linhas`: no ocioso `frac` e 0 e `linhas` sai com entregues zerado.
     const [ti, rl] = [base.find(l => l.braco === 'timer'), base.find(l => l.braco === 'rl')];
     const st_ = l => ({ entregues: l.entregues, ativos: n, tempo_medio_entregue: l.tempo_medio, fila_media: l.fila });
+    recebe(pl('ocioso', { linhas: [ti, rl] }));
     recebe({ ...demoFrame('rl', 372, n, J), stats: st_(rl) });
     recebe({ ...demoFrame('timer', 372, n, J), stats: st_(ti) });
-    recebe(pl('ocioso', { linhas: [ti, rl] }));
   } else if (qual === 'preparando') {
     // `linhas: []` porque é o que o motor publica em PREPARANDO e em CONTAGEM
     // (`_placar(fase, t, {}, None)`): ainda não há fantasma carregado nem humano
     // correndo, e uma linha com zero seria número inventado.
     recebe({ ...pl('preparando'), linhas: [] });
   } else if (qual === 'contagem') {
-    recebe(demoFrame('humano', 300, n, J));
     recebe({ ...pl('contagem'), linhas: [], t_restante: 2 });
+    recebe(demoFrame('humano', 300, n, J));
   } else if (qual === 'jogando') {
+    recebe(pl('jogando'));
     recebe(demoFrame('humano', 371, n, J));
     recebe(demoFrame('humano', 372, n, J));
-    recebe(pl('jogando'));
   } else if (qual === 'resultado') {
     recebe(pl('resultado', { vencedor: q.get('perde') ? 'timer' : 'rl' }));
   } else if (qual === 'nao_pareada') {
@@ -1055,12 +1061,12 @@ function demo(qual) {
       recebe({ ...msg, linhas: [ti, rl] });
       return;
     }
-    if (qual === 'jogando') recebe(demoFrame('humano', t, n, J));
     if (qual === 'contagem') {
-      recebe(demoFrame('humano', t, n, J));
       recebe({ ...msg, linhas: [], t_restante: Math.max(1, 3 - (passo % 4)) });
+      recebe(demoFrame('humano', t, n, J));
       return;
     }
+    if (qual === 'jogando') { recebe(msg); recebe(demoFrame('humano', t, n, J)); return; }
     if (qual === 'denuncia') {
       recebe(demoFrame('timer', t, n, J));
       recebe(demoFrame('rl', t, n, [300, 900]));
