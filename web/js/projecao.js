@@ -783,8 +783,38 @@ const TECLAS = {
   arrowright: () => { st.panX += 4; layout(); },
   arrowup: () => { st.panY -= 4; layout(); },
   arrowdown: () => { st.panY += 4; layout(); },
-  f: () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); },
+  f: () => { if (document.fullscreenElement) document.exitFullscreen(); else telaCheia(); },
 };
+
+// TELA CHEIA COM O ESC PRESO.
+//
+// Esc é a tecla que o visitante aperta por reflexo para "cancelar" — e o navegador
+// responde SAINDO DA TELA CHEIA. No meio da feira isso derruba a projeção do chão e
+// só volta quando alguém nota e aperta F de novo. O `preventDefault` não resolve:
+// nenhuma página consegue impedir o Esc de sair da tela cheia por essa via.
+//
+// Quem resolve é a Keyboard Lock API, feita exatamente para isto: com `Escape`
+// travado, a tecla CHEGA à página (o `reduzEntrada` cancela o apelido, que é o que a
+// pessoa queria) e a tela cheia fica. Para sair de verdade, SEGURA-SE o Esc — o
+// navegador trata o toque longo como a saída. Precisa de contexto seguro, e
+// `http://127.0.0.1` é um. Sem suporte (Firefox, Safari), a tela cheia entra do mesmo
+// jeito e o Esc volta a derrubá-la: degrada, não quebra.
+async function telaCheia() {
+  try {
+    await document.documentElement.requestFullscreen();
+  } catch (e) {
+    return;                       // negado (sem gesto do usuário): nada a destravar
+  }
+  try { await navigator.keyboard?.lock?.(['Escape']); } catch (e) { /* sem suporte */ }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  // Saiu da tela cheia (por F, por Esc segurado, ou porque o SO mandou): devolve o
+  // teclado. Deixar travado fora da tela cheia é ficar com uma tecla do sistema.
+  if (!document.fullscreenElement) {
+    try { navigator.keyboard?.unlock?.(); } catch (e) { /**/ }
+  }
+});
 
 window.addEventListener('keydown', ev => {
   // Com a entrada web ligada o teclado é do VISITANTE: atalho do operador só com

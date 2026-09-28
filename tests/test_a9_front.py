@@ -92,8 +92,11 @@ out.nome_digitado = { nome: r.e.nome, acoes: r.acoes, campo: r.e.campo };
 // 2. ENTER confirma e fecha o campo; vai para o POST, não para o WS
 r = passos(r.e, ['Enter']);
 out.confirmado = { nome: r.e.nome, acoes: r.acoes, campo: r.e.campo, confirmado: r.e.confirmado };
-// 3. campo fechado: agora `q` é botão, espaço é START, Escape é ABORTAR
-r = passos(r.e, ['q', 'V', ' ', 'Escape', 'Escape', 'Escape', 'h']);
+// 3. DURANTE A RODADA: `q` é botão, espaço é START, Escape é ABORTAR.
+// A fase entra explícita porque ela MANDA no Escape: no `ocioso` com o campo fechado
+// (nome confirmado, esperando o ESPAÇO) Esc é "desistir" e devolve a vez — ver
+// `tests/test_a11_fluxo_visitante.py`. Abortar é da rodada em curso.
+r = passos({ ...r.e, fase: 'jogando' }, ['q', 'V', ' ', 'Escape', 'Escape', 'Escape', 'h']);
 // um Esc sozinho NÃO aborta (é a tecla do reflexo); três em 1,5 s, sim
 out.esc_um = reduzEntrada({ campo: false, nome: '', escs: [] }, 'Escape', 1000).acoes;
 out.esc_tres = passos({ campo: false, nome: '', escs: [] }, ['Escape', 'Escape', 'Escape']).acoes;

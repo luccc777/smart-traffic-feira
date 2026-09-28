@@ -1,10 +1,10 @@
 {
  "cenario": "aberta.maquete",
- "demanda_sha": "496a359a51c090601802ddfed1d64b24646926373184806384938257fe6728e7",
+ "demanda_sha": "b7439f0da2c68d11cc686f1eec68fd97ffe9b8bf585e429fa61849f2d4464e9c",
  "fonte": "web+teclado",
  "n_botoes": 12,
  "restricoes": "di5/vm7/am3/mr0",
- "seed": 101,
+ "seed": 100,
  "t0": 300.0,
  "t1": 420.0,
  "ticks": [
@@ -29,7 +29,9 @@
   [],
   [],
   [],
-  [],
+  [
+   4
+  ],
   [],
   []
  ]

@@ -398,6 +398,7 @@ class MotorDoJogo:
             self.i_seed += 1
         if self.resultado_s > 0:
             self._espera_resultado(self.resultado_s)
+        self._descarta_entrada()
         if self.prefetch:
             self.agenda_proxima()
         self.fase = OCIOSO
@@ -405,6 +406,36 @@ class MotorDoJogo:
             self._publica(Placar.monta(OCIOSO, self.janela().t1, self.chave(), [],
                                        t_restante=0.0, rodada=self._rodada_id))
         return rodada
+
+    def _descarta_entrada(self) -> None:
+        """Joga fora o que foi apertado DURANTE a tela de resultado.
+
+        O MESMO cuidado que a contagem já tinha (ver `_contagem`: "quem martela o
+        botão no 3-2-1 não começa a rodada com 12 trocas de graça"), aplicado à outra
+        ponta da rodada — onde faltava, e onde o efeito era pior.
+
+        MEDIDO na bancada, com o reflexo mais comum que existe. Quem acaba de jogar
+        aperta ESPAÇO de novo ("mais uma!"). O evento ficava na fila da fonte, a tela
+        de resultado cumpria os 7 s, o motor voltava para `ocioso` e o
+        `espera_start()` seguinte encontrava aquele START esperando por ele:
+
+            resultado   t = 493159 ms
+            ocioso      t = 500176 ms   (7,0 s — correto)
+            preparando  t = 500196 ms   (20 ms depois)
+
+        Vinte milissegundos de tela padrão. Três coisas se perdiam de uma vez: a
+        demonstração RL x timer nunca aparecia entre as rodadas, o PRÓXIMO da fila não
+        tinha como digitar o apelido dele, e a rodada saía como `Visitante N` porque o
+        nome do anterior já tinha sido consumido. Quem apertou não pediu nada disso —
+        pediu "de novo", olhando para o próprio resultado.
+
+        Descartar é a resposta certa: começar a rodada é uma decisão que se toma
+        OLHANDO para a tela padrão, não para a tela anterior.
+        """
+        try:
+            self.fonte.poll()
+        except Exception:
+            pass                       # fonte morta não atrapalha o fim da rodada
 
     def _espera_resultado(self, segundos: float) -> None:
         """A tela de RESULTADO fica `segundos` no ar — a menos que o operador pule."""

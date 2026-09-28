@@ -52,6 +52,12 @@ export const MAPA_TECLAS = Object.fromEntries(LETRAS.map((k, i) => [k, i]));
 export const NOME_MAX = 12;
 export const ESC_VEZES = 3;          // Esc 3x em 1,5 s = abortar (só o operador faz isso de propósito)
 export const ESC_JANELA_MS = 1500;
+// Quanto um apelido CONFIRMADO espera pela pessoa que o digitou antes de ser
+// devolvido. Numa fila, quem confirma e vai embora deixa o nome pendurado, e o
+// próximo visitante joga com o nome do anterior — a marca dele entra no quadro com
+// o apelido errado. 90 s é folgado para quem confirmou e está se posicionando, e
+// curto para quem desistiu. Ver `revisaEspera`.
+export const NOME_VALIDADE_MS = 90000;
 const RECONECTA_MS = 800;
 
 // A grade da RL, em segundos SIMULADOS (`RESTRICOES_ABERTA`: di5/vm7/am3). O servidor
@@ -93,6 +99,7 @@ export function reduzEntrada(estado, tecla, agora = 0) {
         acoes.push({ tipo: 'nome', nome: e.nome });
         e.campo = false;
         e.confirmado = true;
+        e.confirmadoEm = agora;
       }
       return { estado: e, acoes, consumida: true };
     }
@@ -108,6 +115,24 @@ export function reduzEntrada(estado, tecla, agora = 0) {
     }
     // setas, F-keys, sinais: não são do jogo nem do nome — passam ao operador
     return { estado: e, acoes, consumida: false };
+  }
+  // DESISTIR. Entre o ENTER e o ESPAÇO existe um estado em que a pessoa já disse o
+  // nome e ainda não jogou — e dali não havia volta: Esc não fazia nada, Backspace não
+  // fazia nada, e Esc 3x mandava `abortar` (que fora da rodada é no-op) deixando o
+  // nome pendurado do mesmo jeito. Quem desistia ali entregava o apelido ao PRÓXIMO da
+  // fila, que jogava e entrava no quadro com o nome errado.
+  //
+  // Agora as duas teclas do reflexo devolvem a vez: Esc cancela, Backspace reabre para
+  // corrigir. As duas avisam o servidor com nome vazio — enquanto o campo está aberto,
+  // ninguém está confirmado, e o pendente do servidor tem de dizer a mesma coisa.
+  // Só no `ocioso`: com a rodada em curso, Esc continua sendo o abortar do operador.
+  if (e.fase === 'ocioso' && (k === 'Escape' || k === 'Backspace')) {
+    e.campo = true;
+    e.confirmado = false;
+    e.escs = [];
+    e.nome = k === 'Backspace' ? String(e.nome || '').slice(0, -1) : '';
+    acoes.push({ tipo: 'nome', nome: '' });
+    return { estado: e, acoes, consumida: true };
   }
   if (kl in MAPA_TECLAS) { acoes.push({ tipo: 'tecla', k: kl }); return { estado: e, acoes, consumida: true }; }
   if (k === ' ') { acoes.push({ tipo: 'start' }); return { estado: e, acoes, consumida: true }; }
@@ -125,6 +150,26 @@ export function reduzEntrada(estado, tecla, agora = 0) {
     return { estado: e, acoes, consumida: true };
   }
   return { estado: e, acoes, consumida: false };
+}
+
+/**
+ * O RELÓGIO DA ESPERA. Função pura, chamada de tempos em tempos pela página.
+ *
+ * Fecha o caso que nenhuma tecla resolve: a pessoa confirmou o apelido e foi embora
+ * sem apertar nada. Sem isto o nome fica pendurado até a próxima rodada acontecer, e
+ * quem joga é o PRÓXIMO da fila — com o apelido do anterior no quadro de recordes.
+ *
+ * Devolve o mesmo estado (sem ação nenhuma) quando não há o que expirar, então chamar
+ * a cada segundo é barato e não gera mensagem.
+ */
+export function revisaEspera(estado, agora = 0, limite = NOME_VALIDADE_MS) {
+  const e = estado || {};
+  if (e.fase !== 'ocioso' || e.campo || !e.confirmado) return { estado: e, acoes: [] };
+  if (!(agora - (e.confirmadoEm || 0) > limite)) return { estado: e, acoes: [] };
+  return {
+    estado: { ...e, campo: true, nome: '', confirmado: false, escs: [] },
+    acoes: [{ tipo: 'nome', nome: '' }],
+  };
 }
 
 /** A fase da rodada mudou. Voltar ao `ocioso` REABRE o campo, vazio. */
@@ -607,12 +652,16 @@ export class EntradaWeb {
     this.descartadas = 0;              // repeat + debounce: teclas que não viraram fio
     this._memo = {};
     this._h = ev => this._tecla(ev);
+    this._relogio = null;
   }
 
   liga() {
     if (this.ligada) return;
     this.ligada = true;
     window.addEventListener('keydown', this._h, true);       // CAPTURA: antes do operador
+    // O relógio da espera: devolve a vez de quem confirmou o apelido e foi embora.
+    // 1 Hz — `revisaEspera` é pura e só produz ação quando há o que expirar.
+    this._relogio = setInterval(() => this.revisa(), 1000);
     this._conecta();
   }
 
@@ -620,8 +669,19 @@ export class EntradaWeb {
     if (!this.ligada) return;
     this.ligada = false;
     window.removeEventListener('keydown', this._h, true);
+    if (this._relogio) { clearInterval(this._relogio); this._relogio = null; }
     try { if (this.ws) this.ws.close(); } catch (e) { /**/ }
     this.ws = null;
+  }
+
+  /** Um tique do relógio da espera. Público para o teste chamar sem timer. */
+  revisa() {
+    const { estado, acoes } = revisaEspera(this.estado, this.agora());
+    if (!acoes.length) return false;
+    this.estado = estado;
+    for (const a of acoes) this._despacha(a, this.agora());
+    this.aoMudar(this.estado);
+    return true;
   }
 
   fase(f) {
@@ -637,6 +697,20 @@ export class EntradaWeb {
     this.ws = ws;
     ws.onclose = () => { if (this.ligada) setTimeout(() => this._conecta(), RECONECTA_MS); };
     ws.onerror = () => { try { ws.close(); } catch (e) { /**/ } };
+  }
+
+  _despacha(a, t) {
+    if (a.tipo === 'nome') {
+      this.fetchFn('/api/jogador', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: a.nome }),
+      }).catch(() => {});
+      return;
+    }
+    if (a.tipo === 'tecla') this.aoTecla(MAPA_TECLAS[a.k], t);
+    const { envia, memo } = filtraSpam(this._memo, a, t);
+    this._memo = memo;
+    if (envia) this._envia(a); else this.descartadas++;
   }
 
   _envia(msg) {
@@ -663,19 +737,7 @@ export class EntradaWeb {
     const { estado, acoes, consumida } = reduzEntrada(this.estado, ev.key, t);
     const mudou = estado.nome !== this.estado.nome || estado.campo !== this.estado.campo;
     this.estado = estado;
-    for (const a of acoes) {
-      if (a.tipo === 'nome') {
-        this.fetchFn('/api/jogador', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nome: a.nome }),
-        }).catch(() => {});
-        continue;
-      }
-      if (a.tipo === 'tecla') this.aoTecla(MAPA_TECLAS[a.k], t);
-      const { envia, memo } = filtraSpam(this._memo, a, t);
-      this._memo = memo;
-      if (envia) this._envia(a); else this.descartadas++;
-    }
+    for (const a of acoes) this._despacha(a, t);
     if (consumida) {
       ev.preventDefault();               // espaço rola a página; as letras nunca devem vazar
       ev.stopImmediatePropagation();
