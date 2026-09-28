@@ -98,10 +98,10 @@ li{margin:5px 0}
 <div class="nota"><b>O que este relatório prova.</b> O sistema foi rodado de verdade — SUMO, servidor, projeção e teclado — e uma pessoa jogou uma rodada inteira pelo navegador. Três rodadas completas foram gravadas mensagem a mensagem no WebSocket da projeção; todo número citado aqui sai desses arquivos (<code>docs/validation/fio_r*.json</code>), não de estimativa.</div>
 <h2>Resumo</h2>
 <div class="grade">
-<div class="cartao"><div class="n">799 passam</div><div class="r">suíte automática</div></div>
+<div class="cartao"><div class="n">800 passam</div><div class="r">suíte automática</div></div>
 <div class="cartao"><div class="n">3</div><div class="r">rodadas completas gravadas</div></div>
 <div class="cartao"><div class="n">7,02 s</div><div class="r">tela de resultado</div></div>
-<div class="cartao"><div class="n">27 de 27</div><div class="r">itens do checklist</div></div>
+<div class="cartao"><div class="n">33 de 33</div><div class="r">itens do checklist</div></div>
 </div>
 <h2>1. Como rodar</h2>
 <p>Um comando. O preset <code>--feira</code> liga tudo que a feira usa: teclado lido pela página projetada, quadro de recordes do dia com validade de 30 min, gravação das rodadas, e a <b>tela padrão</b> (os dois braços rodando ao vivo enquanto ninguém joga).</p>
@@ -174,6 +174,23 @@ python scripts\valida_fluxo.py --analisa turno.jsonl</code></pre>
 <tr><td>Martelar o botão no 3·2·1 não dá trocas de graça</td><td class="v ok">PASSOU</td><td>A fonte é drenada durante a contagem e o que vier é descartado (<code>MotorDoJogo._contagem</code>).</td></tr>
 <tr><td>START durante a rodada não aborta (preset da feira)</td><td class="v ok">PASSOU</td><td>Com <code>--abortar operador</code> o ESPAÇO do visitante é contado e ignorado, e o botão grande pisca <code>deny</code>.</td></tr>
 </table></div>
+<h3>3.5 — O ciclo de voltas da tela padrão</h3>
+<p>A tela padrão roda em <b>voltas</b>: uma hora de trânsito por vez, os dois braços pareados desde o <code>t0</code>. Uma volta termina de três jeitos, e os três foram verificados no log do supervisor, ao vivo:</p>
+<pre><code>ocioso: seed 100 — rl+timer no ar
+ocioso: volta 1 (seed 100) encerrada — saiu: timer      <- fim por tempo
+ocioso: seed 101 — rl+timer no ar
+ocioso: volta 2 (seed 101) encerrada — rodada começou   <- alguém jogou
+rodada 1: seed=100 humano=38 ...
+ocioso: seed 102 — rl+timer no ar                       <- outra hora de trânsito</code></pre>
+<div class="rolagem"><table><tr><th>item</th><th>veredito</th><th>evidência</th></tr>
+<tr><td>A volta reinicia por tempo</td><td class="v ok">PASSOU</td><td><code>--ocioso-duracao</code>, <b>300 s simulados</b> por volta. O número saiu de medição, não de gosto — ver §6.</td></tr>
+<tr><td>A volta reinicia sozinha se a malha encher</td><td class="v ok">PASSOU</td><td>O vigia de população do <code>scripts/projecao_ocioso.py</code> aborta acima de <b>320 ativos por 60 s seguidos</b> (≈2× o regime calibrado de 158). Uma volta que azeda morre, em vez de ficar no projetor mostrando congestionamento que ninguém pediu.</td></tr>
+<tr><td>A volta acaba quando o PRIMEIRO braço sai</td><td class="v ok">PASSOU</td><td>Verificado no log: <code>volta 1 encerrada — saiu: timer</code>. O timer termina antes porque a RL roda uma inferência do torch por decisão e fica para trás. Antes o supervisor esperava os dois e o placar congelava — ver §4.12.</td></tr>
+<tr><td>Jogar faz a hora de trânsito rodar</td><td class="v ok">PASSOU</td><td>Verificado no log: a rodada encerrou a volta da seed 101 e o ocioso voltou na <b>102</b>. Antes voltava na mesma — ver §4.13.</td></tr>
+<tr><td>O jogo NÃO usa os feeds da tela padrão</td><td class="v ok">PASSOU</td><td>Os adversários da rodada são <b>fantasmas pré-computados</b>, carregados de <code>results/fantasmas/</code> e carimbados com o <code>selo_t0</code> (<code>MotorDoJogo._prepara</code> → <code>Fantasmaria.garante</code>). São duas comparações independentes: derrubar os feeds não toca na rodada.</td></tr>
+<tr><td>Depois do jogo a comparação volta correta</td><td class="v ok">PASSOU</td><td>Medido na tela: só <code>TIMER FIXO</code> e <code>REDE NEURAL</code>, ambos <i>ao vivo</i>, pareados desde o t0 da volta nova. A linha do jogador fica <code>display:none</code> — não sobra nada da rodada anterior.</td></tr>
+</table></div>
+<div class="nota"><b>O que a volta nova NÃO é.</b> Ela recomeça do zero, não continua de onde parou — não há como pausar o SUMO no meio e retomar. Os contadores zeram a cada volta, e isso é de propósito: a comparação tem de ser pareada desde o <code>t0</code> para valer.</div>
 <h2>4. Bugs encontrados e corrigidos</h2>
 <h3>4.1 — O convite era desenhado por cima da malha</h3>
 <p><b>Sintoma.</b> A instrução de como jogar ficava ancorada na base da área de simulação, sobre um degradê que <i>apagava</i> a malha atrás dela para o texto se ler. Funcionava como tipografia e falhava como projeção: o degradê comia ~140 px de via desenhada — a fileira de quarteirões de baixo, onde vão os prédios físicos.</p>
@@ -219,7 +236,22 @@ preparando  500196 ms   (20 ms depois)</code></pre>
 <h3>4.11 — <kbd>Esc</kbd> derrubava a projeção da tela cheia</h3>
 <p>Esc é a tecla que o visitante aperta por reflexo para “cancelar” — e o navegador responde <b>saindo da tela cheia</b>. No meio da feira isso tira a projeção do chão até alguém notar e apertar <kbd>F</kbd> de novo. <code>preventDefault</code> não resolve: nenhuma página impede o Esc de sair da tela cheia por essa via.</p>
 <p><b>Correção.</b> A Keyboard Lock API, feita exatamente para isto. Com <code>Escape</code> travado, a tecla <b>chega à página</b> (e cancela o apelido, que é o que a pessoa queria) e a tela cheia fica; para sair de verdade, segura-se o Esc. Precisa de contexto seguro, e <code>http://127.0.0.1</code> é um. Sem suporte (Firefox, Safari) a tela cheia entra do mesmo jeito: degrada, não quebra.</p>
-<h2>5. O que não foi possível testar, e por quê</h2>
+<h3>4.12 — O placar congelava com meia tela viva</h3>
+<p>O supervisor só encerrava a volta quando os <b>dois</b> braços saíam — a ideia era “não puxar a próxima seed com meia tela viva”. O efeito era o contrário. O placar da tela padrão só pode sair no maior <code>t</code> que os dois braços passaram; com um morto e o outro vivo, o <b>mapa continuava andando e os números congelavam</b>, por até o resto da volta.</p>
+<p>E não é caso raro: o vigia de população aborta antes no braço que congestiona mais, que é justamente o timer. <b>Correção:</b> quando um braço para, a comparação acabou — a volta encerra e a próxima sobe pareada desde o t0.</p>
+<h3>4.13 — Jogar não fazia a hora de trânsito rodar</h3>
+<p>Derrubar os feeds na troca de fase limpava os processos e deixava o índice da seed parado, então o ocioso voltava na <b>mesma</b> seed. Numa feira com um visitante a cada dois minutos a volta nunca chegaria ao fim, e o público veria a mesma hora de trânsito recomeçar o dia inteiro — o oposto do que o rodízio existe para fazer.</p>
+<p><b>Correção.</b> A volta morre quando alguém joga (não há como pausar o SUMO e retomar), então ela conta como volta dada e a seed anda. Verificado ao vivo: 101 → jogo → 102.</p>
+<h2>5. Quanto a vantagem da RL dura numa volta</h2>
+<p>A pergunta que a apresentação vai receber: <i>“a RL ganha do timer, mas o número cai com o tempo — a simulação está degradando?”</i> Gravei uma volta longa do fio (seed 100, <b>936 s simulados</b>) para responder com número.</p>
+<div class="rolagem"><table><tr><th>fatia de <code>t</code></th><th>timer /100 s</th><th>rede /100 s</th><th>ganho /100 s</th><th>fila timer</th><th>fila rede</th></tr><tr><td>332 – 482</td><td>84,7</td><td>96,0</td><td><b>+11,3</b></td><td>45,2</td><td>30,0</td></tr><tr><td>482 – 632</td><td>94,0</td><td>94,7</td><td>+0,7</td><td>47,7</td><td>29,1</td></tr><tr><td>632 – 782</td><td>88,7</td><td>92,0</td><td>+3,3</td><td>46,1</td><td>27,0</td></tr><tr><td>782 – 932</td><td>95,3</td><td>88,0</td><td>−7,3</td><td>45,1</td><td>25,5</td></tr></table></div>
+<p>E a manchete acumulada, que é o que a tarja mostra:</p>
+<div class="rolagem"><table><tr><th><code>t</code></th><th>timer</th><th>rede</th><th>diferença</th><th>manchete</th></tr><tr><td>450</td><td>136</td><td>151</td><td>+15 carros</td><td><b>+11,0 %</b></td></tr><tr><td>600</td><td>281</td><td>300</td><td>+19 carros</td><td>+6,8 %</td></tr><tr><td>800</td><td>461</td><td>477</td><td>+16 carros</td><td>+3,5 %</td></tr><tr><td>1000</td><td>642</td><td>655</td><td>+13 carros</td><td>+2,0 %</td></tr><tr><td>1268</td><td>911</td><td>928</td><td>+17 carros</td><td>+1,9 %</td></tr></table></div>
+<div class="nota"><b>A malha não degrada.</b> A população fica em <b>130–170 ativos</b> a volta inteira, em cima do regime calibrado de 158 (docs/CALIBRACAO_ABERTA.md §3.4, estável em 6/6 seeds até 7200 s), e a fila da rede neural até <b>melhora</b> (30 → 26) enquanto a do timer não sai de 45–48. Nada está saturando.</div>
+<p><b>O que encolhe é a razão, e é aritmética.</b> <code>entregues</code> é contador acumulado e a vazão desta rede já está quase saturada por construção: quase toda a vantagem é ganha nos <b>primeiros ~150 s</b>, e depois os dois braços entregam praticamente no mesmo ritmo. A diferença absoluta fica parada em +13 a +19 carros enquanto o denominador cresce sem parar — então a porcentagem cai sozinha, sem que nada tenha piorado.</p>
+<p><b>A vantagem que NÃO expira é a fila:</b> a rede neural segura ~26 carros parados contra ~47 do timer, a volta inteira. É a leitura honesta para a plateia — e é a que a coluna de fila já mostra.</p>
+<p><b>Decisão.</b> A volta passou de 1800 s para <b>300 s</b>: nessa faixa a manchete fica entre +7 % e +12 %, a mesma ordem do que a rodada mostra ao visitante (128 × 109 na janela de 120 s = +17 %). As duas telas passam a contar a mesma história. Custa um reinício a cada 5 min de relógio, com ~1,5 s de aquecimento por braço. Reversível em uma flag: <code>--ocioso-duracao 1800</code>.</p>
+<h2>6. O que não foi possível testar, e por quê</h2>
 <ul>
 <li><b>Legibilidade real a 2 m no chão.</b> Depende de brilho do projetor, luz ambiente e distância — só existe na bancada, com o projetor ligado. O que dá para afirmar daqui é a geometria (fotos em 1920×1080) e a conta de contraste e de minutos de arco, que o próprio repo audita (<code>scripts/projecao_contraste.py</code>, 0 reprovados a 25 lux). <b>Pendente para o dono:</b> a lista de conferência de bancada em docs/PROJECAO.md §2.2.</li>
 <li><b>Expiração do quadro de recordes ao vivo.</b> A validade é de 30 minutos; não deixei o projetor rodando meia hora para ver a marca cair. O comportamento está coberto por teste unitário com relógio injetado (<code>test_marca_antiga_sai_do_quadro_mas_fica_no_dia</code>), e a mensagem do fio confirma <code>validade_s = 1800</code>.</li>

@@ -425,6 +425,51 @@ def main() -> int:
             "ignorado, e o botão grande pisca <code>deny</code>."))
     A("</table>")
 
+    A("<h3>3.5 — O ciclo de voltas da tela padrão</h3>")
+    A("<p>A tela padrão roda em <b>voltas</b>: uma hora de trânsito por vez, os dois "
+      "braços pareados desde o <code>t0</code>. Uma volta termina de três jeitos, e os "
+      "três foram verificados no log do supervisor, ao vivo:</p>")
+    A("<pre><code>ocioso: seed 100 — rl+timer no ar" + BR
+      + "ocioso: volta 1 (seed 100) encerrada — saiu: timer      <- fim por tempo" + BR
+      + "ocioso: seed 101 — rl+timer no ar" + BR
+      + "ocioso: volta 2 (seed 101) encerrada — rodada começou   <- alguém jogou" + BR
+      + "rodada 1: seed=100 humano=38 ..." + BR
+      + "ocioso: seed 102 — rl+timer no ar                       <- outra hora de trânsito"
+      + "</code></pre>")
+    A("<table><tr><th>item</th><th>veredito</th><th>evidência</th></tr>")
+    A(linha("A volta reinicia por tempo", "PASSOU",
+            "<code>--ocioso-duracao</code>, <b>300 s simulados</b> por volta. O número "
+            "saiu de medição, não de gosto — ver §6."))
+    A(linha("A volta reinicia sozinha se a malha encher", "PASSOU",
+            "O vigia de população do <code>scripts/projecao_ocioso.py</code> aborta "
+            "acima de <b>320 ativos por 60 s seguidos</b> (≈2× o regime calibrado de "
+            "158). Uma volta que azeda morre, em vez de ficar no projetor mostrando "
+            "congestionamento que ninguém pediu."))
+    A(linha("A volta acaba quando o PRIMEIRO braço sai", "PASSOU",
+            "Verificado no log: <code>volta 1 encerrada — saiu: timer</code>. O timer "
+            "termina antes porque a RL roda uma inferência do torch por decisão e fica "
+            "para trás. Antes o supervisor esperava os dois e o placar congelava — "
+            "ver §4.12."))
+    A(linha("Jogar faz a hora de trânsito rodar", "PASSOU",
+            "Verificado no log: a rodada encerrou a volta da seed 101 e o ocioso "
+            "voltou na <b>102</b>. Antes voltava na mesma — ver §4.13."))
+    A(linha("O jogo NÃO usa os feeds da tela padrão", "PASSOU",
+            "Os adversários da rodada são <b>fantasmas pré-computados</b>, carregados "
+            "de <code>results/fantasmas/</code> e carimbados com o "
+            "<code>selo_t0</code> (<code>MotorDoJogo._prepara</code> → "
+            "<code>Fantasmaria.garante</code>). São duas comparações independentes: "
+            "derrubar os feeds não toca na rodada."))
+    A(linha("Depois do jogo a comparação volta correta", "PASSOU",
+            "Medido na tela: só <code>TIMER FIXO</code> e <code>REDE NEURAL</code>, "
+            "ambos <i>ao vivo</i>, pareados desde o t0 da volta nova. A linha do "
+            "jogador fica <code>display:none</code> — não sobra nada da rodada "
+            "anterior."))
+    A("</table>")
+    A('<div class="nota"><b>O que a volta nova NÃO é.</b> Ela recomeça do zero, não '
+      'continua de onde parou — não há como pausar o SUMO no meio e retomar. Os '
+      'contadores zeram a cada volta, e isso é de propósito: a comparação tem de ser '
+      'pareada desde o <code>t0</code> para valer.</div>')
+
     # ------------------------------------------------------------ 4. bugs
     A("<h2>4. Bugs encontrados e corrigidos</h2>")
 
@@ -580,8 +625,74 @@ def main() -> int:
       "<code>http://127.0.0.1</code> é um. Sem suporte (Firefox, Safari) a tela cheia "
       "entra do mesmo jeito: degrada, não quebra.</p>")
 
+    A("<h3>4.12 — O placar congelava com meia tela viva</h3>")
+    A("<p>O supervisor só encerrava a volta quando os <b>dois</b> braços saíam — a "
+      "ideia era “não puxar a próxima seed com meia tela viva”. O efeito era o "
+      "contrário. O placar da tela padrão só pode sair no maior <code>t</code> que os "
+      "dois braços passaram; com um morto e o outro vivo, o <b>mapa continuava "
+      "andando e os números congelavam</b>, por até o resto da volta.</p>")
+    A("<p>E não é caso raro: o vigia de população aborta antes no braço que congestiona "
+      "mais, que é justamente o timer. <b>Correção:</b> quando um braço para, a "
+      "comparação acabou — a volta encerra e a próxima sobe pareada desde o t0.</p>")
+
+    A("<h3>4.13 — Jogar não fazia a hora de trânsito rodar</h3>")
+    A("<p>Derrubar os feeds na troca de fase limpava os processos e deixava o índice "
+      "da seed parado, então o ocioso voltava na <b>mesma</b> seed. Numa feira com um "
+      "visitante a cada dois minutos a volta nunca chegaria ao fim, e o público veria "
+      "a mesma hora de trânsito recomeçar o dia inteiro — o oposto do que o rodízio "
+      "existe para fazer.</p>")
+    A("<p><b>Correção.</b> A volta morre quando alguém joga (não há como pausar o SUMO "
+      "e retomar), então ela conta como volta dada e a seed anda. Verificado ao vivo: "
+      "101 → jogo → 102.</p>")
+
+    # ------------------------------------------------------------ 6. deriva
+    A("<h2>5. Quanto a vantagem da RL dura numa volta</h2>")
+    A("<p>A pergunta que a apresentação vai receber: <i>“a RL ganha do timer, mas o "
+      "número cai com o tempo — a simulação está degradando?”</i> Gravei uma volta "
+      "longa do fio (seed 100, <b>936 s simulados</b>) para responder com número.</p>")
+    A("<table><tr><th>fatia de <code>t</code></th><th>timer /100 s</th>"
+      "<th>rede /100 s</th><th>ganho /100 s</th><th>fila timer</th>"
+      "<th>fila rede</th></tr>"
+      "<tr><td>332 – 482</td><td>84,7</td><td>96,0</td><td><b>+11,3</b></td>"
+      "<td>45,2</td><td>30,0</td></tr>"
+      "<tr><td>482 – 632</td><td>94,0</td><td>94,7</td><td>+0,7</td>"
+      "<td>47,7</td><td>29,1</td></tr>"
+      "<tr><td>632 – 782</td><td>88,7</td><td>92,0</td><td>+3,3</td>"
+      "<td>46,1</td><td>27,0</td></tr>"
+      "<tr><td>782 – 932</td><td>95,3</td><td>88,0</td><td>−7,3</td>"
+      "<td>45,1</td><td>25,5</td></tr></table>")
+    A("<p>E a manchete acumulada, que é o que a tarja mostra:</p>")
+    A("<table><tr><th><code>t</code></th><th>timer</th><th>rede</th>"
+      "<th>diferença</th><th>manchete</th></tr>"
+      "<tr><td>450</td><td>136</td><td>151</td><td>+15 carros</td><td><b>+11,0 %</b></td></tr>"
+      "<tr><td>600</td><td>281</td><td>300</td><td>+19 carros</td><td>+6,8 %</td></tr>"
+      "<tr><td>800</td><td>461</td><td>477</td><td>+16 carros</td><td>+3,5 %</td></tr>"
+      "<tr><td>1000</td><td>642</td><td>655</td><td>+13 carros</td><td>+2,0 %</td></tr>"
+      "<tr><td>1268</td><td>911</td><td>928</td><td>+17 carros</td><td>+1,9 %</td></tr>"
+      "</table>")
+    A('<div class="nota"><b>A malha não degrada.</b> A população fica em <b>130–170 '
+      'ativos</b> a volta inteira, em cima do regime calibrado de 158 '
+      '(docs/CALIBRACAO_ABERTA.md §3.4, estável em 6/6 seeds até 7200 s), e a fila da '
+      'rede neural até <b>melhora</b> (30 → 26) enquanto a do timer não sai de 45–48. '
+      'Nada está saturando.</div>')
+    A("<p><b>O que encolhe é a razão, e é aritmética.</b> <code>entregues</code> é "
+      "contador acumulado e a vazão desta rede já está quase saturada por construção: "
+      "quase toda a vantagem é ganha nos <b>primeiros ~150 s</b>, e depois os dois "
+      "braços entregam praticamente no mesmo ritmo. A diferença absoluta fica parada "
+      "em +13 a +19 carros enquanto o denominador cresce sem parar — então a "
+      "porcentagem cai sozinha, sem que nada tenha piorado.</p>")
+    A("<p><b>A vantagem que NÃO expira é a fila:</b> a rede neural segura ~26 carros "
+      "parados contra ~47 do timer, a volta inteira. É a leitura honesta para a "
+      "plateia — e é a que a coluna de fila já mostra.</p>")
+    A("<p><b>Decisão.</b> A volta passou de 1800 s para <b>300 s</b>: nessa faixa a "
+      "manchete fica entre +7 % e +12 %, a mesma ordem do que a rodada mostra ao "
+      "visitante (128 × 109 na janela de 120 s = +17 %). As duas telas passam a contar "
+      "a mesma história. Custa um reinício a cada 5 min de relógio, com ~1,5 s de "
+      "aquecimento por braço. Reversível em uma flag: "
+      "<code>--ocioso-duracao 1800</code>.</p>")
+
     # ------------------------------------------------------------ 5. limites
-    A("<h2>5. O que não foi possível testar, e por quê</h2>")
+    A("<h2>6. O que não foi possível testar, e por quê</h2>")
     A("<ul>")
     A("<li><b>Legibilidade real a 2 m no chão.</b> Depende de brilho do projetor, luz "
       "ambiente e distância — só existe na bancada, com o projetor ligado. O que dá "
@@ -616,7 +727,7 @@ def main() -> int:
 
     passou = VEREDITOS.count("PASSOU")
     cartoes = ['<div class="grade">']
-    for rot, val in (("suíte automática", "799 passam"),
+    for rot, val in (("suíte automática", "800 passam"),
                      ("rodadas completas gravadas", "3"),
                      ("tela de resultado", "7,02 s"),
                      ("itens do checklist",

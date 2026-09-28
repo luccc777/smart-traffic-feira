@@ -188,10 +188,42 @@ do arquivo é onde mora o valor padrão, para quando quiser mudar de vez.
 | **validade do quadro** de recordes | `--ranking-validade 30` | 30 min | [`scripts/projecao_servidor.py:95`](scripts/projecao_servidor.py#L95) — `0` = nunca expira |
 | **ritmo** da apresentação | `--ritmo 2` | 2× | [`scripts/projecao_servidor.py:96`](scripts/projecao_servidor.py#L96) — só apresentação, a simulação não muda |
 | seeds em rodízio (a hora de trânsito) | `--seeds 100..111` | 100–111 | [`scripts/projecao_servidor.py:98`](scripts/projecao_servidor.py#L98) |
-| duração de uma volta da **tela padrão** | `--ocioso-duracao 1800` | 1800 s sim. | [`scripts/projecao_servidor.py:67`](scripts/projecao_servidor.py#L67) |
+| duração de uma volta da **tela padrão** | `--ocioso-duracao 300` | 300 s sim. | [`scripts/projecao_servidor.py:90`](scripts/projecao_servidor.py#L90) — medido; ver abaixo |
 | contagem regressiva (3·2·1) | — | 3 s | [`feira/jogo/motor.py:231`](feira/jogo/motor.py#L231) (`contagem_s`) |
 | pasta do quadro de recordes | `--ranking-dir` | `results/feira` | um arquivo por dia |
 | porta | `--porta 8080` | 8080 | — |
+
+### Por que a volta da tela padrão é de 300 s
+
+Porque a **manchete** (`▲ X% · +N carros`) perde representatividade com o tempo, e o
+número saiu de uma volta longa gravada do fio (seed 100, 936 s simulados):
+
+| momento | manchete acumulada |
+|---|---|
+| t = 450 | **+11,0 %** |
+| t = 600 | +6,8 % |
+| t = 800 | +3,5 % |
+| t = 1000 | +2,0 % |
+| t = 1268 | +1,9 % |
+
+> ⚠️ **A malha não degrada** — é importante não confundir as duas coisas. A população
+> fica em 130–170 ativos a volta inteira, em cima do regime calibrado de 158, e a fila
+> da rede neural até **melhora** (30 → 26) enquanto a do timer não sai de 45–48.
+>
+> O que encolhe é a **razão**: `entregues` é contador acumulado, a vazão desta rede já
+> está quase saturada por construção, e quase toda a vantagem é ganha nos primeiros
+> ~150 s. A diferença absoluta fica parada em ~+15 a +30 carros enquanto o denominador
+> cresce sem parar.
+
+Com 300 s a manchete fica entre **+7 % e +12 %** — a mesma ordem do que a rodada mostra
+ao visitante (128 × 109 na janela de 120 s = +17 %), então as duas telas contam a mesma
+história. Custa um reinício a cada 5 min de relógio, com ~1,5 s de aquecimento por
+braço. Para a volta longa de volta: `--ocioso-duracao 1800`.
+
+Além do relógio, a volta também termina **sozinha** quando a malha enche: o vigia de
+população do `scripts/projecao_ocioso.py` aborta acima de 320 ativos por 60 s seguidos
+(≈2× o regime calibrado). E ela termina quando alguém **joga** — nesse caso a próxima
+sobe já com a hora de trânsito seguinte.
 
 ### Layout da projeção
 

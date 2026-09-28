@@ -64,8 +64,32 @@ def main(argv: list[str] | None = None) -> int:
                         "com a rodada: descem quando alguém joga, voltam no fim")
     p.add_argument("--sem-ocioso", action="store_true",
                    help="cancela o --ocioso do preset --feira")
-    p.add_argument("--ocioso-duracao", type=float, default=1800.0,
-                   help="segundos simulados por volta da tela ociosa")
+    # 300 s, e o número SAIU DA MEDIÇÃO — não do gosto. Uma volta longa foi gravada do
+    # fio (seed 100, 936 s simulados, `scripts/valida_fluxo.py`) e o que ela mostra é:
+    #
+    #   fatia de t      timer/100s   rl/100s   ganho/100s        acumulado na tarja
+    #    332 -  482         84,7        96,0       +11,3          t= 450  ->  +11,0%
+    #    482 -  632         94,0        94,7        +0,7          t= 600  ->   +6,8%
+    #    632 -  782         88,7        92,0        +3,3          t= 800  ->   +3,5%
+    #    782 -  932         95,3        88,0        -7,3          t=1000  ->   +2,0%
+    #    932 - 1081         85,9        97,3       +11,4          t=1268  ->   +1,9%
+    #
+    # A MALHA NÃO DEGRADA: a população fica em 130-170 ativos a volta inteira, em cima
+    # do regime calibrado de 158 (docs/CALIBRACAO_ABERTA.md §3.4, estável 6/6 seeds até
+    # 7200 s), e a fila da RL até MELHORA (30 -> 26) enquanto a do timer não sai de 45-48.
+    #
+    # O que degrada é a MANCHETE, e é aritmética: `entregues` é contador acumulado, a
+    # vazão está quase saturada por construção nesta rede (docs/RESULTADOS_ABERTA.md),
+    # então a diferença absoluta fica parada em ~+15/+30 carros enquanto o denominador
+    # cresce sem parar. Quase toda a vantagem é ganha nos primeiros ~150 s.
+    #
+    # 300 s mantém a manchete em +7% a +12%, que é a mesma ordem do que a RODADA mostra
+    # (128 x 109 na janela de 120 s = +17%) — as duas telas contam a mesma história.
+    # Custo: um reinício a cada 5 min de relógio, e o aquecimento de 300 s leva ~1,5 s
+    # por braço. Quem quiser a volta longa de volta: `--ocioso-duracao 1800`.
+    p.add_argument("--ocioso-duracao", type=float, default=300.0,
+                   help="segundos simulados por volta da tela ociosa (medido: a "
+                        "manchete fica representativa até ~300 s; ver o comentário)")
     p.add_argument("--ocioso-seeds", default=None,
                    help="seeds em rodízio da tela ociosa (padrão: as mesmas do jogo)")
     p.add_argument("--ranking-dir", default=None,
