@@ -8,9 +8,11 @@ entra num quadro de recordes que expira, para o campeão mudar ao longo do dia.
 
 Iniciação Científica · FIAP.
 
-> **Relatório de validação:** [`docs/validation/relatorio.html`](docs/validation/relatorio.html)
-> — o sistema rodando de verdade, com screenshot de cada tela e o checklist com
-> evidência. Baixe e abra com duplo clique (é autocontido, sem dependências).
+> **Relatório de validação:** o sistema rodando de verdade, com screenshot de cada
+> tela e o checklist com evidência.
+> **[Ler online](https://claude.ai/artifact/T8yZoRSHVVnuGrs9AaqR27)** (abre bem no
+> celular) · ou [`docs/validation/relatorio.html`](docs/validation/relatorio.html) no
+> repo, que é autocontido: baixe e abra com duplo clique, sem servidor e sem rede.
 
 ![a tela padrão da feira](docs/validation/telas/ocioso.png)
 
@@ -129,7 +131,9 @@ python scripts\projecao_contraste.py
 python scripts\valida_fluxo.py --porta 8080 --saida turno.jsonl
 python scripts\valida_fluxo.py --analisa turno.jsonl
 
-# refazer o relatório HTML de validação
+# refazer o relatório HTML de validação (gera as DUAS saídas)
+#   docs\validation\relatorio.html            autocontido, para abrir do disco
+#   docs\validation\relatorio.artifact.html   para publicar como Artifact (fora do git)
 python scripts\relatorio_validacao.py
 
 # a rodada no terminal, sem projeção (o modo degradado do modo degradado)

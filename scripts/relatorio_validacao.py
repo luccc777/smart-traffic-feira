@@ -54,6 +54,104 @@ def fig(caminho: Path, titulo: str, corpo: str, largura: str = "") -> str:
 # confiança no resto do documento.
 VEREDITOS: list[str] = []
 
+# A FAMÍLIA É A DO PRÓPRIO PROJETO. A projeção serve IBM Plex Sans + IBM Plex Mono de
+# `web/fonts/` (ver o cabeçalho de `web/css/projecao.css`: numa feira não se aposta em
+# rede), e o cap-height de 0,72 dessa família é o que a conta de minutos de arco do
+# `docs/PROJECAO.md` §2.1 usa. O relatório fala da mesma tela, então usa o mesmo tipo.
+# A pilha de reserva fica declarada: sem a fonte, a página fica com outro tipo, não
+# quebrada — e a versão autocontida do repo NÃO carrega webfont nenhuma de propósito.
+FONTE_SANS = '"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif'
+FONTE_MONO = '"IBM Plex Mono","Cascadia Mono",Consolas,ui-monospace,monospace'
+
+# AS CORES DO MODO ESCURO SÃO AS DA PROJEÇÃO, literalmente: `--bar-rl: #7fcbfa` e
+# `--bar-timer: #cb7a18` saem de `web/css/projecao.css`, onde foram auditadas por
+# `scripts/projecao_contraste.py` sobre preto. No modo claro elas não servem (contraste
+# de 1,5 sobre branco), então escurecem até a mesma função com contraste de texto.
+ESTILO = """<style>
+:root{
+  --fundo:#f6f8fa; --papel:#ffffff; --tinta:#0f141a; --tinta2:#475666; --tinta3:#6e7d8d;
+  --linha:#d9e1e9; --linha-forte:#0f141a; --campo:#eaeff4;
+  --rl:#0f4f8c; --rl-fraco:#e9f1fa;
+  --ok:#0a6b41; --ok-fundo:#e6f4ec; --nok:#a3241c; --nok-fundo:#fbecea;
+  --meio:#7a4f00; --meio-fundo:#fdf2df;
+  --pre-fundo:#0f141a; --pre-tinta:#e6edf5;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --fundo:#0b0f14; --papel:#141a21; --tinta:#e9eff6; --tinta2:#a6b4c3; --tinta3:#7d8b9a;
+    --linha:#232e38; --linha-forte:#3a4855; --campo:#1c242c;
+    --rl:#7fcbfa; --rl-fraco:#14202c;
+    --ok:#4fd894; --ok-fundo:#0f2a1f; --nok:#ff8a7e; --nok-fundo:#2d1614;
+    --meio:#ffc861; --meio-fundo:#2a2011;
+    --pre-fundo:#080c10; --pre-tinta:#dbe5ef;
+  }
+}
+:root[data-theme="dark"]{
+  --fundo:#0b0f14; --papel:#141a21; --tinta:#e9eff6; --tinta2:#a6b4c3; --tinta3:#7d8b9a;
+  --linha:#232e38; --linha-forte:#3a4855; --campo:#1c242c;
+  --rl:#7fcbfa; --rl-fraco:#14202c;
+  --ok:#4fd894; --ok-fundo:#0f2a1f; --nok:#ff8a7e; --nok-fundo:#2d1614;
+  --meio:#ffc861; --meio-fundo:#2a2011;
+  --pre-fundo:#080c10; --pre-tinta:#dbe5ef;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--tinta);
+     font:16px/1.65 FONTE_SANS_;-webkit-text-size-adjust:100%}
+img{max-width:100%}
+.pg{max-width:980px;margin:0 auto;padding-block:40px 80px;padding-left:20px;padding-right:20px;
+    display:flex;flex-direction:column;gap:0}
+h1{font-size:clamp(26px,5.2vw,34px);line-height:1.15;margin:0 0 8px;text-wrap:balance;
+   letter-spacing:-.01em}
+h2{font-size:clamp(20px,4vw,25px);margin:56px 0 4px;padding-top:20px;
+   border-top:2px solid var(--linha-forte);text-wrap:balance}
+h3{font-size:clamp(17px,3.2vw,19px);margin:34px 0 6px;text-wrap:balance}
+p{margin:12px 0}
+.sub{color:var(--tinta2);margin:0 0 4px;font-size:15px}
+code,kbd{font-family:FONTE_MONO_;font-size:.87em}
+code{background:var(--campo);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+kbd{background:var(--campo);border:1px solid var(--linha);border-bottom-width:2px;
+    border-radius:5px;padding:1px 6px;font-size:.82em;white-space:nowrap}
+pre{background:var(--pre-fundo);color:var(--pre-tinta);padding:14px 16px;border-radius:8px;
+    overflow-x:auto;font-size:13px;line-height:1.55;border:1px solid var(--linha)}
+pre code{background:none;padding:0;color:inherit}
+/* Tabela larga não empurra a página: ela rola dentro da própria caixa. */
+.rolagem{overflow-x:auto;margin:14px 0;border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:520px}
+th,td{border:1px solid var(--linha);padding:9px 11px;text-align:left;vertical-align:top}
+th{background:var(--campo);font-weight:600}
+td.v{font-weight:700;white-space:nowrap;text-align:center;width:104px}
+td.v.ok{color:var(--ok);background:var(--ok-fundo)}
+td.v.nok{color:var(--nok);background:var(--nok-fundo)}
+td.v.meio{color:var(--meio);background:var(--meio-fundo)}
+figure{margin:20px 0;border:1px solid var(--linha);border-radius:10px;overflow:hidden;
+       background:#000}
+figure img{display:block;width:100%;height:auto}
+figcaption{background:var(--papel);color:var(--tinta2);padding:10px 14px;font-size:14.5px;
+           border-top:1px solid var(--linha)}
+figcaption b{color:var(--tinta);display:block;font-size:15.5px;margin-bottom:2px}
+.nota{background:var(--rl-fraco);border-left:4px solid var(--rl);padding:12px 16px;
+      margin:16px 0;border-radius:0 8px 8px 0;font-size:15px}
+.aviso{background:var(--meio-fundo);border-left:4px solid var(--meio);padding:12px 16px;
+       margin:16px 0;border-radius:0 8px 8px 0;font-size:15px}
+.falta{color:var(--nok);font-weight:600}
+.grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));
+       gap:14px;margin:16px 0}
+.cartao{border:1px solid var(--linha);border-radius:10px;padding:14px 16px;
+        background:var(--papel)}
+.cartao .n{font-size:30px;font-weight:700;line-height:1.1;font-family:FONTE_MONO_;
+           font-variant-numeric:tabular-nums;color:var(--rl)}
+.cartao .r{color:var(--tinta3);font-size:12.5px;text-transform:uppercase;
+           letter-spacing:.07em;margin-top:4px}
+ul,ol{padding-left:22px}
+li{margin:5px 0}
+.rodape{margin-top:60px;padding-top:18px;border-top:1px solid var(--linha);
+        color:var(--tinta3);font-size:14px}
+@media(max-width:560px){
+  .pg{padding-block:26px 56px;padding-left:16px;padding-right:16px}
+  figcaption{font-size:14px}
+}
+</style>""".replace("FONTE_SANS_", FONTE_SANS).replace("FONTE_MONO_", FONTE_MONO)
+
 
 def linha(item: str, veredito: str, evidencia: str) -> str:
     VEREDITOS.append(veredito)
@@ -79,53 +177,8 @@ def main() -> int:
     # ------------------------------------------------------------------ HTML
     P = []
     A = P.append
-    A("""<!doctype html><html lang="pt-br"><head><meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>SmartTraffic — validação da feira</title><style>
-:root{--ink:#14181f;--ink2:#4a5666;--ink3:#6b7888;--linha:#dde3ea;--fundo:#fbfcfd;
-      --ok:#0a7d4a;--okbg:#e6f6ee;--nok:#b3261e;--nokbg:#fdecea;--meio:#8a5a00;--meiobg:#fff6e0;
-      --azul:#12518f;--azulbg:#eaf2fb}
-*{box-sizing:border-box}
-body{margin:0;background:var(--fundo);color:var(--ink);
-     font:16px/1.6 "Segoe UI",system-ui,-apple-system,sans-serif}
-.pg{max-width:1080px;margin:0 auto;padding:40px 20px 80px}
-h1{font-size:34px;line-height:1.15;margin:0 0 6px}
-h2{font-size:25px;margin:56px 0 4px;padding-top:22px;border-top:2px solid var(--ink)}
-h3{font-size:19px;margin:34px 0 6px}
-.sub{color:var(--ink2);margin:0 0 4px}
-code,kbd{font-family:"Cascadia Mono",Consolas,ui-monospace,monospace;font-size:.88em}
-code{background:#eef1f5;padding:1px 5px;border-radius:4px}
-pre{background:#11161d;color:#e6edf5;padding:14px 16px;border-radius:8px;
-    overflow-x:auto;font-size:13.5px;line-height:1.5}
-pre code{background:none;padding:0;color:inherit}
-table{border-collapse:collapse;width:100%;margin:14px 0;font-size:15px}
-th,td{border:1px solid var(--linha);padding:9px 11px;text-align:left;vertical-align:top}
-th{background:#eef1f5;font-weight:600}
-td.v{font-weight:700;white-space:nowrap;text-align:center;width:104px}
-td.v.ok{color:var(--ok);background:var(--okbg)}
-td.v.nok{color:var(--nok);background:var(--nokbg)}
-td.v.meio{color:var(--meio);background:var(--meiobg)}
-figure{margin:20px 0;border:1px solid var(--linha);border-radius:10px;overflow:hidden;
-       background:#000}
-figure img{display:block;width:100%;height:auto}
-figcaption{background:#fff;color:var(--ink2);padding:10px 14px;font-size:14.5px;
-           border-top:1px solid var(--linha)}
-figcaption b{color:var(--ink);display:block;font-size:15.5px;margin-bottom:2px}
-.nota{background:var(--azulbg);border-left:4px solid var(--azul);padding:12px 16px;
-      margin:16px 0;border-radius:0 8px 8px 0;font-size:15px}
-.aviso{background:var(--meiobg);border-left:4px solid var(--meio);padding:12px 16px;
-       margin:16px 0;border-radius:0 8px 8px 0;font-size:15px}
-.falta{color:var(--nok);font-weight:600}
-.grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px}
-.cartao{border:1px solid var(--linha);border-radius:10px;padding:14px 16px;background:#fff}
-.cartao .n{font-size:30px;font-weight:700;line-height:1.1}
-.cartao .r{color:var(--ink3);font-size:13.5px;text-transform:uppercase;letter-spacing:.06em}
-ul,ol{padding-left:22px}
-li{margin:5px 0}
-.rodape{margin-top:60px;padding-top:18px;border-top:1px solid var(--linha);
-        color:var(--ink3);font-size:14px}
-@media(max-width:560px){.pg{padding:24px 14px 60px}h1{font-size:27px}h2{font-size:21px}}
-</style></head><body><div class="pg">""")
+    A(ESTILO)
+    A('<div class="pg">')
 
     A("<h1>SmartTraffic — validação ponta a ponta da feira</h1>")
     A('<p class="sub">Maquete de semáforos por Reinforcement Learning · projeção no chão · '
@@ -451,11 +504,11 @@ li{margin:5px 0}
     A("</ul>")
 
     A('<div class="rodape">Gerado por <code>scripts/relatorio_validacao.py</code>. '
-      'As imagens estão embutidas em base64 — este arquivo abre sem servidor e sem rede. '
+      'As imagens estão embutidas em base64 — não há dependência externa. '
       'Os números vêm de <code>docs/validation/fio_r1.json</code>, '
       '<code>fio_r2.json</code> e <code>fio_r3.json</code>, produzidos por '
       '<code>scripts/valida_fluxo.py --analisa</code>.</div>')
-    A("</div></body></html>")
+    A("</div>")
 
     passou = VEREDITOS.count("PASSOU")
     cartoes = ['<div class="grade">']
@@ -469,12 +522,45 @@ li{margin:5px 0}
                        % (html.escape(val), html.escape(rot)))
     cartoes.append("</div>")
 
+    corpo = "\n".join(P).replace("@@RESUMO@@", "\n".join(cartoes))
+    # Toda tabela ganha a caixa que rola: num celular a largura mínima delas é maior
+    # que a tela, e sem isso quem rola de lado é a PÁGINA inteira.
+    corpo = corpo.replace("<table>", '<div class="rolagem"><table>')
+    corpo = corpo.replace("</table>", "</table></div>")
+
+    VAL.mkdir(parents=True, exist_ok=True)
+
+    # `corpo` começa pelo <style> e segue com o conteúdo — as duas saídas só diferem no
+    # que vai em volta.
+    assert corpo.startswith(ESTILO)
+    conteudo = corpo[len(ESTILO):]
+
+    # (1) A versão do REPO: documento inteiro, sem nada de fora. É a que abre com duplo
+    #     clique num notebook sem rede, e por isso não carrega webfont nenhuma.
     destino = VAL / "relatorio.html"
-    destino.parent.mkdir(parents=True, exist_ok=True)
-    destino.write_text("\n".join(P).replace("@@RESUMO@@", "\n".join(cartoes)),
-                       encoding="utf-8")
+    destino.write_text(
+        '<!doctype html>\n<html lang="pt-br">\n<head>\n<meta charset="utf-8"/>\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1"/>\n'
+        "<title>SmartTraffic — validação da feira</title>\n"
+        + ESTILO + "\n</head>\n<body>\n" + conteudo + "\n</body>\n</html>\n",
+        encoding="utf-8")
+
+    # (2) A versão do ARTIFACT: só o conteúdo. A plataforma põe o doctype, o <head> e o
+    #     <body> em volta, e é ela que carimba o tema do leitor na raiz — por isso o
+    #     CSS acima define a paleta clara no `:root` nu e só redefine os tokens no
+    #     escuro. Aqui entra a webfont: o artifact é servido pela rede de qualquer jeito.
+    artefato = VAL / "relatorio.artifact.html"
+    artefato.write_text(
+        "<title>Validação da feira SmartTraffic</title>\n"
+        '<link rel="preconnect" href="https://fonts.googleapis.com"/>\n'
+        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>\n'
+        '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
+        "family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700"
+        '&display=swap"/>\n' + corpo + "\n", encoding="utf-8")
+
     print("checklist: %d de %d PASSOU" % (passou, len(VEREDITOS)))
-    print("%s  (%.1f MB)" % (destino, destino.stat().st_size / 1048576))
+    for p in (destino, artefato):
+        print("%s  (%.1f MB)" % (p, p.stat().st_size / 1048576))
     return 0
 
 

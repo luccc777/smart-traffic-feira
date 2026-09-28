@@ -83,3 +83,8 @@ results/a8/*.jsonl
 # saida mis-pathed: veio de um `--grava results/jogo/rodadas` (caminho_gravacao ja
 # poe o /rodadas, entao aninhou duas vezes). Fica em disco, fora do repo.
 results/jogo/rodadas/rodadas/
+
+# a variante do relatorio para publicar como Artifact: mesmo conteudo do
+# relatorio.html, so o envelope muda, e sai de `python scripts/relatorio_validacao.py`.
+# Versionar as duas dobraria 1,2 MB por nada.
+docs/validation/relatorio.artifact.html
