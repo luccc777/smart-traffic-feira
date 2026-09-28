@@ -140,8 +140,19 @@ class Placar:
 
 def frame_wire(braco: str, t: float, *, decisao: int, substep: int, politica: str,
                tls: list[dict], veiculos: list[dict], heat: dict, stats: dict,
-               janela: tuple[float, float] | None = None, status: str = "ok") -> dict:
-    """Um frame de simulação no formato do fio. Espelha o `snapshot.frame` do maquete."""
+               janela: tuple[float, float] | None = None, status: str = "ok",
+               seed: int | None = None) -> dict:
+    """Um frame de simulação no formato do fio. Espelha o `snapshot.frame` do maquete.
+
+    `seed` é ADITIVO (default `None` = "o produtor não disse"), pela mesma razão que a
+    `janela` viaja aqui: a tela OCIOSA recebe dois braços de DOIS PROCESSOS diferentes
+    (`scripts/projecao_ocioso.py`), cada um com o seu rodízio de seeds. Se um deles
+    abortar uma volta antes do outro — o vigia de população faz isso, e faz de
+    propósito — eles passam a rodar HORAS DE TRÂNSITO DIFERENTES. A janela sozinha não
+    pega: ela é [warmup, warmup+duração] nos dois casos. Sem a seed no fio, o placar
+    do ocioso compararia seed 100 com seed 101 e ninguém veria — o mesmo defeito que a
+    janela foi criada para fechar, uma porta adiante.
+    """
     if braco not in BRACOS:
         raise ValueError("braço %r desconhecido (use %r)" % (braco, BRACOS))
     return {
@@ -150,6 +161,7 @@ def frame_wire(braco: str, t: float, *, decisao: int, substep: int, politica: st
         "status": status,
         "t": round(float(t), 1),
         "janela": list(janela) if janela else None,
+        "seed": None if seed is None else int(seed),
         "decision": decisao,
         "substep": substep,
         "policy": politica,

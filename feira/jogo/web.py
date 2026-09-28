@@ -58,8 +58,11 @@ from ..contratos.frame import (
     OCIOSO,
     PREPARANDO,
     RESULTADO,
+    LinhaPlacar,
+    Placar,
     frame_wire,
 )
+from ..contratos.resultado import Chave, Janela
 
 # O import do FastAPI é de MÓDULO, e tem que ser — não por gosto, por uma armadilha
 # que custou meia hora aqui: com `from __future__ import annotations` toda anotação
@@ -105,6 +108,19 @@ LEASH_S = {CONTAGEM: 2.0, JOGANDO: 2.0, PREPARANDO: 25.0, RESULTADO: 20.0, OCIOS
 # Período do vigia. O pior caso de detecção é `leash + TICK_VIGIA`, e é isso que o
 # teste do DoD (d) mede contra os 3 s.
 TICK_VIGIA = 0.25
+
+# Cadência do placar SINTETIZADO da tela ociosa (ver `EstadoProjecao.placar_ocioso`).
+# 1 Hz é a mesma cadência do placar da rodada: a tarja é para ler a dois metros.
+PLACAR_OCIOSO_S = 1.0
+
+# Quanto o `t` escolhido para o placar pode estar acima da amostra mais recente de um
+# braço. Como o alvo é o menor dos dois topos, isto só aperta contra BURACO na série
+# (quadro perdido pela fila). Acima disso não há amostra honesta naquele instante.
+OCIOSO_DT_MAX = 2.0
+
+# Amostras `(t, stats)` guardadas por braço para o alinhamento. A 1 Hz simulado, 4096
+# cobrem mais de uma hora de volta — e a série é zerada a cada volta nova.
+SERIE_OCIOSO = 4096
 
 
 def raiz_web() -> Path:
@@ -299,6 +315,10 @@ class EstadoProjecao:
     _rede: dict | None = None
     _loop: asyncio.AbstractEventLoop | None = None
     _bcast: "asyncio.Queue | None" = None
+    # placar sintetizado da tela ociosa: quando saiu o último, e as chaves já montadas
+    _ocioso_em: float = 0.0
+    _chaves_ocioso: dict = field(default_factory=dict)
+    _serie_ocioso: dict = field(default_factory=dict)      # braco -> deque[(t, stats)]
 
     # ---------------------------------------------------------------- ingestão
     def entrega(self, msg: dict) -> bool:
@@ -366,6 +386,146 @@ class EstadoProjecao:
             self._bcast.put_nowait(msg)
         except asyncio.QueueFull:
             self.descartadas += 1
+
+    # -------------------------------------------------- feed externo (ocioso)
+    def absorve_externo(self, msg: dict) -> None:
+        """Mensagem vinda do `/ingest` — o feed da tela OCIOSA, em outro processo.
+
+        DUAS COISAS QUE O `absorve` NÃO PODE FAZER, e por isso este envelope existe:
+
+        1. A FASE MANDA NA TELA. O feed do ocioso não sabe que uma rodada começou:
+           ele roda em laço, sozinho, e continua empurrando quadro. Sem este portão
+           os quadros dele entravam no MESMO `ultimo_frame` que a rodada usa, e a
+           projeção alternava entre a malha do visitante e a da tela ociosa a cada
+           mensagem. Fora do `ocioso` o quadro externo é DESCARTADO — a rodada é dona
+           da tela. (O `placar` externo passa: quem publica placar é o motor, e se
+           alguém empurrar um por aqui é ensaio de bancada.)
+
+        2. O PLACAR DO OCIOSO NÃO EXISTE NO FIO, e tem que existir na tela. Os dois
+           braços vêm de processos separados e nenhum dos dois consegue montar uma
+           linha do outro. Quem tem os dois é o servidor — é aqui que a mensagem
+           `placar` do ocioso nasce, a partir dos quadros que já chegaram.
+        """
+        tipo = msg.get("tipo") or msg.get("type")
+        if tipo == "frame" and self.fase != OCIOSO:
+            self.descartadas += 1
+            return
+        self.absorve(msg)
+        if tipo != "frame" or self.fase != OCIOSO:
+            return
+        self._anota_ocioso(msg)
+        placar = self.placar_ocioso()
+        if placar is not None:
+            self.ultimo_placar = placar
+            self._difunde(placar)
+
+    def _anota_ocioso(self, msg: dict) -> None:
+        """Guarda `(t, stats)` do quadro para o placar poder alinhar os dois braços."""
+        braco, stats = msg.get("braco"), msg.get("stats")
+        if braco not in ("timer", "rl") or not stats:
+            return
+        hist = self._serie_ocioso.setdefault(braco, deque(maxlen=SERIE_OCIOSO))
+        t = float(msg.get("t") or 0.0)
+        if hist and t <= hist[-1][0]:
+            # volta nova (o `t` voltou para t0): a série velha descreve outra corrida.
+            if t < hist[-1][0]:
+                hist.clear()
+            else:
+                return                                     # substep do mesmo `t`
+        hist.append((t, stats))
+
+    def placar_ocioso(self) -> dict | None:
+        """A mensagem `placar` da tela ociosa, com os dois braços NO MESMO `t`.
+
+        POR QUE ISTO NÃO É "pegar o último quadro de cada um" (que foi a primeira
+        versão, e estava errada): os dois braços correm em processos separados e o
+        `Ritmo` só impede que passem do tempo real — não faz o lento alcançar. A RL
+        roda uma inferência do torch por decisão e FICA PARA TRÁS: medido nesta
+        bancada, 4 s de tempo simulado atrás do timer depois de ~70 s de volta, e a
+        diferença cresce. Com `entregues` monotônico, exibir timer em t=375 ao lado da
+        RL em t=371 dá 4 segundos de vantagem de graça ao timer — em silêncio, e a
+        tarja parece perfeitamente plausível.
+
+        É exatamente o defeito que o C7 fecha na rodada ("`t` é único para os três de
+        propósito"). Aqui a cola é a mesma: cada braço guarda uma série curta de
+        `(t, stats)`, e o placar sai no MAIOR `t` que os DOIS já passaram.
+
+        Devolve `None` — e a tarja fica com o último placar bom — quando os dois braços
+        não são comparáveis: braço faltando, SEED ou JANELA diferentes (o rodízio de
+        seeds dessincronizou), ou nenhum `t` em comum ainda.
+
+        Estrangulado a `PLACAR_OCIOSO_S`: a tarja é texto para ler a dois metros, não
+        precisa dos 30 Hz do mapa.
+        """
+        from .motor import ROTULOS
+
+        a, b = self.ultimo_frame.get("timer"), self.ultimo_frame.get("rl")
+        if not a or not b:
+            return None
+        if a.get("seed") != b.get("seed") or a.get("janela") != b.get("janela"):
+            return None
+        jan, seed = a.get("janela"), a.get("seed")
+        if not jan or seed is None:
+            return None
+        agora = self.relogio()
+        if agora - self._ocioso_em < PLACAR_OCIOSO_S:
+            return None
+        par = self._par_no_mesmo_t()
+        if par is None:
+            return None
+        t, stats = par
+        chave = self._chave_ocioso(int(seed), Janela(t0=float(jan[0]), t1=float(jan[1])))
+        if chave is None:
+            return None
+        linhas = []
+        for braco in ("timer", "rl"):
+            s = stats[braco]
+            linhas.append(LinhaPlacar(
+                braco=braco, rotulo=ROTULOS[braco],
+                entregues=int(s.get("entregues") or 0),
+                fila=float(s.get("fila_media") or 0.0),
+                tempo_medio=float(s.get("tempo_medio_entregue") or 0.0),
+                # ao vivo, não pré-computado: é a diferença que o `fantasma` marca.
+                fantasma=False))
+        self._ocioso_em = agora
+        return Placar.monta(OCIOSO, t, chave, linhas,
+                            t_restante=max(0.0, chave.janela.t1 - t)).json()
+
+    def _par_no_mesmo_t(self) -> tuple[float, dict] | None:
+        """O maior `t` que os DOIS braços já passaram, e o `stats` de cada um nele."""
+        series = [self._serie_ocioso.get(b) for b in ("timer", "rl")]
+        if not all(series):
+            return None
+        alvo = min(s[-1][0] for s in series)
+        if alvo < min(s[0][0] for s in series):
+            return None                                    # sem sobreposição ainda
+        saida = {}
+        for braco, serie in zip(("timer", "rl"), series):
+            escolhido = None
+            for t, stats in reversed(serie):               # o mais recente com t <= alvo
+                if t <= alvo:
+                    escolhido = (t, stats)
+                    break
+            if escolhido is None or alvo - escolhido[0] > OCIOSO_DT_MAX:
+                return None
+            saida[braco] = escolhido[1]
+        return alvo, saida
+
+    def _chave_ocioso(self, seed: int, janela: Janela) -> Chave | None:
+        """A `Chave` do par exibido. Em cache: o `sha_demanda` lê arquivo do disco."""
+        em_cache = self._chaves_ocioso.get((seed, janela.t0, janela.t1))
+        if em_cache is not None:
+            return em_cache
+        if self.cenario is None:
+            return None
+        try:
+            from ..arena.sumo import sha_demanda
+
+            chave = Chave.de(self.cenario, seed, janela, sha_demanda(self.cenario, seed))
+        except Exception:
+            return None
+        self._chaves_ocioso[(seed, janela.t0, janela.t1)] = chave
+        return chave
 
     # ------------------------------------------------------------ gamificação
     def _registra(self, msg: dict) -> None:
@@ -606,7 +766,8 @@ class PublicadorProjecao:
 
     def frame(self, quadro, *, braco: str | None = None,
               janela: tuple[float, float] | None = None,
-              politica: str = "", status: str = "ok") -> None:
+              politica: str = "", status: str = "ok",
+              seed: int | None = None) -> None:
         """Espelha um `Frame` (C4) como mensagem de fio (C7). Nunca levanta."""
         t0 = time.perf_counter()
         try:
@@ -620,7 +781,7 @@ class PublicadorProjecao:
                 b, quadro.t, decisao=quadro.decisao, substep=quadro.substep,
                 politica=politica or str(getattr(quadro, "braco", b)),
                 tls=quadro.tls, veiculos=quadro.veiculos, heat=quadro.heat,
-                stats=quadro.stats, janela=janela, status=status))
+                stats=quadro.stats, janela=janela, status=status, seed=seed))
         except Exception:
             pass
         finally:
@@ -870,7 +1031,7 @@ def cria_app(estado: EstadoProjecao, *, raiz: Path | None = None):
             while True:
                 msg = await websocket.receive_json()
                 if isinstance(msg, dict):
-                    estado.absorve(msg)
+                    estado.absorve_externo(msg)
         except WebSocketDisconnect:
             pass
         except Exception:

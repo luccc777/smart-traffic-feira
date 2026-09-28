@@ -84,6 +84,26 @@
    * saíram da tela. Medido: malha de 1373x809 px para 1422x837 px. */
   --h-placar: 226px;
 
+  /* Altura da FAIXA DO CONVITE a 1080p — a instrução de como jogar, na tela padrão.
+   *
+   * Ela também é RESERVADA, e passou a ser. Antes o convite era a única coisa da tela
+   * desenhada POR CIMA do mapa: ficava ancorado na base da área de simulação, sobre um
+   * degradê que apagava a malha atrás dele para o texto se ler. Funcionava como
+   * tipografia e falhava como projeção — o degradê comia ~140 px de via desenhada
+   * (quatro quarteirões da fileira de baixo, onde vão prédios), e o que o público via
+   * ali não era nem mapa nem fundo. A regra da feira é a da referência: texto EMBAIXO,
+   * fora da área do mapa, nunca sobreposto.
+   *
+   * 150 px cabem o convite (52 px, 61' de arco) mais a linha de contexto (24 px, 28')
+   * com o respiro entre eles. Somada ao placar dá 376 px de 1080 = 34,8% reservados,
+   * que é a mesma ordem da referência (336 px de folga natural, 31%).
+   *
+   * É reservada em TODA fase, não só no `ocioso`, e isso é de propósito: o retângulo
+   * do mapa fica CONSTANTE entre a tela padrão e a rodada. A escala do sprite não
+   * muda quando o visitante aperta ESPAÇO, e a corrida dele aparece exatamente do
+   * tamanho em que ele viu a demonstração. `H_MAPA_FOLGA` no projecao.js é a soma. */
+  --h-convite: 150px;
+
   --fundo: #000000;
   --trilho: #4e5c6c;          /* L=0,104 — degrau 1,64 sobre o preto */
   --bar-timer: #cb7a18;       /* L=0,267 — degrau 1,62 */
@@ -564,16 +584,20 @@ html[data-fase="resultado"] .rk-cab span {
   content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, .76);
 }
 
-/* OCIOSO: o convite encosta no placar, sobre um degradê que morre antes de alcançar
- * a malha. Texto grande sobre via desenhada some os dois. */
-#tela-ocioso { justify-content: flex-end; gap: 0; }
+/* OCIOSO: a faixa do convite é RESERVADA (ver `--h-convite`) — ela mora na tarja preta
+ * ENTRE o mapa e o placar, não sobre a malha. Por isso não há degradê aqui: não há
+ * nada atrás para apagar. O mapa termina onde esta faixa começa. */
+#tela-ocioso {
+  top: auto; height: calc(var(--h-convite) * var(--u));
+  bottom: calc(var(--h-placar) * var(--u));
+  justify-content: center; gap: 0;
+}
 #tela-ocioso .faixa {
   width: 100%;
-  padding: calc(34px * var(--u)) calc(30px * var(--u)) calc(14px * var(--u));
+  padding: 0 calc(30px * var(--u));
   display: flex; flex-direction: column; align-items: center;
   gap: calc(10px * var(--u));
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .8) 26%,
-                                      rgba(0, 0, 0, .99) 44%, #000 60%);
+  background: var(--fundo);
 }
 #tela-ocioso .media {
   font-size: calc(24px * var(--u)); max-width: 92ch; color: var(--texto-2);

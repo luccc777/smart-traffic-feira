@@ -47,8 +47,9 @@ def main(argv: list[str] | None = None) -> int:
     # --- gamificação (docs/GAMIFICACAO.md). Tudo OPT-IN: sem estas flags o script se
     # comporta como antes. `--feira` liga o conjunto que a feira usa.
     p.add_argument("--feira", action="store_true",
-                   help="preset da feira: --entrada web --abortar operador --resultado-s 12 "
+                   help="preset da feira: --entrada web --abortar operador --resultado-s 7 "
                         "--ranking-dir results/feira --ranking-validade 30 --ritmo 2 --anuncia-ocioso "
+                        "--ocioso "
                         "--grava results/jogo --repete-falha --seeds 100..111")
     p.add_argument("--entrada", choices=("teclado", "web"), default=None,
                    help="web = o teclado junto do projetor, lido pela página (FonteWeb) "
@@ -56,7 +57,17 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--abortar", choices=("start", "operador"), default=None,
                    help="operador = o START do visitante não aborta; Esc 3x/página abortam")
     p.add_argument("--resultado-s", type=float, default=None,
-                   help="segundos da tela de RESULTADO (motor: 8; feira: 10)")
+                   help="segundos da tela de RESULTADO (motor: 8; feira: 7)")
+    # --- a TELA PADRÃO: os dois braços rodando ao vivo enquanto ninguém joga.
+    p.add_argument("--ocioso", action="store_true",
+                   help="sobe os dois feeds da tela ociosa (rl + timer) e os coordena "
+                        "com a rodada: descem quando alguém joga, voltam no fim")
+    p.add_argument("--sem-ocioso", action="store_true",
+                   help="cancela o --ocioso do preset --feira")
+    p.add_argument("--ocioso-duracao", type=float, default=1800.0,
+                   help="segundos simulados por volta da tela ociosa")
+    p.add_argument("--ocioso-seeds", default=None,
+                   help="seeds em rodízio da tela ociosa (padrão: as mesmas do jogo)")
     p.add_argument("--ranking-dir", default=None,
                    help="pasta com um ranking_<dia>.json por dia (substitui --ranking)")
     p.add_argument("--repete-falha", action="store_true",
@@ -74,8 +85,10 @@ def main(argv: list[str] | None = None) -> int:
     if a.feira:
         a.entrada = a.entrada or "web"
         a.abortar = a.abortar or "operador"
-        a.resultado_s = 10.0 if a.resultado_s is None else a.resultado_s
+        # 7 s: o tempo pedido para a tela de resultado antes de voltar à tela padrão.
+        a.resultado_s = 7.0 if a.resultado_s is None else a.resultado_s
         a.anuncia_ocioso = True
+        a.ocioso = not a.sem_ocioso
         a.ranking_dir = a.ranking_dir or "results/feira"
         a.grava = a.grava or "results/jogo"          # caminho_gravacao põe o /rodadas
         a.repete_falha = True
@@ -109,6 +122,22 @@ def main(argv: list[str] | None = None) -> int:
         print("a projeção não subiu em 15 s — seguindo sem ela", file=sys.stderr)
     print("projeção em %s   (F = tela cheia · I = régua de bancada)" % srv.url)
 
+    # A TELA PADRÃO. Os dois braços rodando ao vivo enquanto ninguém joga, em trava de
+    # seed, subindo e descendo com a fase — ver feira/jogo/ocioso.py.
+    supervisor = None
+    if a.ocioso:
+        from feira.jogo.ocioso import SupervisorOcioso
+
+        seeds_ocioso = a.ocioso_seeds if a.ocioso_seeds is not None else a.seeds
+        supervisor = SupervisorOcioso(
+            estado, cenario=a.cenario,
+            seeds=[int(s) for s in str(seeds_ocioso).split(",") if s.strip()],
+            duracao=a.ocioso_duracao, host=a.host, porta=a.porta,
+            log=lambda m: print("  " + m))
+        supervisor.start()
+        print("tela padrão: rl + timer ao vivo (volta de %g s simulados)"
+              % a.ocioso_duracao)
+
     if a.so_servidor:
         print("modo --so-servidor: Ctrl-C para sair")
         try:
@@ -119,6 +148,8 @@ def main(argv: list[str] | None = None) -> int:
         except KeyboardInterrupt:
             pass
         finally:
+            if supervisor is not None:
+                supervisor.close()
             srv.desce()
         return 0
 
@@ -188,6 +219,8 @@ def main(argv: list[str] | None = None) -> int:
     except KeyboardInterrupt:
         print("\nencerrado pelo operador")
     finally:
+        if supervisor is not None:
+            supervisor.close()
         fonte.close()
         srv.desce()
     return 0

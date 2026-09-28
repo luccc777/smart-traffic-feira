@@ -372,8 +372,39 @@ export class Board {
 
   // ------------------------------------------------------------------ asfalto
   // Estático: quem chama desenha isto UMA vez num canvas fora de tela.
+  // O RECORTE AO RETÂNGULO, nos dois pintores.
+  //
+  // O enquadramento (ver o construtor) corta as pontas de entrada/saída de propósito:
+  // o quadro é o miolo dos 12 semáforos + `MARGEM_M`, e é ELE que encaixa no retângulo.
+  // A rede desenhada, porém, continua inteira — as pontas existem e são pintadas fora
+  // do quadro. Sem recorte elas sangravam para fora do retângulo do mapa e iam parar
+  // EM CIMA DAS TARJAS DE TEXTO: tocos de rua atravessando o convite e a linha de
+  // contexto, no meio da instrução que o visitante tem de ler.
+  //
+  // Era invisível enquanto a tarja de baixo ficava sobre a malha (o degradê comia os
+  // tocos junto com o mapa). Ao reservar a faixa do convite, o sangramento apareceu.
+  // O recorte é a forma honesta: o mapa ocupa o retângulo dele, inteiro, e nada mais.
+  _recorta(ctx) {
+    const r = this.rect;
+    if (!r || !(r.w > 0) || !(r.h > 0)) return false;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(r.x, r.y, r.w, r.h);
+    ctx.clip();
+    return true;
+  }
+
   paintBase(ctx, { asphalt = true } = {}) {
     if (!asphalt || !this.T) return;
+    if (!this._recorta(ctx)) return;
+    try {
+      this._paintBase(ctx);
+    } finally {
+      ctx.restore();
+    }
+  }
+
+  _paintBase(ctx) {
     const T = this.T, mult = this.laneMult();
     const w = this.laneW * T.s * mult;
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -417,10 +448,17 @@ export class Board {
     if (!this.T || !snap) return;
     const { heat = true, signals = true, cars = true, footprint = true,
             verdade = false } = opts;
+    // O calor avança MESMO fora do recorte: ele é estado da simulação (a EMA da fila),
+    // não pintura. Pular a conta porque o retângulo é degenerado congelaria a rampa.
     this._advanceHeat(snap.heat, dt);
-    if (heat) this._paintHeat(ctx, nowMs);
-    if (signals) this._paintSignals(ctx, snap.tls || {});
-    if (cars) this._paintCars(ctx, snap.vehicles || [], footprint, verdade);
+    if (!this._recorta(ctx)) return;
+    try {
+      if (heat) this._paintHeat(ctx, nowMs);
+      if (signals) this._paintSignals(ctx, snap.tls || {});
+      if (cars) this._paintCars(ctx, snap.vehicles || [], footprint, verdade);
+    } finally {
+      ctx.restore();
+    }
   }
 
   _advanceHeat(heat, dt) {

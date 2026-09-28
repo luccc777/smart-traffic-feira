@@ -202,9 +202,12 @@ export function textoOcioso(estado, jogador, proxima) {
   const linhas = { convite: '', sub: '', nivel: '' };
   if (estado.campo) {
     linhas.convite = `QUAL O SEU APELIDO?  ${estado.nome}`;
+    // A SEQUÊNCIA INTEIRA, em toda linha. Quem chega no meio da fila não viu o passo
+    // anterior: dizer só "ENTER confirma" deixa a pessoa no campo confirmado sem saber
+    // que ainda falta o ESPAÇO. As duas linhas terminam no mesmo lugar.
     linhas.sub = estado.nome
-      ? 'ENTER confirma · Backspace apaga · só apelido, sem sobrenome'
-      : `digite e aperte ENTER · ou ESPAÇO para jogar como ${(jogador && jogador.anonimo) || 'Visitante'}`;
+      ? 'ENTER confirma → depois ESPAÇO para jogar · Backspace apaga'
+      : `DIGITE O NOME → ENTER → ESPAÇO · ou só ESPAÇO, como ${(jogador && jogador.anonimo) || 'Visitante'}`;
   } else {
     const nome = (jogador && jogador.nome) || estado.nome || (jogador && jogador.anonimo) || '';
     linhas.convite = `${nome ? nome + ' · ' : ''}APERTE ESPAÇO PARA COMEÇAR`;

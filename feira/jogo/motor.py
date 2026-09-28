@@ -229,7 +229,7 @@ class MotorDoJogo:
                  seeds: tuple[int, ...] = (100, 101, 102, 103, 104, 105),
                  bracos: tuple[str, ...] = ("timer", "rl"),
                  ao_vivo: bool = True, contagem_s: float = 3.0,
-                 resultado_s: float = 8.0, prefetch: bool = True,
+                 resultado_s: float = 7.0, prefetch: bool = True,
                  dorme: Callable[[float], None] | None = None,
                  grava_em=None, fatia_s: float = FATIA_S,
                  abortar_por: str = ABORTA_START, portao_saude: bool = True,

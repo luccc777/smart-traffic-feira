@@ -186,9 +186,9 @@ def main(argv: list[str] | None = None) -> int:
             seed = seeds[n % len(seeds)]
             vigia = _Vigia(a.teto_ativos, a.teto_segundos)
 
-            def observa(quadro, _v=vigia):
+            def observa(quadro, _v=vigia, _s=seed):
                 _v.ve(quadro)
-                pub.frame(quadro, braco=a.braco, janela=jan,
+                pub.frame(quadro, braco=a.braco, janela=jan, seed=_s,
                           politica=getattr(ctrl, "nome", a.braco))
 
             motivo = "completou"

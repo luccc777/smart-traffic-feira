@@ -54,7 +54,13 @@ const QUEDA_MS = 2500;
 // versao para 226 px, e todo texto que sobrou ficou MAIOR do que era.
 // Ver docs/PROJECAO.md §2.1 e §3.4.
 const H_TOPO = 0;
-const H_MAPA_FOLGA = 226;
+// A soma das DUAS tarjas reservadas embaixo, e tem de bater com o CSS:
+//   --h-placar  226  os dados de vantagem + o quadro de recordes
+//   --h-convite 150  a instrução de como jogar (ver o comentário no CSS)
+// O convite era a última coisa desenhada por cima do mapa; virou tarja pelo mesmo
+// motivo que o placar já era. Reservado em toda fase, para o retângulo do mapa não
+// mudar entre a tela padrão e a rodada.
+const H_MAPA_FOLGA = 226 + 150;
 const RECONECTA_MS = 800;
 
 // --------------------------------------------------------------------- estado
