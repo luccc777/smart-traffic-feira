@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SmartTraffic — Operador</title>
+<!-- A página do OPERADOR (docs/GAMIFICACAO.md §3.6): fica na tela do notebook, com
+     mouse. Nada aqui é necessário para uma rodada acontecer — nome, START, jogo e
+     resultado são do visitante, no teclado junto do projetor. Isto é para quando algo
+     dá errado com elegância: abortar, pular o resultado, marcar rodada de teste,
+     renomear ou remover uma marca. Toda ação irreversível pede um SEGUNDO clique.
+     Sem framework, sem CDN: as fontes são as do próprio repo (web/fonts/). -->
+<style>
+  @font-face { font-family: "IBM Plex Sans"; font-weight: 500;
+               src: url("./fonts/IBMPlexSans-500.woff2") format("woff2"); }
+  @font-face { font-family: "IBM Plex Sans"; font-weight: 700;
+               src: url("./fonts/IBMPlexSans-700.woff2") format("woff2"); }
+  @font-face { font-family: "IBM Plex Mono"; font-weight: 500;
+               src: url("./fonts/IBMPlexMono-500.woff2") format("woff2"); }
+  @font-face { font-family: "IBM Plex Mono"; font-weight: 700;
+               src: url("./fonts/IBMPlexMono-700.woff2") format("woff2"); }
+  :root {
+    --fundo: #0b1119; --cartao: #121b27; --fio: #2a3a4d; --texto: #ffffff;
+    --texto-2: #bdd1e7; --texto-3: #8297b0; --ok: #6ef5b2; --alerta: #ff4433;
+    --rl: #7fcbfa; --timer: #cb7a18; --ouro: #ffd98a;
+    --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 20px; background: var(--fundo); color: var(--texto);
+         font: 16px/1.4 var(--sans); }
+  h1 { margin: 0 0 6px; font-size: 20px; letter-spacing: .12em; }
+  h1 i { font-style: normal; color: var(--rl); }
+  .sub { color: var(--texto-3); font-size: 13px; margin-bottom: 18px; }
+  #estado { font: 600 18px/1.4 var(--mono); padding: 12px 16px; background: var(--cartao);
+            border: 1px solid var(--fio); border-radius: 8px; margin-bottom: 18px;
+            white-space: pre-wrap; }
+  #estado b { color: var(--ok); }
+  #estado .off { color: var(--alerta); }
+  .grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+  .cartao { background: var(--cartao); border: 1px solid var(--fio); border-radius: 8px; padding: 16px; }
+  .cartao h2 { margin: 0 0 12px; font-size: 13px; letter-spacing: .14em; color: var(--texto-3); }
+  button { font: 700 16px/1 var(--sans); letter-spacing: .06em; padding: 16px 18px;
+           border-radius: 8px; border: 1px solid var(--fio); background: #1a2636;
+           color: var(--texto); cursor: pointer; min-width: 160px; }
+  button:hover { border-color: var(--rl); }
+  button.perigo { border-color: var(--alerta); color: var(--alerta); }
+  button.perigo.confirmar { background: var(--alerta); color: #000; }
+  button.pequeno { padding: 8px 10px; min-width: 0; font-size: 13px; }
+  .botoes { display: flex; flex-wrap: wrap; gap: 10px; }
+  input[type=text] { font: 600 18px/1 var(--mono); padding: 12px 14px; border-radius: 8px;
+                     border: 1px solid var(--fio); background: #0b1119; color: var(--texto);
+                     width: 100%; margin-bottom: 10px; text-transform: uppercase; }
+  .nota { color: var(--texto-3); font-size: 13px; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; font: 15px/1.3 var(--mono); }
+  td, th { padding: 8px 6px; border-bottom: 1px solid var(--fio); text-align: left;
+           vertical-align: middle; }
+  th { color: var(--texto-3); font-weight: 600; font-size: 12px; letter-spacing: .1em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.teste td, tr.removida td { color: var(--texto-3); text-decoration: line-through; }
+  .med { display: inline-block; width: 20px; height: 20px; border-radius: 50%; text-align: center;
+         font: 700 12px/20px var(--mono); color: #060a10; }
+  .med.ouro { background: var(--ouro); } .med.prata { background: var(--texto-2); }
+  .med.bronze { background: var(--timer); }
+  #log { font: 13px/1.4 var(--mono); color: var(--texto-3); margin-top: 14px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h1>SMART<i>·</i>TRAFFIC — operador</h1>
+<div class="sub">esta tela é do notebook. o visitante joga na projeção, no teclado ao lado dela.</div>
+
+<div id="estado">conectando…</div>
+
+<div class="grade">
+  <section class="cartao">
+    <h2>A RODADA</h2>
+    <div class="botoes">
+      <button id="abortar" class="perigo">ABORTAR RODADA</button>
+      <button id="pular">PULAR RESULTADO</button>
+      <button id="teste">PRÓXIMA É TESTE</button>
+    </div>
+    <div class="nota">abortar e remover pedem um segundo clique. "teste" fica no arquivo e sai do quadro.</div>
+  </section>
+
+  <section class="cartao">
+    <h2>APELIDO DA PRÓXIMA RODADA</h2>
+    <input id="nome" type="text" maxlength="12" placeholder="só apelido, sem sobrenome" />
+    <div class="botoes">
+      <button id="definir">DEFINIR</button>
+      <button id="limpar" class="pequeno">limpar (Visitante N)</button>
+    </div>
+    <div class="nota">normalmente o visitante digita o próprio apelido no teclado da projeção; isto é para quando ele não quiser ou não conseguir.</div>
+  </section>
+</div>
+
+<section class="cartao" style="margin-top:18px">
+  <h2>QUADRO DO DIA <span id="rk-resumo"></span></h2>
+  <table>
+    <thead><tr><th>#</th><th>nome</th><th>score</th><th>entregues</th><th>IA</th><th>timer</th><th>seed</th><th></th><th>hora</th><th></th></tr></thead>
+    <tbody id="rk-corpo"></tbody>
+  </table>
+</section>
+
+<div id="log"></div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const log = t => { $('log').textContent = new Date().toLocaleTimeString() + '  ' + t + '\n' + $('log').textContent.split('\n').slice(0, 8).join('\n'); };
+  const post = (url, body) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                           body: JSON.stringify(body || {}) }).then(r => r.json());
+  // Segundo clique: o botão vira "CONFIRMAR" por 4 s; clicar de novo executa.
+  function armado(btn, rotulo, fn) {
+    let t = null;
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('confirmar')) {
+        clearTimeout(t); btn.classList.remove('confirmar'); btn.textContent = rotulo; fn();
+        return;
+      }
+      btn.classList.add('confirmar'); btn.textContent = 'CONFIRMAR?';
+      t = setTimeout(() => { btn.classList.remove('confirmar'); btn.textContent = rotulo; }, 4000);
+    });
+  }
+  armado($('abortar'), 'ABORTAR RODADA', () => post('/api/abortar').then(r => log('abortar: ' + JSON.stringify(r))));
+  $('pular').addEventListener('click', () => post('/api/pular').then(r => log('pular: ' + JSON.stringify(r))));
+  $('teste').addEventListener('click', () => post('/api/teste', { teste: true }).then(r => log('próxima é teste: ' + JSON.stringify(r))));
+  $('definir').addEventListener('click', () => post('/api/jogador', { nome: $('nome').value }).then(r => { log('jogador: ' + (r.nome || '—')); $('nome').value = ''; }));
+  $('limpar').addEventListener('click', () => post('/api/jogador', { nome: '' }).then(r => log('jogador: ' + (r.nome || r.anonimo))));
+  $('nome').addEventListener('keydown', ev => { if (ev.key === 'Enter') $('definir').click(); });
+
+  const NIVEL = { dificil: 'DIFÍCIL', medio: 'MÉDIO', facil: 'FÁCIL' };
+  async function estado() {
+    try {
+      const e = await (await fetch('/api/estado', { cache: 'no-store' })).json();
+      const p = e.proxima || {};
+      const hoje = p.hoje ? ` · hoje ${p.hoje.bateram}/${p.hoje.jogaram} bateram a IA` : '';
+      $('estado').innerHTML =
+        `fase <b>${(e.fase || '?').toUpperCase()}</b>` +
+        `${e.degradado ? ' <span class="off">DEGRADADO: ' + (e.motivo || '') + '</span>' : ''}\n` +
+        `próxima: seed ${p.seed ?? '—'} · nível ${NIVEL[p.nivel] || '—'}${hoje}\n` +
+        `jogador: ${e.jogador || '(Visitante N)'} · entrada web ${e.entrada_web ? '<b>ligada</b>' : '<span class="off">desligada</span>'}` +
+        ` · clientes ${e.clientes} · braços vivos ${(e.bracos_vivos || []).join(', ') || '—'}`;
+    } catch (err) {
+      $('estado').innerHTML = '<span class="off">servidor não respondeu</span>';
+    }
+  }
+  async function ranking() {
+    try {
+      const d = await (await fetch('/api/ranking?n=50', { cache: 'no-store' })).json();
+      $('rk-resumo').textContent = d.total ? `· ${d.total} rodadas · ${d.vitorias} bateram a IA` : '';
+      const tb = $('rk-corpo');
+      tb.replaceChildren();
+      (d.topo || []).forEach((m, i) => {
+        const tr = document.createElement('tr');
+        if (m.teste) tr.classList.add('teste');
+        const med = m.medalha ? `<span class="med ${m.medalha}">${m.medalha[0].toUpperCase()}</span>` : '';
+        tr.innerHTML = `<td>${i + 1}º</td><td>${m.rotulo || m.nome || ''}</td>` +
+          `<td class="num">${m.score > 0 ? '+' : ''}${m.score ?? ''}</td>` +
+          `<td class="num">${m.entregues}</td><td class="num">${m.rl || '—'}</td>` +
+          `<td class="num">${m.timer || '—'}</td><td class="num">${m.seed}</td><td>${med}</td>` +
+          `<td>${m.hora || ''}</td><td></td>`;
+        const acoes = tr.lastElementChild;
+        const ren = document.createElement('button'); ren.className = 'pequeno'; ren.textContent = 'renomear';
+        ren.addEventListener('click', () => {
+          const nome = prompt('novo apelido para ' + (m.rotulo || m.nome), m.nome || '');
+          if (nome === null) return;
+          fetch('/api/ranking/' + m.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+                                         body: JSON.stringify({ nome }) }).then(ranking);
+        });
+        const tst = document.createElement('button'); tst.className = 'pequeno'; tst.textContent = m.teste ? 'vale' : 'teste';
+        tst.addEventListener('click', () => fetch('/api/ranking/' + m.id, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ teste: !m.teste }) }).then(ranking));
+        const rem = document.createElement('button'); rem.className = 'pequeno perigo'; rem.textContent = 'remover';
+        armado(rem, 'remover', () => fetch('/api/ranking/' + m.id, { method: 'DELETE' }).then(ranking));
+        acoes.append(ren, ' ', tst, ' ', rem);
+        tb.appendChild(tr);
+      });
+    } catch (err) { /* sem quadro a tela do operador continua útil */ }
+  }
+  estado(); ranking();
+  setInterval(estado, 1000);
+  setInterval(ranking, 5000);
+})();
+</script>
+</body>
+</html>

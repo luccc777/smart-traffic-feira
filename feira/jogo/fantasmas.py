@@ -53,15 +53,26 @@ RAIZ_PADRAO = _RAIZ_REPO / "results"
 # Trocar qualquer um dos dois muda o ADVERSÁRIO EXIBIDO — não é detalhe de jogo.
 VERDE_TIMER_PADRAO = 27.0
 
-# A política do agente A6, treinada NA REDE ABERTA. A anterior
-# (`maq30_ats_full_best.pt`, da rede fechada) não serve mais aqui: medida nesta
-# mesma bancada ela entrega 3140,8 contra 7001 do plano coordenado (−55,1%) e
-# TRAVA em 3 de 12 seeds held-out. Era ela que o projetor mostraria perdendo.
+# A política do agente A6 na REDE ABERTA, afinada: o `v1_queue_di5` (ep160) com
+# mais 80 episódios na mesma receita (recompensa `queue`, di5/vm7/am3, ε 0,05).
+# Treino e seleção fora do repo, em `Documents/ic/pesquisa-rl-2026-09-14/`; a
+# escolha foi feita em seeds de validação (230-233 e 42-47), não na held-out.
 #
-# Held-out, 12 seeds, janela de 7200 s, contra `coordenado_c60`: +0,35% de vazão,
-# +13,73% de tempo no sistema, +40,71% de fila — 12/12 na trinca inteira.
-# Reproduzido fora da bancada do A6 na seed 100 (+0,27 / +13,49 / +40,62).
-CKPT_PADRAO = _RAIZ_REPO / "results" / "rl" / "v1_queue_di5.pt"
+# Held-out, 12 seeds, na condição da rodada (t0=300, 120 s, 3500 veh/h): 126,5
+# carros entregues contra 124,1 do `v1_queue_di5` (+2,42 ± 1,15; vence 10/12) e
+# 112,5 do timer de 27 s (+14,00 ± 1,09; 12/12). Janela de 3600 s, seeds 100-105:
+# 135,7 s no sistema a 3800 veh/h e 139,3 s a 4000 (o v1: 158,5 e 155,2 s), sem
+# perder o controle em nenhuma seed — o v1 chega a fila 135 na seed 101 a 3800.
+# Gate de 7200 s, 12 seeds, contra `coordenado_c60`: +0,43% de vazão, +16,67% de
+# tempo no sistema, +46,86% de fila — 12/12 na trinca inteira, sem travamento
+# (`results/rl/heldout_v1_queue_di5_ft80.json`).
+#
+# A anterior segue em `results/rl/v1_queue_di5.pt`, com o gate completo (7200 s,
+# 12 seeds, contra `coordenado_c60`: +0,35% de vazão, +13,73% de tempo no
+# sistema, +40,71% de fila — 12/12 na trinca). A da rede fechada
+# (`maq30_ats_full_best.pt`) não serve aqui: entrega 3140,8 contra 7001 do plano
+# coordenado (−55,1%) e TRAVA em 3 de 12 seeds held-out.
+CKPT_PADRAO = _RAIZ_REPO / "results" / "rl" / "v1_queue_di5_ft80.pt"
 
 
 class ColetorDeSerie:

@@ -1,0 +1,45 @@
+{
+ "versao": 2,
+ "dia": "2026-09-14",
+ "marcas": [
+  {
+   "entregues": 92,
+   "seed": 101,
+   "venceu": false,
+   "rl": 128,
+   "timer": 109,
+   "quando": 1789425522.2587497,
+   "nome": "",
+   "rodada": 2,
+   "teste": false,
+   "removida": false,
+   "ordem": 1
+  },
+  {
+   "entregues": 85,
+   "seed": 102,
+   "venceu": false,
+   "rl": 119,
+   "timer": 112,
+   "quando": 1789426305.2016327,
+   "nome": "",
+   "rodada": 3,
+   "teste": false,
+   "removida": false,
+   "ordem": 2
+  },
+  {
+   "entregues": 87,
+   "seed": 101,
+   "venceu": false,
+   "rl": 128,
+   "timer": 109,
+   "quando": 1789439915.1108887,
+   "nome": "LUC",
+   "rodada": 2,
+   "teste": false,
+   "removida": false,
+   "ordem": 3
+  }
+ ]
+}

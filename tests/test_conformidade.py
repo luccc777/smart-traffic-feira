@@ -91,6 +91,31 @@ def _botoeira():
     return SerialInput(porta_falsa())
 
 
+def _web():
+    """`FonteWeb` alimentada por um roteiro de mensagens da página, um por `poll`."""
+    from feira.entrada import FonteWeb
+
+    class _WebRoteirizada(FonteWeb):
+        def __init__(self):
+            super().__init__(12)
+            self._roteiro = [[{"tipo": "botao", "i": 0}, {"tipo": "botao", "i": 3}],
+                             [], [{"tipo": "start"}]]
+
+        def poll(self):
+            if self._roteiro:
+                for m in self._roteiro.pop(0):
+                    self.recebe(m)
+            return super().poll()
+
+    return _WebRoteirizada()
+
+
+def _composta():
+    from feira.entrada import FonteComposta, TecladoInput
+    from feira.entrada.teclado import LeitorRoteirizado
+    return FonteComposta(_replay(), TecladoInput(12, leitor=LeitorRoteirizado([])))
+
+
 def _gerador_aberto():
     from feira.demanda import GeradorDemandaAberta
     return GeradorDemandaAberta()
@@ -195,6 +220,8 @@ IMPLS_ENTRADA = [
     pytest.param(_teclado, id="teclado"),
     pytest.param(_replay, id="replay"),
     pytest.param(_botoeira, id="botoeira"),
+    pytest.param(_web, id="web"),
+    pytest.param(_composta, id="composta"),
 ]
 
 

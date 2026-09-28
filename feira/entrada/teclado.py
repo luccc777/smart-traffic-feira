@@ -31,11 +31,13 @@ from typing import Callable
 
 from ..contratos import EventoBotao, valida_estados
 
-__all__ = ["TecladoInput", "LeitorRoteirizado", "MAPA_TECLAS", "TECLA_START", "linhas_do_mapa"]
+__all__ = ["TecladoInput", "LeitorRoteirizado", "MAPA_TECLAS", "TECLA_START", "TECLA_ABORTAR",
+           "linhas_do_mapa"]
 
 # Ordem row-major: índice do botão = índice do semáforo na rede aberta.
 LINHAS_TECLAS = ("qwer", "asdf", "zxcv")
 TECLA_START = " "
+TECLA_ABORTAR = "\x1b"          # Esc: só o operador (ver `TecladoInput.ao_abortar`)
 MAPA_TECLAS: dict[str, int] = {
     t: linha * 4 + col
     for linha, teclas in enumerate(LINHAS_TECLAS)
@@ -116,6 +118,11 @@ class TecladoInput:
         # quem acende é a projeção (agente A7), que lê isto.
         self.estados: list[str] = ["off"] * self.n_botoes
         self.n_desconhecidas = 0
+        # `Esc` = o operador pede para abortar (docs/GAMIFICACAO.md §2.5). Não vira
+        # evento do C6 — o contrato não conhece "abortar" —, vai direto a quem o
+        # motor pendurar aqui. Sem ninguém pendurado, a tecla é ignorada.
+        self.ao_abortar: Callable[[], None] | None = None
+        self.n_abortos = 0
 
     # -------------------------------------------------------------- C6
     def poll(self) -> list[EventoBotao]:
@@ -125,6 +132,14 @@ class TecladoInput:
         for ch in self._leitor():
             if ch == TECLA_START or ch == "\r" or ch == "\n":
                 eventos.append(EventoBotao(indice=-1))
+                continue
+            if ch == TECLA_ABORTAR:
+                self.n_abortos += 1
+                if self.ao_abortar is not None:
+                    try:
+                        self.ao_abortar()
+                    except Exception:
+                        pass
                 continue
             i = self._mapa.get(ch.lower())
             if i is None:

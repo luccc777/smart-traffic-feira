@@ -1,11 +1,17 @@
 // paint.js — o PINTOR do mapa da projeção da feira.
 //
 // PORTADO de `smart-traffic-maquete/dashboard/frontend/projecao/js/paint.js`
-// (commit `18ea6dd`). A linguagem visual é de lá e os motivos dela também: fundo preto
-// (projetor soma luz e nunca subtrai), acúmulo em duas dimensões (cor = gravidade,
-// comprimento = quanto da via já foi tomada), anel de pressão por cruzamento, carro
-// colorido pela velocidade, zero `shadowBlur` (halos pré-renderizados + bloom por
-// segundo traço).
+// (commit `18ea6dd`). De lá vêm o fundo preto (projetor soma luz e nunca subtrai), o
+// acúmulo em duas dimensões (cor = gravidade, comprimento = quanto da via já foi
+// tomada) e o carro colorido pela velocidade.
+//
+// O QUE NÃO VEIO JUNTO: o ESPALHAMENTO. A projeção do maquete desenha calor com halo
+// — bloom de 1,75x a largura da via na fila, disco em volta de cada farol, anel de
+// pressão por cruzamento, halo por carro parado. Lá isso se defende: o alvo é um
+// painel de 300 lm e o que espalha luz é o que sobrevive ao ambiente. Aqui os quatro
+// se SOMAVAM, e a malha lia como lente suja em vez de trânsito. A regra desta tela é
+// TODA LUZ É CONTIDA — nada é aceso fora do asfalto, e o que precisa se separar do
+// fundo se separa por BORDA escura, não por brilho.
 //
 // O QUE MUDOU NESTE REPO, E POR QUÊ
 // ---------------------------------
@@ -13,24 +19,18 @@
 //    chutava `foot = 1,7 x comprimento`. O `/api/rede` daqui exporta `minGap`, e a
 //    pegada passou a ser `length + minGap` — o número que o SUMO de fato reserva.
 //
-// 2. O SPRITE DO CARRO FOI RE-RESOLVIDO (ver docs/PROJECAO.md §3). A regra do maquete
-//    era `D = max(7, laneW·s·1,15)` e `L = D·2,9`. Nesta rede ela produz um sprite
-//    DUAS VEZES mais comprido que a pegada — e aí a condição `footPx > L·1,15` que
-//    manda desenhar a pegada nunca dispara, a pegada some, e carros parados passam a
-//    se sobrepor: a fila vira um borrão que não dá para contar. A regra aqui é:
+// 2. O SPRITE DO CARRO NÃO É O DO MAQUETE (ver docs/PROJECAO.md §3.3). A regra de lá
+//    (`D = max(7 px, laneW·s·1,15)`, `L = D·2,9`) produz nesta rede um sprite 2,5x
+//    mais comprido que a pegada — e o efeito na tela é direto: em qualquer fila os
+//    carros parados montam uns nos outros. Aqui o desenho NUNCA passa do espaço que o
+//    modelo reserva, e ainda deixa ~1 px de costura entre um carro e o próximo:
 //
-//        extensão longitudinal desenhada  ==  PEGADA (length + minGap), sempre
-//        corpo sólido                     =   min(comprimento·mult, pegada)
-//        resto da pegada                  =   rastro translúcido atrás (o da herança)
-//        largura                          =   min(largura·mult, corpo·0,72)
+//        corpo   = min(comprimento·mult, pegada·0,88)
+//        largura = min(largura·mult,     corpo·0,60)
 //
-//    Ou seja: o comprimento NUNCA é exagerado além do espaço que o modelo reserva, e
-//    a largura é exagerada pelo MESMO fator com que a via já é exagerada (`mult`) — a
-//    razão carro/faixa desenhada fica em 0,37, abaixo dos 0,44 reais, então o carro
-//    também não invade lateralmente. É a mesma propriedade da herança ("sprite grande
-//    + pegada verdadeira continua honesto"), só que válida nos DOIS sentidos da
-//    desigualdade: ela conserta o sprite curto demais, esta versão conserta também o
-//    comprido demais.
+//    O carro individual fica pequeno (7,1 x 4,2 px a 1080p) porque a rede é grande —
+//    e é para ficar. Quem carrega a leitura de longe é a BANDA DE ACÚMULO, cujo
+//    comprimento sai do `reach` físico, e o placar.
 //
 // 3. JUNÇÃO MAIS CLARA (`#708095`). O `#637183` media 1,37 contra a via na mesa de
 //    1,30 m do maquete; na imagem de 1,82 m da feira o mesmo par cai para 1,26 —
@@ -48,6 +48,12 @@ export const COL = {
   dash: 'rgba(156,188,223,.55)',
   green: '#2bea88', yellow: '#ffd23d', red: '#ff5245', off: '#55637a',
   sigCore: 'rgba(255,255,255,.92)',
+  // A moldura escura do farol. Ela é o que substituiu o halo: a barra do farol cai em
+  // cima da banda de acúmulo, e `farol vermelho sobre a banda` mede 1,12 de contraste
+  // (§4) — ou seja, some. Um traço quase-preto mais largo por baixo devolve a leitura
+  // por BORDA local, sem acender um pixel a mais. Não é cor de informação: é vedação,
+  // e por isso não entra na auditoria de paleta.
+  sigEdge: 'rgba(3,7,13,.88)',
   // Os três estados do carro são todos CLAROS, separados por TEMPERATURA de cor. O
   // carro parado fica EM CIMA da fila incandescente: escurecê-lo o dissolve justo
   // onde ele importa. Vermelho, nesta tela, só quer dizer farol fechado.
@@ -59,11 +65,21 @@ export const COL = {
 // Rampa do acúmulo, em dois canais: IDENTIDADE no matiz (âmbar -> vermelho) e
 // GRAVIDADE no núcleo incandescente. Vermelho saturado tem luminância baixa por
 // construção, então "mais vermelho" seria "mais escuro" e a rampa ficaria plana.
+//
+// AS ALFAS BAIXARAM (era 0,30 .. 0,95). A 0,95 a banda saturada é um TIJOLO VERMELHO
+// OPACO: ela apaga o asfalto embaixo, some com a marcação da faixa, e passa a disputar
+// no olho com a barra do farol fechado, que é o outro vermelho da tela — e é o que
+// mais importa ler. A 0,80 a banda é uma LAVAGEM: a via continua aparecendo por baixo,
+// o farol continua sendo o único vermelho SÓLIDO, e a escada de gravidade não muda de
+// forma (0,34 -> 0,80 é a mesma progressão, um degrau mais baixa).
+//
+// Elas espelham `RAMPA` em `scripts/projecao_contraste.py`: mudou aqui, muda lá, e o
+// auditor mede a banda que a tela de fato desenha.
 const RAMP = [
-  [0.00, [224, 137, 26], 0.30],
-  [0.33, [255, 122, 26], 0.55],
-  [0.67, [255, 84, 36], 0.80],
-  [1.00, [255, 47, 58], 0.95],
+  [0.00, [224, 137, 26], 0.34],
+  [0.33, [255, 122, 26], 0.50],
+  [0.67, [255, 84, 36], 0.66],
+  [1.00, [255, 47, 58], 0.80],
 ];
 
 function _ramp(t, idx) {
@@ -87,6 +103,8 @@ export function heatAlpha(t) { return _ramp(t, 2); }
 
 const CORE_ON = 0.30;
 export const CORE_RGB = [255, 220, 172];
+// alfa do núcleo no topo da rampa — espelha `NUCLEO_A` do auditor
+export const CORE_A = 0.46;
 export function coreK(u) { return u <= CORE_ON ? 0 : (u - CORE_ON) / (1 - CORE_ON); }
 
 const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(3)})`;
@@ -94,39 +112,27 @@ const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(3)})`;
 // Fila (carros parados numa aproximação) que satura a rampa.
 export const Q_JAM = 5;
 
+// Quanto de APROXIMAÇÃO fica no quadro além do semáforo mais externo, em metros de
+// mundo. Ver o bloco ENQUADRAMENTO no construtor do Board: 12 m são ~14 vagas de fila,
+// quase o triplo do `Q_JAM` que já satura a rampa.
+export const MARGEM_M = 12;
+
 // Velocidade de fluxo livre para normalizar a cor do carro. NA REDE ABERTA DA FEIRA
 // tudo está em SIMILITUDE K=6: a secundária de 40 km/h vira 11,11/6 = 1,852 m/s. Herdar
 // os 11,11 do maquete classificaria a frota inteira como "parada" e a tela ficaria de
 // uma cor só — por isso o valor sai do `/api/rede`, não de constante.
 const V_FREE_PADRAO = 1.852;
 
-// --- halos pré-renderizados (drawImage é ~10x mais barato que shadowBlur) --------
-const _glow = new Map();
-function glowSprite(hex, px) {
-  const key = hex + '@' + px;
-  let c = _glow.get(key);
-  if (c) return c;
-  c = document.createElement('canvas');
-  c.width = c.height = px;
-  const g = c.getContext('2d');
-  const r = px / 2;
-  const grad = g.createRadialGradient(r, r, 0, r, r, r);
-  grad.addColorStop(0.00, hex);
-  grad.addColorStop(0.28, hex);
-  grad.addColorStop(1.00, 'rgba(0,0,0,0)');
-  g.fillStyle = grad;
-  g.globalAlpha = 0.55;
-  g.beginPath(); g.arc(r, r, r, 0, 6.2832); g.fill();
-  _glow.set(key, c);
-  return c;
-}
-
-function blitGlow(ctx, hex, x, y, radius, alpha) {
-  const s = glowSprite(hex, 64);
-  ctx.globalAlpha = alpha;
-  ctx.drawImage(s, x - radius, y - radius, radius * 2, radius * 2);
-  ctx.globalAlpha = 1;
-}
+// NÃO EXISTE MAIS UM `blitGlow` NESTE ARQUIVO, e por isso não existe mais o cache de
+// sprites de halo que ele exigia. O que os quatro halos custavam, em números: 48 bolas
+// coloridas de 36 px nas linhas de parada (12 cruzamentos x 4 aproximações), 12 discos
+// nos cruzamentos, um disco por carro PARADO — e carro parado anda em fila, então eles
+// se somavam até a fila inteira virar névoa — e um bloom de 1,75x a largura da via
+// vazando para fora do asfalto em toda aproximação carregada.
+//
+// Borda custa um stroke, sobrevive à mesma distância que o halo, e é o único recurso
+// que um projetor tem de verdade: ele soma luz e nunca subtrai, então o preto é o
+// único valor garantidamente abaixo de qualquer coisa desenhada em cima dele.
 
 function poly(ctx, T, pts) {
   ctx.beginPath();
@@ -148,18 +154,11 @@ function rrect(ctx, x, y, w, h, r) {
 }
 
 // ---------------------------------------------------------------- sprite ----
-// PISO ANTI-SUMIÇO, e só isso. A regra do sprite é "a extensão longitudinal desenhada
-// É a pegada do SUMO" — sem exceção negociável. Este piso de 3 px existe apenas para o
-// carro não desaparecer numa janela minúscula (uma prévia de 400 px, um monitor
-// secundário), e quando ele morde `Board.spriteExcede` fica true e a régua de bancada
-// (tecla I) denuncia por quanto.
-//
-// NÃO existe piso de LEGIBILIDADE aqui de propósito. Na montagem da feira a pegada de
-// um carro mede ~6,1 px = 5,8 mm = 9,9' de arco a 2 m — está no limite do que se
-// resolve individualmente, e esticar o sprite para "resolver" isso não resolveria: só
-// faria os carros parados se sobreporem e a fila virar um borrão de comprimento certo
-// e densidade errada. A leitura de longe é a BANDA da fila e o PLACAR; o carro
-// individual é para quem chega perto. Ver docs/PROJECAO.md §3.
+// O ÚNICO piso desta tela, e ele é anti-sumiço, não de legibilidade: 3 px de corpo
+// para o carro não desaparecer numa janela minúscula. Não existe piso de LEGIBILIDADE
+// de propósito — esticar o sprite para o carro "aparecer" é exatamente o que faz os
+// carros parados se sobreporem, e uma fila de comprimento certo com densidade errada
+// mente sobre a única coisa que este mapa existe para mostrar. Ver `_medeSprite`.
 const PISO_PX = 3;
 
 // ============================================================================
@@ -223,6 +222,43 @@ export class Board {
     for (const j of net.junctions) eat(j.shape);
     this.bbox = bb;
 
+    // ================== ENQUADRAMENTO: a rede não é o quadro ==================
+    // A rede aberta mede 153,3 × 90 m, mas os 12 semáforos ocupam 103,3 × 40 m. Os
+    // 25 m que sobram em CADA UM dos quatro lados são as pontas de entrada e saída —
+    // rua por onde o carro chega e some, e que fica vazia quase o tempo todo.
+    //
+    // Enquadrar pela rede inteira custava caro, e custava no lugar errado: o quadro
+    // ficava 1,70:1 numa tela de 2,25:1, encaixava pela ALTURA, e 55% dessa altura era
+    // ponta vazia. Tudo o que é informação — via, carro, fila, farol — era desenhado na
+    // escala que sobrava: 9,2 px/m, com o carro em 7,1 × 4,7 px.
+    //
+    // O quadro agora é o MIOLO + `MARGEM_M` de aproximação. Em 12 m cabem ~14 vagas de
+    // fila em cada entrada, quase o triplo do `Q_JAM`: uma fila que estoure isso já
+    // saturou a rampa há muito tempo e está gritando em vermelho dentro do quadro. O
+    // que se perde é ver o carro nos últimos metros antes de sumir — e ele some no
+    // enquadramento, não na simulação: nada aqui toca no que o SUMO calcula.
+    //
+    // O que se ganha: o quadro vira 2,0:1, a escala sobe ~44%, e via, carro e fila
+    // sobem junto. É a única alavanca de tamanho que ainda existia — a tarja já foi de
+    // 388 px para 226, e o exagero da via já está no ponto em que o carro cabe na
+    // faixa na proporção real (ver `_multPara`).
+    const tls = net.junctions.filter(j => j.type === 'traffic_light');
+    const eq = { xmin: bb.xmin, ymin: bb.ymin, xmax: bb.xmax, ymax: bb.ymax };
+    if (tls.length) {
+      const xs = tls.map(j => j.center[0]), ys = tls.map(j => j.center[1]);
+      // nunca mostra MAIS do que existe: o recorte só pode apertar
+      eq.xmin = Math.max(bb.xmin, Math.min(...xs) - MARGEM_M);
+      eq.xmax = Math.min(bb.xmax, Math.max(...xs) + MARGEM_M);
+      eq.ymin = Math.max(bb.ymin, Math.min(...ys) - MARGEM_M);
+      eq.ymax = Math.min(bb.ymax, Math.max(...ys) + MARGEM_M);
+    }
+    this.enquadre = eq;
+    // quanto de ponta ficou de fora, em metros — a régua de bancada publica
+    this.cortado = {
+      esq: eq.xmin - bb.xmin, dir: bb.xmax - eq.xmax,
+      baixo: eq.ymin - bb.ymin, cima: bb.ymax - eq.ymax,
+    };
+
     this.ema = Object.create(null);
     for (const eid in this.lanesOfEdge) this.ema[eid] = 0;
 
@@ -237,7 +273,7 @@ export class Board {
 
   layout(rect, view = { zoom: 1, panX: 0, panY: 0 }) {
     this.rect = rect;
-    const b = this.bbox;
+    const b = this.enquadre || this.bbox;
     const bw0 = Math.max(1e-6, b.xmax - b.xmin), bh0 = Math.max(1e-6, b.ymax - b.ymin);
     const mult = this._multPara(Math.min(rect.w / bw0, rect.h / bh0));
     this.mult = mult;
@@ -254,40 +290,85 @@ export class Board {
     return this.T;
   }
 
-  // Exagero transversal da via. Piso em PIXELS para a via nunca virar um fio de cabelo.
+  // Exagero transversal da via: quanto a pista é desenhada mais larga do que é, para
+  // não virar um fio de cabelo num projetor. O alvo era 15 px de faixa desenhada, e
+  // ele foi para 11,5.
+  //
+  // POR QUE BAIXAR. O exagero da via é lateral e livre; o do CARRO não é — o
+  // comprimento dele está preso à pegada do SUMO (`_medeSprite`), senão carro parado
+  // monta em carro parado. Com a via a 15 px e o carro a 7 x 4, o carro ocupava 0,28
+  // da faixa desenhada contra 0,42 na realidade: a pista parecia larga demais e o
+  // trânsito, ralo. Não era o carro que estava pequeno, era a rua que estava grande.
+  // A 11,5 px a razão volta para ~0,41 — a proporção real — sem tocar no sprite.
+  //
+  // 11,5 px = 10,9 mm no chão = 19' de arco a 2 m: continua sendo uma rua, com folga.
   _multPara(s) {
     const px = this.laneW * s;
-    return px > 0 ? Math.max(2.15, Math.min(4.5, 15 / px)) : 2.15;
+    return px > 0 ? Math.max(2.0, Math.min(4.5, 11.5 / px)) : 2.0;
   }
 
   laneMult() { return this.mult || 2.15; }
 
   // ------------------------------------------------------------------ sprite
-  // A regra do cabeçalho, resolvida uma vez por layout. Tudo em px de tela.
+  // A REGRA, resolvida uma vez por layout. Tudo em px de tela.
+  //
+  //     corpo   = min(comprimento · mult,  pegada · 0,88)
+  //     largura = min(largura     · mult,  corpo  · 0,60)
+  //
+  // A PRIMEIRA LINHA É A REGRA INTEIRA: o carro desenhado NUNCA passa do espaço que o
+  // modelo reserva para ele. Consequência direta e visível — carro parado não se
+  // sobrepõe a carro parado, nunca, em escala nenhuma. Uma fila desenhada tem o mesmo
+  // comprimento E a mesma contagem que a fila simulada, e dá para contar os carros.
+  //
+  // O 0,88 é a costura. Com `corpo = pegada` cheia os carros parados se ENCOSTAM, e
+  // uma fila carregada vira uma barra clara contínua em que não se distingue um
+  // veículo do seguinte — tecnicamente não é sobreposição, visualmente é o mesmo
+  // defeito. Os 12% que sobram são ~1 px de preto entre um carro e o próximo: é o
+  // menor vão que ainda se lê, e é o que faz a fila PARECER uma fila de carros.
+  // (O modelo reserva 33% de vão: `minGap`/pegada = 0,292/0,875. O desenho usa 12%
+  // porque abaixo disso o carro fica menor que a costura; ele exagera o veículo dentro
+  // do próprio slot, nunca para fora dele.)
+  //
+  // O 0,66 na largura é ASPECTO, não espaço: com o comprimento preso à pegada, deixar
+  // a largura ir até `vehW·s·mult` produziria um sprite quase QUADRADO, e quadrado não
+  // lê como carro. O teto de 0,66 do corpo segura a silhueta em ~1,5:1.
+  //
+  // Quem faz o carro CABER na faixa como carro é o exagero da VIA, não o dele: ver
+  // `_multPara`. Com a faixa desenhada a 11,5 px, este sprite ocupa ~0,41 da largura
+  // dela — a proporção real (0,42). Antes a faixa ia a 15 px e a razão caía para 0,28:
+  // o carro parecia pequeno porque a rua estava grande.
+  //
+  // ESTA SEÇÃO JÁ DISSE O CONTRÁRIO. A regra da projeção do maquete
+  // (`D = max(7 px, laneW·s·1,15)`, `L = D·2,9`) foi adotada aqui para consertar um
+  // carro que media 6,3 × 4,6 px — e consertou, entregando 20,3 × 7,0. O preço era
+  // 2,5 carros desenhados por vaga: em qualquer fila os sprites montavam uns nos
+  // outros. Um mapa que mostra trânsito não pode desenhar o trânsito errado para o
+  // carro ficar bonito. O carro individual é pequeno porque a rede é grande; quem
+  // carrega a leitura de longe é a BANDA DE ACÚMULO e o placar (ver docs/PROJECAO.md
+  // §3.4).
   _medeSprite() {
     const s = this.T ? this.T.s : 1, mult = this.laneMult();
-    const footPx = this.foot * s;                      // o teto: a pegada do SUMO
-    const corpoIdeal = this.vehLen * s * mult;
-    let corpo = Math.min(corpoIdeal, footPx);
+    const footPx = this.foot * s;                      // a pegada do SUMO
+    let corpo = Math.min(this.vehLen * s * mult, footPx * 0.88);
+    // PISO ANTI-SUMIÇO, e só isso: o carro não pode desaparecer numa janela minúscula
+    // (uma prévia de 400 px, um monitor secundário). Quando ele morde, `spriteExcede`
+    // fica true e a régua de bancada (tecla I) denuncia por quanto. Nas resoluções de
+    // feira (720p e 1080p) ele NÃO morde.
     this.spriteExcede = corpo < PISO_PX;
-    if (this.spriteExcede) corpo = PISO_PX;           // piso anti-sumiço (denunciado)
-    // Largura: exagerada pelo MESMO fator com que a via já é exagerada (`mult`), e
-    // limitada a 0,72 do corpo para o sprite continuar lendo como veículo e não como
-    // ponto. Nesta rede o limite de aspecto é quem manda, e o resultado é uma cápsula
-    // de ~1,4:1 — mais curta que o carro real (2,5:1), mas ainda alongada.
-    const largura = Math.max(PISO_PX, Math.min(this.vehW * s * mult, corpo * 0.72));
+    if (this.spriteExcede) corpo = PISO_PX;
+    const largura = Math.min(this.vehW * s * mult, corpo * 0.66);
     this.sprite = {
       s, mult, corpo, largura,
-      pegada: Math.max(footPx, corpo),                 // extensão longitudinal desenhada
-      rastro: Math.max(0, Math.max(footPx, corpo) - corpo),
+      pegada: Math.max(footPx, corpo),
+      rastro: Math.max(0, footPx - corpo),
       realC: this.vehLen * s, realL: this.vehW * s, footPx,
-      // os fatores que o documento cobra: exagero medido, não declarado
       exageroC: corpo / Math.max(1e-9, this.vehLen * s),
       exageroL: largura / Math.max(1e-9, this.vehW * s),
-      excede: this.spriteExcede ? corpo / Math.max(1e-9, footPx) : 1,
+      excede: corpo / Math.max(1e-9, footPx),
     };
     return this.sprite;
   }
+
 
   // ------------------------------------------------------------------ asfalto
   // Estático: quem chama desenha isto UMA vez num canvas fora de tela.
@@ -297,21 +378,39 @@ export class Board {
     const w = this.laneW * T.s * mult;
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
+    // SEM ACOSTAMENTO. Eu tinha posto um traço quase-preto mais largo por baixo do
+    // leito, copiando o dashboard (que tem fundo #1c1f26). Aqui o fundo é preto, e a
+    // projeção do maquete já tinha tentado e desfeito isso: escuro sobre preto não
+    // existe (mediu 1,4 de contraste). Quem descola a via do fundo é a própria via.
+    // CADA FAIXA É UMA FITA, com um fio de preto entre elas. Traçando cada faixa na
+    // largura cheia elas se encostam e a avenida vira UMA LAJE lisa de 60 px, em que
+    // não dá para ver quantas pistas existem nem onde acaba um sentido e começa o
+    // outro. A 8% de folga o vão dá ~1,2 px: não é buraco, é a marcação — e ela
+    // funciona por BORDA (preto entre dois claros), que é o que um projetor entrega.
     ctx.strokeStyle = COL.road;
-    ctx.lineWidth = w;
+    ctx.lineWidth = w * 0.92;
     for (const ln of this.lanes) { poly(ctx, T, ln.shape); ctx.stroke(); }
 
+    // A junção fecha a costura das pontas de faixa por cima.
     ctx.fillStyle = COL.junction;
     for (const j of this.net.junctions) {
       if (j.shape.length >= 3) { poly(ctx, T, j.shape); ctx.closePath(); ctx.fill(); }
     }
 
+    // Tracejado do eixo de cada faixa. O PASSO é proporcional à faixa DESENHADA, não
+    // a metros de mundo. Com o passo em metros ele dava traço de 6,7 px com vão de
+    // 4,9 px dentro de uma faixa de 15 px: quatro pontilhados por avenida, tão densos
+    // que a via inteira lia como textura tremida em vez de asfalto. A marcação tem de
+    // ser ESPARSA para ser marcação — o que se lê de longe é a direção, não o traço.
+    ctx.globalAlpha = 0.62;
     ctx.strokeStyle = COL.dash;
-    ctx.lineWidth = Math.max(1.2, T.s * 0.035 * mult);
-    ctx.setLineDash([Math.max(4, T.s * 0.75 * mult), Math.max(3, T.s * 0.55 * mult)]);
+    ctx.lineWidth = Math.max(1, Math.min(2, w * 0.065));
+    ctx.setLineDash([w * 0.9, w * 1.3]);
     for (const ln of this.lanes) { poly(ctx, T, ln.shape); ctx.stroke(); }
     ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
   }
+
 
   // ------------------------------------------------------- camada por quadro
   paint(ctx, snap, nowMs, dt, opts = {}) {
@@ -319,7 +418,7 @@ export class Board {
     const { heat = true, signals = true, cars = true, footprint = true,
             verdade = false } = opts;
     this._advanceHeat(snap.heat, dt);
-    if (heat) { this._paintHeat(ctx, nowMs); this._paintPressure(ctx, nowMs); }
+    if (heat) this._paintHeat(ctx, nowMs);
     if (signals) this._paintSignals(ctx, snap.tls || {});
     if (cars) this._paintCars(ctx, snap.vehicles || [], footprint, verdade);
   }
@@ -341,6 +440,19 @@ export class Board {
     for (const e in this.ema) this.ema[e] += ((q[e] || 0) - this.ema[e]) * a;
   }
 
+  // ------------------------------------------------------- acúmulo (a fila)
+  // UMA BANDA DENTRO DA VIA, COM BORDA. Antes eram dois traços: um "bloom" de 1,75x a
+  // largura da faixa a 30% de alfa, e a banda por cima. O bloom é o que vazava para
+  // fora do asfalto — cada aproximação carregada virava uma mancha laranja maior que a
+  // própria rua, e doze cruzamentos viravam doze borrões. Num projetor fraco isso se
+  // defendia como "calor"; numa imagem nítida é sujeira, e era a primeira coisa que se
+  // via na tela.
+  //
+  // A banda agora é SÓLIDA e termina onde a fila termina. Quem carrega a informação é
+  // a BORDA DE ATAQUE dela: um degrau visível que anda para trás enquanto a fila
+  // cresce e volta quando o verde abre. Borda dura se acompanha a três metros;
+  // degradê que morre devagar, não. O alcance continua sendo o físico (`reach`), então
+  // o que mudou é como a banda é pintada, não o que ela mede.
   _paintHeat(ctx, nowMs) {
     const T = this.T, mult = this.laneMult();
     const w = this.laneW * T.s * mult;
@@ -351,35 +463,61 @@ export class Board {
       const lanes = this.lanesOfEdge[eid];
       const u = Math.min(q / Q_JAM, 1);
       const c = heatRGB(u);
-      const puls = u > 0.72 ? 1 + 0.18 * Math.sin(nowMs / 290) : 1;
-      const aMax = Math.min(0.98, heatAlpha(u) * puls);
+      // Pulso só na saturação, e de 4% em alfa. O de 18% em LARGURA fazia a mancha
+      // respirar de tamanho, que num projetor a 2 m lê como tremor de foco.
+      const puls = u > 0.85 ? 1 + 0.04 * Math.sin(nowMs / 300) : 1;
       const k = coreK(u);
       for (const ln of lanes) {
         const sh = ln.shape, n = sh.length;
         const hx = T.X(sh[n - 1][0]), hy = T.Y(sh[n - 1][1]);
         const cx = T.X(sh[0][0]), cy = T.Y(sh[0][1]);
-        // alcance FÍSICO da fila: (parados / nº de faixas) × pegada / comprimento.
-        // Com a pegada exata (length + minGap) este número deixou de ser estimativa.
-        const reach = Math.max(0.14, Math.min(1,
+        // Alcance FÍSICO da fila: (parados / nº de faixas) × pegada / comprimento da
+        // faixa. Com a pegada exata (`length + minGap`) isto não é estimativa: é o
+        // pedaço da via que os carros parados de fato ocupam.
+        //
+        // O PISO É UMA VAGA, não uma fração da via. Ele era 10% do comprimento da
+        // faixa — o que, numa quadra de 25 m, pintava 30 px de banda para UM carro
+        // parado de 8 px. Enquanto o sprite era 2,5x maior que a vaga isso passava
+        // despercebido; com o carro no tamanho certo a banda passou a desmentir os
+        // carros que estão dentro dela. Uma vaga é o menor alcance que existe: abaixo
+        // disso não há fila.
+        const umaVaga = this.foot / this.lenOf[ln.id];
+        const reach = Math.min(1, Math.max(umaVaga,
           (q / lanes.length) * this.foot / this.lenOf[ln.id]));
+        // A BANDA COMEÇA ATRÁS DO FAROL, não em cima dele. A barra do farol fica na
+        // linha de parada, e a fila nasce exatamente ali — os dois se encostavam, e
+        // como a rampa termina em vermelho, farol fechado + fila saturada viravam uma
+        // mancha vermelha só. Recuar a banda por uma largura de barra devolve a cada
+        // um o seu território: o farol é dono da linha de parada, a fila é dona da via
+        // atrás dela. Não se perde informação — o primeiro carro parado continua
+        // desenhado ali, e ele é quem ocupa esse pedaço.
+        const lanePx = Math.max(1, Math.hypot(cx - hx, cy - hy));
+        const d0 = Math.min(0.30, (w * 0.42) / lanePx);
+        const fim = Math.min(0.999, d0 + reach);
         const faixa = (cor, alpha) => {
           const g = ctx.createLinearGradient(hx, hy, cx, cy);
-          g.addColorStop(0, rgba(cor, alpha));
-          g.addColorStop(Math.max(0.001, reach * 0.62), rgba(cor, alpha * 0.72));
-          g.addColorStop(Math.min(0.999, reach), rgba(cor, 0));
+          g.addColorStop(0, rgba(cor, 0));
+          g.addColorStop(d0, rgba(cor, 0));
+          g.addColorStop(Math.min(fim, d0 + 0.002), rgba(cor, alpha));
+          // 88% do alcance em cheio; os 12% finais são o degrau da borda de ataque —
+          // é ele que se acompanha de longe quando a fila cresce e quando ela escoa
+          g.addColorStop(Math.max(d0 + 0.003, d0 + reach * 0.88), rgba(cor, alpha));
+          g.addColorStop(fim, rgba(cor, 0));
           g.addColorStop(1, rgba(cor, 0));
           return g;
         };
-        ctx.strokeStyle = faixa(c, aMax);
-        ctx.lineWidth = w * 1.75;
-        ctx.globalAlpha = 0.30;
+        // 0,88 da faixa: a banda fica DENTRO do asfalto, com um fio de via de cada
+        // lado. É esse fio que diz que a mancha está numa rua.
+        // `heatAlpha` e não uma fórmula local: é ela que o auditor de contraste mede.
+        ctx.strokeStyle = faixa(c, Math.min(0.86, heatAlpha(u) * puls));
+        ctx.lineWidth = w * 0.88;
         poly(ctx, T, ln.shape); ctx.stroke();
-        ctx.globalAlpha = 1;
-        ctx.lineWidth = w * 0.92;
-        poly(ctx, T, ln.shape); ctx.stroke();
+        // O núcleo incandescente: onde mora a GRAVIDADE. Vermelho saturado tem
+        // luminância baixa por construção, então "mais vermelho" seria "mais escuro";
+        // o núcleo claro e estreito é o canal que faz pior TAMBÉM ser mais claro.
         if (k > 0.01) {
-          ctx.strokeStyle = faixa(CORE_RGB, Math.min(0.62, 0.55 * k * puls));
-          ctx.lineWidth = w * (0.20 + 0.16 * k);
+          ctx.strokeStyle = faixa(CORE_RGB, CORE_A * k);
+          ctx.lineWidth = w * (0.12 + 0.10 * k);
           poly(ctx, T, ln.shape); ctx.stroke();
         }
       }
@@ -387,36 +525,22 @@ export class Board {
     ctx.lineCap = 'round';
   }
 
-  _paintPressure(ctx, nowMs) {
-    const T = this.T, w = this.laneW * T.s * this.laneMult();
-    const acc = Object.create(null);
-    for (const eid in this.ema) {
-      const j = this.endJunctionOf[eid];
-      if (j) acc[j] = (acc[j] || 0) + this.ema[eid];
-    }
-    for (const j of this.tlJunctions) {
-      const q = acc[j.id] || 0;
-      if (q < 1.2) continue;
-      const u = Math.min(q / (Q_JAM * 2.2), 1);
-      const base = heatRGB(u), k = coreK(u);
-      const c = [Math.round(base[0] + (CORE_RGB[0] - base[0]) * k * 0.8),
-                 Math.round(base[1] + (CORE_RGB[1] - base[1]) * k * 0.8),
-                 Math.round(base[2] + (CORE_RGB[2] - base[2]) * k * 0.8)];
-      const x = T.X(j.center[0]), y = T.Y(j.center[1]);
-      const r = w * (0.75 + 0.75 * u);
-      const puls = u > 0.7 ? 1 + 0.12 * Math.sin(nowMs / 340) : 1;
-      blitGlow(ctx, `rgb(${c[0]},${c[1]},${c[2]})`, x, y, r * 1.7, 0.12 + 0.26 * u);
-      ctx.beginPath();
-      ctx.arc(x, y, r * puls, 0, 6.2832);
-      ctx.strokeStyle = rgba(c, 0.30 + 0.62 * u);
-      ctx.lineWidth = Math.max(1.6, w * (0.14 + 0.24 * u));
-      ctx.stroke();
-    }
-  }
 
+  // ------------------------------------------------------------------ faróis
+  // BARRA COM CONTORNO, SEM HALO. O halo (`blitGlow` de 1,2·w a 45%) existia para o
+  // farol "parecer um LED visto de longe" — e o preço era uma bola colorida de 36 px
+  // em cima de cada linha de parada, justamente onde a fila já está acesa. Doze
+  // cruzamentos × quatro aproximações = 48 bolas: era metade da sujeira da tela.
+  //
+  // O problema que o halo tentava resolver é real e está medido na §4: `farol vermelho
+  // sobre a banda` dá 1,12 de contraste, ou seja, some. A solução aqui é a que o
+  // projetor consegue de verdade — o preto, que é o único valor garantidamente abaixo
+  // de qualquer fundo. Um traço ESCURO mais largo por baixo separa a barra da banda por
+  // borda local, custa um stroke, e não acende nada.
   _paintSignals(ctx, tls) {
     const T = this.T, mult = this.laneMult();
     const w = this.laneW * T.s * mult;
+    ctx.lineCap = 'butt';
     for (const tl of this.net.tls) {
       const st = tls[tl.id];
       if (!st) continue;
@@ -431,31 +555,32 @@ export class Board {
         const x0 = T.X(lk.stopLine[0] + px * half), y0 = T.Y(lk.stopLine[1] + py * half);
         const x1 = T.X(lk.stopLine[0] - px * half), y1 = T.Y(lk.stopLine[1] - py * half);
         const cx = T.X(lk.stopLine[0]), cy = T.Y(lk.stopLine[1]);
-        blitGlow(ctx, col, cx, cy, w * 1.2, 0.45);
-        ctx.lineCap = 'round';
+        const barra = (lw, cor) => {
+          ctx.beginPath();
+          ctx.moveTo(x0, y0); ctx.lineTo(x1, y1);
+          ctx.lineWidth = lw; ctx.strokeStyle = cor; ctx.stroke();
+        };
+        barra(Math.max(5.5, w * 0.60), COL.sigEdge);     // a moldura escura
+        barra(Math.max(3.5, w * 0.40), col);             // a barra do estado
+        // NÚCLEO BRANCO no miolo: entrega a leitura por LUMINÂNCIA, que é o canal que
+        // sobrevive num projetor fraco, enquanto a cor em volta entrega o ESTADO.
         ctx.beginPath();
-        ctx.moveTo(x0, y0); ctx.lineTo(x1, y1);
-        ctx.lineWidth = Math.max(3.5, w * 0.46);
-        ctx.strokeStyle = col;
-        ctx.stroke();
-        // NÚCLEO BRANCO dentro da barra: o vermelho é a cor de menor luminância que
-        // existe e some sobre uma fila acesa (1,12 medido). O núcleo entrega a leitura
-        // por luminância; o halo colorido em volta continua entregando o ESTADO.
-        ctx.beginPath();
-        ctx.moveTo(x0 * 0.62 + cx * 0.38, y0 * 0.62 + cy * 0.38);
-        ctx.lineTo(x1 * 0.62 + cx * 0.38, y1 * 0.62 + cy * 0.38);
-        ctx.lineWidth = Math.max(1.4, w * 0.17);
+        ctx.moveTo(x0 * 0.66 + cx * 0.34, y0 * 0.66 + cy * 0.34);
+        ctx.lineTo(x1 * 0.66 + cx * 0.34, y1 * 0.66 + cy * 0.34);
+        ctx.lineWidth = Math.max(1.6, w * 0.18);
         ctx.strokeStyle = COL.sigCore;
         ctx.stroke();
       }
     }
+    ctx.lineCap = 'round';
   }
+
 
   _paintCars(ctx, vehicles, footprint, verdade) {
     const T = this.T;
     const sp0 = this.sprite || this._medeSprite();
-    const L = sp0.corpo, D = sp0.largura, r = D * 0.42;
-    const rastro = sp0.rastro;
+    const L = sp0.corpo, D = sp0.largura, r = D * 0.28;
+    const footPx = sp0.footPx;
     const vFree = this.vFree;
 
     for (const v of vehicles) {
@@ -473,41 +598,44 @@ export class Board {
       ctx.translate(x, y);
       ctx.rotate(a);
 
-      // RASTRO DA PEGADA: só existe quando o corpo é MAIS CURTO que a pegada. Aqui ele
-      // é o resto do espaço reservado, não uma invenção — e some quando o corpo já
-      // cobre a pegada inteira. Só em quem está parando: no fluxo livre não há fila
-      // para representar, e um rastro claro fora da via vira sujeira de render.
-      if (footprint && rastro > 1.5 && f < 0.35) {
+      // PEGADA DO SUMO como rastro: o espaço que o modelo reserva atrás do carro.
+      // Só aparece quando ela é MAIOR que o corpo desenhado (`footPx > L·1,15`) e só
+      // em quem está parando — no fluxo livre não há fila para representar, e um
+      // rastro claro fora da via vira sujeira de render.
+      if (footprint && footPx > L * 1.15 && f < 0.35) {
         const peso = 1 - f / 0.35;
-        const g = ctx.createLinearGradient(-L, 0, -L - rastro, 0);
-        g.addColorStop(0, col);
+        const g = ctx.createLinearGradient(0, 0, -footPx, 0);
+        g.addColorStop(0, 'rgba(255,255,255,0)');
+        g.addColorStop(0.14, col);
         g.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.globalAlpha = 0.10 + 0.22 * peso;
+        ctx.globalAlpha = 0.08 + 0.17 * peso;
         ctx.fillStyle = g;
-        rrect(ctx, -L - rastro, -D * 0.42, rastro, D * 0.84, D * 0.2);
+        rrect(ctx, -footPx, -D * 0.42, footPx, D * 0.84, D * 0.2);
         ctx.fill();
         ctx.globalAlpha = 1;
       }
 
-      // Corpo: uma cápsula limpa (a posição do SUMO é o para-choque DIANTEIRO, então
-      // o corpo recua de 0 a -L). Nesta escala, forma se faz com silhueta, não com
-      // detalhe: um "teto" escuro por cima fazia o sprite ler como dominó.
+      // MOLDURA POR FORA, não contorno por cima. Um `stroke` fica metade para dentro
+      // do caminho, e numa largura de ~4 px isso come um terço do corpo: o carro
+      // perdia mais silhueta para o próprio contorno do que ganhava de separação.
+      // Aqui a borda é um retângulo PREENCHIDO 0,8 px maior em volta, e o corpo vem
+      // inteiro por cima — a moldura não tira nada do carro, e continua entregando a
+      // separação por BORDA local, que é o que o olho usa para achar forma sobre a
+      // fila acesa (onde o contraste global do carro cai).
+      const m = 0.8;
+      rrect(ctx, -L - m, -D / 2 - m, L + 2 * m, D + 2 * m, r + m);
+      ctx.fillStyle = COL.carEdge; ctx.fill();
+      // Corpo: um retângulo CHAPADO de cantos suaves (a posição do SUMO é o
+      // para-choque DIANTEIRO, então ele recua de 0 a -L). Nesta escala forma se faz
+      // com SILHUETA: cápsula de canto muito redondo lia como comprimido, e o degradê
+      // de "volume" que já esteve aqui escurecia a traseira em 30% e borrava a única
+      // coisa que o sprite tem para dar.
       rrect(ctx, -L, -D / 2, L, D, r);
-      const vol = ctx.createLinearGradient(0, 0, -L, 0);
-      vol.addColorStop(0, col);
-      vol.addColorStop(1, 'rgba(0,0,0,.30)');
       ctx.fillStyle = col; ctx.fill();
-      ctx.fillStyle = vol; ctx.globalAlpha = 0.32; ctx.fill(); ctx.globalAlpha = 1;
-      // Contorno escuro: sobre a fila incandescente o contraste global do carro cai,
-      // mas o olho detecta forma por BORDA local muito antes de detectar por
-      // luminância média. Custa um traço e salva a leitura.
-      rrect(ctx, -L, -D / 2, L, D, r);
-      ctx.lineWidth = Math.max(1.2, D * 0.15);
-      ctx.strokeStyle = COL.carEdge; ctx.stroke();
 
-      // MODO VERDADE (tecla V): o carro REAL, na escala real, dentro do sprite. Existe
-      // para a foto de bancada — é a prova visual de que o exagero é só exagero, e de
-      // quanto ele é. Não é modo de feira: a 2 m ninguém vê este contorno.
+      // MODO VERDADE (tecla V): o carro REAL, na escala real, dentro do sprite. Com o
+      // sprite grande ele deixou de ser curiosidade e virou a prova de QUANTO o
+      // desenho exagera — a foto de bancada precisa dele mais do que antes.
       if (verdade) {
         ctx.lineWidth = 1;
         ctx.strokeStyle = COL.truth;
@@ -515,8 +643,11 @@ export class Board {
       }
 
       ctx.restore();
-
-      if (stopped) blitGlow(ctx, COL.carStop, x, y, D * 1.7, 0.20);
+      // SEM HALO NO CARRO PARADO. Ele era um disco de 1,7·D em volta de cada veículo
+      // parado — e carro parado anda em fila, então os halos se somavam e a fila
+      // inteira virava uma névoa clara onde não se contava mais nada. Quem diz
+      // "parado" é a cor quente do corpo e a banda de acúmulo embaixo dele.
     }
   }
+
 }

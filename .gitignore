@@ -1,11 +1,62 @@
+# ---------------------------------------------------------------------------
+# Segredos e credenciais -- nada disso entra no repo, nunca.
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.keystore
+id_rsa*
+id_ed25519*
+credentials.json
+segredos.json
+secrets.json
+*.secret
+*_token.txt
+
+# ---------------------------------------------------------------------------
+# Contexto de agente/IA -- instrucao de maquina, nao documentacao de humano.
+# (README.md e docs/ FICAM: sao para a equipe.)
+# ---------------------------------------------------------------------------
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+GEMINI.md
+.claude/
+.cursor/
+.cursorrules
+.aider*
+.github/copilot-instructions.md
+
+# ---------------------------------------------------------------------------
+# Ambiente e caches
 # venv: este repo NAO tem o seu -- usa o do smart-traffic (ver README)
+# ---------------------------------------------------------------------------
 .venv/
+venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
+node_modules/
+.DS_Store
+Thumbs.db
 
-# saidas de run: os checkpoints campeoes vao versionados (results/), o resto nao
+# ---------------------------------------------------------------------------
+# Build
+# ---------------------------------------------------------------------------
+*.egg-info/
+build/
+dist/
+
+# ---------------------------------------------------------------------------
+# Saidas de run: os checkpoints campeoes vao versionados (results/), o resto nao
+# ---------------------------------------------------------------------------
 experiments/*/checkpoints/ckpt_*.pt
 # corridas de fumaca: existem para provar que o pipeline sobe, nao para guardar
 experiments/_smoke*/
@@ -22,10 +73,13 @@ sumo/**/*.dump.xml
 sumo/aberta/demanda/*.rou.xml
 !sumo/aberta/demanda/*.manifesto.json
 
-# build metadata do pip install -e
-*.egg-info/
-build/
-dist/
-
 # diarios de campanha do A8: duplicata dos .json ao lado, e sao grandes
 results/a8/*.jsonl
+
+# capturas soltas na raiz (as de validacao vao em docs/validation/)
+/Screenshot*.png
+/screenshot*.png
+
+# saida mis-pathed: veio de um `--grava results/jogo/rodadas` (caminho_gravacao ja
+# poe o /rodadas, entao aninhou duas vezes). Fica em disco, fora do repo.
+results/jogo/rodadas/rodadas/

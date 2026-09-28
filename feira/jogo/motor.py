@@ -68,16 +68,33 @@ from ..contratos import (
 )
 from ..controladores.humano import ControladorHumano
 from ..entrada import GravacaoRodada, caminho_gravacao
+from ..metricas import sinais_de_travamento
 from .estado import ControladorSelado, cenario_da_seed
 from .fantasmas import ColetorDeSerie, Fantasmaria
 
-__all__ = ["MotorDoJogo", "ResultadoRodada", "ROTULOS", "RodadaAbortada", "Marcapasso"]
+__all__ = ["MotorDoJogo", "ResultadoRodada", "ROTULOS", "RodadaAbortada", "Marcapasso",
+           "ABORTA_START", "ABORTA_OPERADOR", "PREFIXO_TRAVOU"]
 
 ROTULOS = {"timer": "TIMER FIXO", "rl": "REDE NEURAL", "humano": "VOCÊ"}
 
 # Alvo de frequência de `poll()` na fonte de entrada. 50 Hz = 20 ms de fatia, um
 # quarto do teto de 50 ms que o agente A4 mediu para a botoeira.
 FATIA_S = 0.02
+
+# Quem pode abortar a rodada no meio (docs/GAMIFICACAO.md §2.5).
+#
+# `start`    o comportamento original: qualquer START durante a rodada aborta.
+# `operador` o START do visitante é IGNORADO durante `contagem`/`jogando` (o botão
+#            grande, iluminado, no meio de 12 que ele está martelando, VAI ser
+#            apertado — e perder 2 minutos de um visitante por isso é a pior
+#            experiência possível em público). Abortar passa a ser `abortar()`,
+#            chamado por quem opera (Esc no teclado, botão na página do operador).
+ABORTA_START = "start"
+ABORTA_OPERADOR = "operador"
+
+# Prefixo do `motivo` quando o portão de saúde dispara. O discriminador de estado
+# no fio é `Placar.sinais` (C7); o prefixo existe para o log e para a leitura humana.
+PREFIXO_TRAVOU = "o trânsito travou"
 
 
 class RodadaAbortada(RuntimeError):
@@ -181,6 +198,16 @@ class ResultadoRodada:
     duracao_parede_s: float = 0.0
     hz_entrada: float = 0.0          # frequência MEDIDA de poll() na fonte
     atraso_max_s: float = 0.0        # o pior atraso da cadência 1:1, acumulado
+    # Sinais de saúde do braço humano contra o timer da mesma seed (o portão de
+    # rodada curta, docs/DIFICULDADE.md §7). Vazio = a rodada vale.
+    sinais: tuple[str, ...] = ()
+    # A rodada não aconteceu por falha NOSSA (SUMO caiu, TraCI fechou) e a mesma
+    # seed vai ser repetida para o mesmo visitante — a "rodada grátis" (§5.4).
+    repetir: bool = False
+
+    @property
+    def travou(self) -> bool:
+        return bool(self.sinais)
 
     @property
     def selos_batem(self) -> bool:
@@ -204,11 +231,44 @@ class MotorDoJogo:
                  ao_vivo: bool = True, contagem_s: float = 3.0,
                  resultado_s: float = 8.0, prefetch: bool = True,
                  dorme: Callable[[float], None] | None = None,
-                 grava_em=None, fatia_s: float = FATIA_S) -> None:
+                 grava_em=None, fatia_s: float = FATIA_S,
+                 abortar_por: str = ABORTA_START, portao_saude: bool = True,
+                 repete_falha: bool = False, ritmo: float = 1.0,
+                 anuncia_ocioso: bool = False) -> None:
         if not seeds:
             raise ValueError("o motor precisa de pelo menos uma seed")
+        if not (ritmo > 0):
+            raise ValueError("ritmo deve ser > 0 (segundos simulados por segundo de parede)")
+        if abortar_por not in (ABORTA_START, ABORTA_OPERADOR):
+            raise ValueError("abortar_por deve ser %r ou %r" % (ABORTA_START, ABORTA_OPERADOR))
         self.cenario = cenario
         self.fonte = fonte
+        self.abortar_por = abortar_por
+        # RITMO (docs/GAMIFICACAO.md §2.7): segundos simulados por segundo de parede.
+        # É APRESENTAÇÃO: a simulação, os fantasmas e o pareamento são indexados em
+        # tempo simulado e não mudam. O que muda é o relógio da plateia — e o tempo
+        # de parede que o visitante tem por tick, que fica `ritmo` vezes menor.
+        self.ritmo = float(ritmo)
+        # ANUNCIAR O OCIOSO (docs/GAMIFICACAO.md §3.6): o motor voltava a `ocioso`
+        # em silêncio, e a tela só saía do RESULTADO quando o vigia do servidor
+        # declarava QUEDA (20 s de rédea) — ou nunca, se o feed ocioso mantivesse
+        # `visto_em` fresco. Com isto ligado, o fim da tela de resultado publica um
+        # placar de `ocioso` sem linhas, e a projeção volta na hora. Opt-in para não
+        # mudar o fio de quem não pediu.
+        self.anuncia_ocioso = bool(anuncia_ocioso)
+        self.portao_saude = bool(portao_saude)
+        self.repete_falha = bool(repete_falha)
+        self.starts_ignorados = 0
+        self._rodada_id = 0
+        self._pular = False
+        # Fonte que saiba avisar "o operador pediu para abortar" (Esc no teclado, a
+        # página do operador) liga direto no motor. É atributo, não contrato: o C6
+        # não conhece abortar, e uma fonte sem ele simplesmente não aborta.
+        if abortar_por == ABORTA_OPERADOR and hasattr(fonte, "ao_abortar"):
+            try:
+                fonte.ao_abortar = self.abortar
+            except Exception:
+                pass
         self.fantasmaria = fantasmaria or Fantasmaria(cenario)
         self.bracos = tuple(bracos)
         self.seeds = tuple(int(s) for s in seeds)
@@ -283,6 +343,8 @@ class MotorDoJogo:
         t_ini = time.perf_counter()
         seed = self.seed
         chave = self.chave(seed)
+        self._rodada_id = self.n_rodadas + 1
+        self._pular = False
         self._fantasmas = self._prepara(seed)
         self._selos = {b: self.fantasmaria.selos.get((seed, b), "")
                        for b in self._fantasmas}
@@ -324,18 +386,46 @@ class MotorDoJogo:
             duracao_parede_s=time.perf_counter() - t_ini,
             hz_entrada=self.marcapasso.hz if self.marcapasso else 0.0,
             atraso_max_s=self.marcapasso.atraso_max if self.marcapasso else 0.0)
+        # Rodada grátis: falha NOSSA (não abortada, sem resultado) repete a seed para
+        # o mesmo visitante em vez de passar a vez — os fantasmas já estão em cache.
+        rodada.repetir = bool(self.repete_falha and res is None and not abortada)
         rodada.placar, rodada.vencedor = self._placar_final(rodada)
         self._publica(rodada.placar)
         self.fase = RESULTADO
         self.ultima_rodada = rodada
         self.n_rodadas += 1
-        self.i_seed += 1
+        if not rodada.repetir:
+            self.i_seed += 1
         if self.resultado_s > 0:
-            self.dorme(self.resultado_s)
+            self._espera_resultado(self.resultado_s)
         if self.prefetch:
             self.agenda_proxima()
         self.fase = OCIOSO
+        if self.anuncia_ocioso:
+            self._publica(Placar.monta(OCIOSO, self.janela().t1, self.chave(), [],
+                                       t_restante=0.0, rodada=self._rodada_id))
         return rodada
+
+    def _espera_resultado(self, segundos: float) -> None:
+        """A tela de RESULTADO fica `segundos` no ar — a menos que o operador pule."""
+        if not self.ao_vivo:
+            self.dorme(segundos)
+            return
+        fim = time.perf_counter() + float(segundos)
+        while not self._pular:
+            falta = fim - time.perf_counter()
+            if falta <= 0:
+                break
+            self.dorme(min(0.1, falta))
+
+    # ------------------------------------------------------------ operador
+    def abortar(self) -> None:
+        """Pede o aborto da rodada em curso. Fora da rodada, não faz nada."""
+        self._abortar = True
+
+    def pula_resultado(self) -> None:
+        """Encurta a tela de RESULTADO — a fila está grande."""
+        self._pular = True
 
     def laco(self, n_rodadas: int | None = None, *, esperar_start: bool = True
              ) -> list[ResultadoRodada]:
@@ -353,8 +443,16 @@ class MotorDoJogo:
         if self._humano is None:
             return
         self._humano.bombeia()
-        if self._humano.consome_starts():
-            raise RodadaAbortada("START apertado durante a rodada")
+        if self._abortar:
+            raise RodadaAbortada("abortada pelo operador")
+        starts = self._humano.consome_starts()
+        if starts:
+            if self.abortar_por == ABORTA_START:
+                raise RodadaAbortada("START apertado durante a rodada")
+            # `operador`: o START do visitante não aborta. O LED do botão grande
+            # pisca (deny) para dizer "agora não" e volta ao estado da fase.
+            self.starts_ignorados += len(starts)
+            self._led_start_bruto(NEGADO_START)
 
     def _cadencia(self) -> Ritmo:
         """Escolhe QUEM impõe o 1:1 — a Arena (se ela tiver o gancho) ou o motor.
@@ -370,9 +468,9 @@ class MotorDoJogo:
         arena = self._arena_viva()
         if hasattr(arena, "ao_esperar"):
             arena.ao_esperar = self._bomba
-            return Ritmo(sim_por_parede=1.0)
+            return Ritmo(sim_por_parede=self.ritmo)
         self.marcapasso = Marcapasso(bomba=self._bomba, fatia_s=self.fatia_s,
-                                     dorme=self.dorme)
+                                     dorme=self.dorme, sim_por_parede=self.ritmo)
         self.marcapasso.inicia()
         return Ritmo()
 
@@ -471,9 +569,36 @@ class MotorDoJogo:
             t_restante = max(0.0, j.t1 - float(t))
         p = Placar.monta(fase, float(t), self.chave(), self._linhas(t, fantasmas, humano),
                          t_restante=float(t_restante), vencedor=vencedor,
-                         motivo=self.motivo_degradado)
+                         motivo=self.motivo_degradado, rodada=self._rodada_id)
         self.ultimo_placar = p
         return p
+
+    def _sinais(self, rodada: ResultadoRodada) -> tuple[str, ...]:
+        """O portão de saúde da rodada curta (docs/DIFICULDADE.md §7, §10.1).
+
+        `sane()` e os sinais sem referência são CEGOS em 120 s — medido em 4752
+        rodadas, nem o farol congelado dispara. O sinal que funciona é PAREADO: o
+        acúmulo excedente do humano sobre o timer da MESMA seed (+20 pp, zero falso
+        positivo em 96 rodadas de referência, 528/528 rodadas congeladas pegas). O
+        `Resultado` do timer já está em memória: é o `final` do fantasma.
+
+        Sem fantasma do timer o portão fica DESLIGADO e o `motivo` diz isso — uma
+        rodada degradada não pode ser recusada por um portão que não rodou.
+        """
+        if not self.portao_saude or rodada.humano is None or rodada.abortada:
+            return ()
+        timer = rodada.fantasmas.get("timer")
+        if timer is None:
+            rodada.motivo = (rodada.motivo + " | " if rodada.motivo else "") + \
+                "sem portão de saúde nesta rodada (sem fantasma do timer)"
+            return ()
+        try:
+            fora = sinais_de_travamento(rodada.humano, referencia=timer.final)
+        except Exception as exc:                        # chave incompatível etc.
+            rodada.motivo = (rodada.motivo + " | " if rodada.motivo else "") + \
+                "portão de saúde não rodou: %s" % exc
+            return ()
+        return tuple(fora)
 
     def _placar_final(self, rodada: ResultadoRodada) -> tuple[Placar, str | None]:
         """Manchete = ENTREGUES. Ver o cabeçalho do C7 para o porquê.
@@ -487,8 +612,10 @@ class MotorDoJogo:
                   for b in ("timer", "rl") if b in rodada.fantasmas]
         if rodada.humano is not None:
             linhas.append(self._linha_final("humano", rodada.humano))
+        rodada.sinais = self._sinais(rodada)
         vencedor: str | None = None
-        if not rodada.abortada and rodada.humano is not None and rodada.selos_batem:
+        if (not rodada.abortada and rodada.humano is not None and rodada.selos_batem
+                and not rodada.sinais):
             if linhas:
                 melhor = max(ln.entregues for ln in linhas)
                 campeoes = [ln.braco for ln in linhas if ln.entregues == melhor]
@@ -498,9 +625,22 @@ class MotorDoJogo:
                 "selo de t0 divergente (humano=%s fantasmas=%s): a rodada não é "
                 "pareada e o vencedor fica em branco"
                 % (rodada.selo_humano, rodada.selos))
+        if rodada.sinais:
+            # Quantas trocas a pessoa pediu: quase sempre a resposta para "por que
+            # travou" é "quase nenhuma" (a rodada do dono em 2026-09-14: 2 pedidos em
+            # 24 ciclos), e a tela precisa dizer isso junto com o veredito.
+            h = self._humano
+            pedidos = ("" if h is None else " — você pediu %d trocas em %d ciclos, %d aceitas"
+                       % (sum(len(t) for t in h.gravacao), len(h.gravacao), h.n_aceitos))
+            rodada.motivo = (rodada.motivo + " | " if rodada.motivo else "") + (
+                "%s: %s%s" % (PREFIXO_TRAVOU, "; ".join(rodada.sinais), pedidos))
+        if rodada.repetir:
+            rodada.motivo = (rodada.motivo + " | " if rodada.motivo else "") + \
+                "falha nossa — a mesma seed vai de novo"
         p = Placar.monta(RESULTADO, t, rodada.chave, linhas, t_restante=0.0,
                          vencedor=vencedor, motivo=rodada.motivo,
-                         pareado=rodada.selos_batem)
+                         pareado=rodada.selos_batem, rodada=self._rodada_id,
+                         sinais=rodada.sinais)
         self.ultimo_placar = p
         return p, vencedor
 
@@ -524,8 +664,11 @@ class MotorDoJogo:
                  RESULTADO: ARMADO_START}
 
     def _led_start(self, fase: str) -> None:
+        self._led_start_bruto(self.LED_START.get(fase, OFF_START))
+
+    def _led_start_bruto(self, estado: str) -> None:
         try:
-            self.fonte.feedback_start(self.LED_START.get(fase, OFF_START))
+            self.fonte.feedback_start(estado)
         except Exception:
             pass          # LED que não acende não derruba a rodada
 

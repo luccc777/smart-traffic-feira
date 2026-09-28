@@ -77,8 +77,8 @@ VIA = "#4b5869"
 # matiz e a intenção original (a junção é a via um passo mais clara).
 JUNCAO = "#708095"
 FAIXA = "#9cbcdf"
-RAMPA = [("#e0891a", 0.30), ("#ff7a1a", 0.55), ("#ff5424", 0.80), ("#ff2f3a", 0.95)]
-NUCLEO, NUCLEO_A = "#ffdcac", 0.55
+RAMPA = [("#e0891a", 0.34), ("#ff7a1a", 0.50), ("#ff5424", 0.66), ("#ff2f3a", 0.80)]
+NUCLEO, NUCLEO_A = "#ffdcac", 0.46
 CARRO_LIVRE, CARRO_LENTO, CARRO_PARADO = "#f4fbff", "#e6eef7", "#ffe2b8"
 FAROL_V, FAROL_A, FAROL_R = "#2bea88", "#ffd23d", "#ff5245"
 

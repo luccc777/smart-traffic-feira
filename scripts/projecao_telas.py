@@ -32,7 +32,7 @@ from scripts.projecao_bench import acha_chrome  # noqa: E402
 
 FASES = ("ocioso", "preparando", "contagem", "jogando", "resultado")
 # Desfechos e camadas de servico que nao sao fase do C7, mas tem tela propria.
-EXTRAS = ("nao_pareada", "empate", "sem_placar", "denuncia", "degradado")
+EXTRAS = ("nao_pareada", "empate", "sem_placar", "travou", "denuncia", "degradado")
 
 
 def _foto(exe, url, destino: Path, porta: int, espera: float = 6.0) -> bool:
@@ -60,6 +60,12 @@ def main(argv=None) -> int:
                    help="quantos quadros a página desenha antes de parar (ver `_foto`)")
     p.add_argument("--fase", choices=FASES + EXTRAS, default=None,
                    help="só uma tela (default: as cinco fases)")
+    # O HUD de diagnostico e ferramenta de bancada, nao e o que a plateia ve. A foto
+    # "como vai ficar na feira" precisa sair sem ele.
+    p.add_argument("--sem-diag", action="store_true",
+                   help="foto sem o HUD de diagnostico (o que a plateia ve)")
+    p.add_argument("--perde", action="store_true",
+                   help="espelha os dois bracos pre-computados: a foto com a RL perdendo")
     p.add_argument("--denuncia", action="store_true",
                    help="além das fases: rodada não pareada, empate, rodada não "
                         "concluída, janela divergente e modo degradado")
@@ -96,8 +102,9 @@ def main(argv=None) -> int:
             # dispara o instantâneo assim que o orçamento de tempo VIRTUAL acaba, e uma
             # conexão WS de verdade não cabe nessa janela — a foto sairia sempre na tela
             # de "conectando". O `demo` injeta pelo MESMO `recebe()` do fio.
-            url = ("http://127.0.0.1:%d/?demo=%s&carros=%d&quadros=%d&diag=1"
-                   % (a.porta, fase, a.carros, a.quadros))
+            url = ("http://127.0.0.1:%d/?demo=%s&carros=%d&quadros=%d%s%s"
+                   % (a.porta, fase, a.carros, a.quadros,
+                      "" if a.sem_diag else "&diag=1", "&perde=1" if a.perde else ""))
             destino = saida / ("%s.png" % fase)
             ok = _foto(exe, url, destino, a.porta)
             feitas.append((fase, destino, ok))

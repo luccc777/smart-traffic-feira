@@ -3,10 +3,12 @@
 Duas propriedades do front são exatamente as duas armadilhas nomeadas do agente, e
 nenhuma delas se prova lendo o código:
 
-  (a) A ESCALA DA BARRA NÃO PODE SE ANCORAR NA RL. Hoje a política PERDE para o timer
-      na rede aberta (93 e 82 entregues contra 111 e 109), o A6 está retreinando em
-      paralelo, e a tela tem que continuar correta com a RL em primeiro, em último ou
-      empatada. Escala chumbada em valor absoluto também quebra quando o regime mudar.
+  (a) A ESCALA DA BARRA NÃO PODE SE ANCORAR NA RL. Quando este teste foi escrito a
+      política PERDIA para o timer na rede aberta (93 e 82 contra 111 e 109); depois
+      do retreino do A6 ela GANHA (120 e 126 contra 111 e 109). Os dois regimes já
+      aconteceram neste mesmo front, o que é a prova de que a tela tem que continuar
+      correta com a RL em primeiro, em último ou empatada. Escala chumbada em valor
+      absoluto também quebra quando o regime mudar de novo.
 
   (b) O SPRITE NÃO PODE EXAGERAR ALÉM DA PEGADA. A regra herdada do maquete
       (`D = max(7, laneW·s·1,15)`, `L = D·2,9`) produz, NESTA rede, um sprite duas
@@ -136,11 +138,12 @@ for (const [w, h, rodape] of layouts) {
     palco: [w, h], escala_px_por_m: s.s, mult: s.mult,
     corpo: s.corpo, largura: s.largura, pegada: s.footPx,
     real: [s.realC, s.realL], exageroC: s.exageroC, exageroL: s.exageroL,
-    excede: b.spriteExcede, razao_excesso: s.excede,
+    spriteExcede: b.spriteExcede, excede: s.excede,
     maquete_L: Lm, maquete_D: Dm,
     maquete_excesso: Lm / s.footPx,
     maquete_desenha_pegada: s.footPx > Lm * 1.15,
     razao_carro_faixa_desenhada: s.largura / (b.laneW * s.s * s.mult),
+    razao_real: b.vehW / b.laneW,
   });
 }
 console.log(JSON.stringify(out));
@@ -148,32 +151,75 @@ console.log(JSON.stringify(out));
 
 
 @sem_node
-def test_o_sprite_nunca_passa_da_pegada_do_sumo(tmp_path):
-    layouts = [[1920, 1080, 300], [1600, 900, 250], [1280, 720, 200],
-               [3840, 2160, 600], [1904, 985, 274]]
+def test_carro_parado_nunca_monta_em_carro_parado(tmp_path):
+    """A propriedade que manda no sprite, e a única que a plateia consegue verificar
+    olhando: **o desenho nunca passa do espaço que o modelo reserva**.
+
+    ESTE TESTE JÁ COBROU OS DOIS EXTREMOS, e o histórico é o argumento. Primeiro o
+    corpo era a pegada CHEIA (`corpo = min(comprimento·mult, pegada)`): honesto, e um
+    carro de 6,3 × 4,6 px que ninguém enxerga. Depois foi adotada a regra da projeção
+    do maquete (`D = max(7 px, laneW·s·1,15)`, `L = D·2,9`): 20,3 × 7,0 px, legível — e
+    **2,5 sprites por vaga**, ou seja, em qualquer fila os carros parados montavam uns
+    nos outros. Um mapa que existe para mostrar trânsito não pode desenhar o trânsito
+    errado para o carro ficar bonito.
+
+    A regra que ficou resolve o conflito onde ele de fato estava, que não era o carro:
+
+        corpo   = min(comprimento·mult, pegada · 0,88)   -> nunca monta, e sobra costura
+        largura = min(largura·mult,     corpo  · 0,66)   -> silhueta ~1,5:1
+        faixa desenhada = 11,5 px (antes 15)             -> ver `_multPara`
+
+    Baixar o exagero da VIA é o que faz o carro caber como carro: a razão
+    carro/faixa desenhada volta para ~0,40, contra os 0,42 reais. O carro não cresceu;
+    a rua parou de ser grande demais para ele.
+    """
+    layouts = [[1920, 1080, 226], [1600, 900, 190], [1280, 720, 151],
+               [3840, 2160, 452], [1904, 985, 206]]
     r = _node(_SPRITE % (json.dumps(_url("paint.js")), json.dumps(REDE),
                          json.dumps(layouts)), tmp_path)
     for d in r:
-        # A propriedade central: o comprimento desenhado É a pegada, nunca mais.
-        assert d["corpo"] <= d["pegada"] + 1e-6 or d["excede"], d
-        if d["excede"]:
-            # só o piso anti-sumiço pode ter mordido, e ele é de 3 px
+        # 1. A PROPRIEDADE CENTRAL: carro parado não monta em carro parado. Em
+        #    resolução nenhuma, e com folga de costura — a 0,88 da vaga sobra ~1 px de
+        #    preto entre um carro e o próximo, que é o que faz a fila PARECER fila.
+        assert d["corpo"] <= d["pegada"] + 1e-6, d
+        assert d["excede"] <= 0.89, d
+        # 2. o único piso é anti-sumiço (3 px), e ele é quem liga a denúncia
+        if d["excede"] > 0.881:
             assert d["corpo"] == pytest.approx(3.0), d
-        # O carro nunca invade lateralmente MAIS do que já invade na realidade: a
-        # razão carro/faixa DESENHADA nunca passa da razão real (0,44). Quando o
-        # limite de aspecto morde ela fica abaixo; quando não morde, ela É a razão
-        # real — que é o caso ideal, porque aí a largura foi exagerada exatamente
-        # pelo mesmo fator com que a via já é exagerada.
-        assert d["razao_carro_faixa_desenhada"] <= 0.233 / 0.53 + 1e-9, d
-        # e o exagero longitudinal é modesto e conhecido
-        assert 1.0 <= d["exageroC"] <= 1.6, d
+            assert d["spriteExcede"] is True, d
+        else:
+            assert d["spriteExcede"] is False, d
+        # 3. O CARRO NUNCA É MAIS LARGO QUE UM CARRO. A razão real é
+        #    `vehW/laneW` (0,42 nesta rede), e a desenhada não passa disso em
+        #    resolução nenhuma — se passasse, o veículo estaria invadindo a faixa
+        #    vizinha no desenho sem invadir na simulação.
+        assert d["razao_carro_faixa_desenhada"] <= d["razao_real"] + 1e-9, d
+        # 4. silhueta de carro, não de dado: o comprimento manda na largura
+        assert 1.3 <= d["corpo"] / d["largura"] <= 2.6, d
+
+    # E na resolução DA FEIRA a razão tem de ser EXATAMENTE a real — não "abaixo dela",
+    # não "perto dela". É o caso em que nenhum dos dois tetos morde: o carro é exagerado
+    # pelo mesmo `mult` com que a via já é, e ocupa na faixa desenhada a mesma fração
+    # que ocupa na faixa de verdade. Foi para chegar aqui que o enquadramento cortou as
+    # pontas (§3.4) e o exagero da via caiu de 15 px para 11,5 (§3.3); se esta linha
+    # começar a falhar, um dos dois regrediu.
+    #
+    # Abaixo de 1080p o piso em PIXELS da faixa passa a mandar (a via não pode virar um
+    # fio de cabelo), a via fica proporcionalmente mais larga e a razão cai — é
+    # conhecido, está coberto pelo teto do laço acima, e é o preço de projetar numa
+    # resolução menor.
+    feira = r[0]
+    assert feira["palco"] == [1920, 1080]
+    assert feira["razao_carro_faixa_desenhada"] == pytest.approx(feira["razao_real"],
+                                                                 rel=1e-6), feira
 
 
 @sem_node
 def test_a_regra_do_maquete_estouraria_a_pegada_nesta_rede(tmp_path):
-    """O achado que motivou re-resolver o sprite. NÃO é defeito do maquete: lá a rede
-    é outra e a regra deles produz um sprite MAIS CURTO que a pegada, que é o caso que
-    o rastro da pegada foi feito para consertar. Aqui a desigualdade inverte."""
+    """O contraponto do teste acima: a regra herdada NÃO serve aqui, e o número diz por
+    quanto. NÃO é defeito do maquete — lá a rede é outra e a regra deles produz um
+    sprite MAIS CURTO que a pegada, que é o caso que o rastro foi feito para consertar.
+    Aqui a desigualdade inverte, e aplicá-la produz 2,5 carros desenhados por vaga."""
     r = _node(_SPRITE % (json.dumps(_url("paint.js")), json.dumps(REDE),
                          json.dumps([[1920, 1080, 300]])), tmp_path)
     d = r[0]
@@ -299,7 +345,7 @@ def _chrome():
     return _sh.which("chrome") or _sh.which("msedge")
 
 
-def _dom(fase: str, porta: int) -> str:
+def _dom(fase: str, porta: int, extra: str = "") -> str:
     """Renderiza `?demo=<fase>` no Chrome headless e devolve o DOM depois do JS."""
     import os as _os
     import shutil as _sh
@@ -320,7 +366,8 @@ def _dom(fase: str, porta: int) -> str:
                      "--no-default-browser-check", "--headless=new", "--disable-gpu",
                      "--window-size=1920,1080", "--dump-dom",
                      "--virtual-time-budget=6000",
-                     "http://127.0.0.1:%d/?demo=%s&carros=20&quadros=8" % (porta, fase)],
+                     "http://127.0.0.1:%d/?demo=%s&carros=20&quadros=8%s"
+                     % (porta, fase, extra)],
                     capture_output=True, text=True, encoding="utf-8", timeout=180)
     finally:
         srv.desce()
@@ -347,8 +394,13 @@ def test_dom_da_rodada_nao_pareada_nao_coroa_ninguem_e_mostra_o_motivo():
     assert "VENCEU" not in dom, "coroou alguém numa rodada não pareada"
     assert not re.search(r'class="pl-linha[^"]*venceu', dom), "marcou uma barra vencedora"
     assert not re.search(r'id="veredito"[^>]*data-quem="[a-z]', dom), "coroou no veredito"
-    # e nenhum selo de colocação
-    assert "1º" not in dom and "2º" not in dom, "classificou uma rodada não pareada"
+    # e nenhum selo de colocação NO PLACAR. A busca era por "1º" no documento inteiro,
+    # e passou a falhar quando o quadro de recordes entrou na tela — ele numera os
+    # recordes, e com razão: aquela é outra disputa, e ela vale. O que não pode existir
+    # é colocação nas LINHAS do placar, que é o que `.pl-pos` carrega.
+    assert not re.search(r'class="pl-pos">\s*\d', dom), (
+        "classificou uma rodada não pareada")
+    assert re.search(r'class="pl-pos">\s*—', dom), "as linhas perderam o traço de '—'"
 
 
 @pytest.mark.sumo
@@ -356,15 +408,93 @@ def test_dom_da_rodada_nao_pareada_nao_coroa_ninguem_e_mostra_o_motivo():
 @pytest.mark.skipif(not TEM_SUMO or _chrome() is None,
                     reason="requer SUMO_HOME + Chrome (prova de bancada)")
 def test_dom_do_resultado_normal_continua_coroando():
-    """O contraponto: sem ele, o teste acima passaria com a tela quebrada."""
-    dom = _dom("resultado", 8613)
+    """O contraponto: sem ele, o teste acima passaria com a tela quebrada.
+
+    Este teste já chumbou `data-quem="timer"` e quebrou quando a RL passou a ganhar —
+    estava medindo o REGIME, não o front. O que ele mede agora é que a coroa SEGUE o
+    número: `&perde=1` espelha os dois braços pré-computados e a coroa tem de ir junto.
+    """
+    for extra, quem in (("", "rl"), ("&perde=1", "timer")):
+        dom = _dom("resultado", 8613, extra)
+        if not dom.strip():
+            pytest.skip("o Chrome não devolveu DOM")
+        assert "VENCEU" in dom
+        assert re.search(r'class="pl-linha[^"]*venceu', dom), "o vencedor não foi marcado"
+        assert re.search(r'id="veredito"[^>]*data-quem="%s"' % quem, dom), (
+            "coroou outro braço com %r" % (extra or "o demo padrão"))
+        assert "1º" in dom
+        assert 'data-alerta="pareamento"' not in dom
+
+
+@pytest.mark.sumo
+@pytest.mark.aberta
+@pytest.mark.skipif(not TEM_SUMO or _chrome() is None,
+                    reason="requer SUMO_HOME + Chrome (prova de bancada)")
+def test_a_regua_de_bancada_nao_perde_nenhum_texto_da_plateia():
+    """A régua mede o tamanho ANGULAR de cada texto por SELETOR CSS — e um seletor que
+    para de casar some da auditoria calado. Foi o que aconteceu com `.pl-num b` quando
+    o placar virou cartão: o MAIOR texto da plateia ficou fora da conta e ninguém viu.
+    Agora a régua imprime `NÃO CASA`, e este teste lê a régua de verdade na tela.
+    """
+    dom = _dom("jogando", 8614, "&diag=1")
     if not dom.strip():
         pytest.skip("o Chrome não devolveu DOM")
-    assert "VENCEU" in dom
-    assert re.search(r'class="pl-linha[^"]*venceu', dom), "o vencedor não foi marcado"
-    assert re.search(r'id="veredito"[^>]*data-quem="timer"', dom)
-    assert "1º" in dom
-    assert 'data-alerta="pareamento"' not in dom
+    assert "de arco" in dom, "a régua não desenhou"
+    assert "NÃO CASA" not in dom, "algum seletor da régua parou de casar"
+    # e os textos que o §2 do documento cobra continuam todos na lista
+    for rot in ("número do placar", "rótulo do braço", "selo pré-computado",
+                "secundária", "cromo do operador"):
+        assert ("texto %s:" % rot) in dom, "%r saiu da régua" % rot
+
+
+# ============================================ (d) o delta contra a régua
+# Ele é DERIVADO na tela (o C7 não manda delta nenhum), e é uma afirmação de
+# COMPARAÇÃO: tem de sumir onde a colocação some, e não pode existir para o próprio
+# timer — "o timer está 0 à frente do timer" é ruído ocupando o lugar de informação.
+_DELTA = """
+import { deltaContraRegua, deltaPercentual } from %s;
+const L = (b, e) => ({ braco: b, entregues: e });
+const tres = [L('timer', 111), L('rl', 120), L('humano', 104)];
+const zerada = [L('timer', 0), L('rl', 4)];
+console.log(JSON.stringify({
+  pct_rl: deltaPercentual(tres, 'rl'),
+  pct_humano: deltaPercentual(tres, 'humano'),
+  pct_timer: deltaPercentual(tres, 'timer'),
+  pct_regua_zerada: deltaPercentual(zerada, 'rl'),
+  delta_regua_zerada: deltaContraRegua(zerada, 'rl'),
+  rl_ganhando: deltaContraRegua(tres, 'rl'),
+  humano_perdendo: deltaContraRegua(tres, 'humano'),
+  o_proprio_timer: deltaContraRegua(tres, 'timer'),
+  empatado: deltaContraRegua([L('timer', 111), L('rl', 111)], 'rl'),
+  sem_regua: deltaContraRegua([L('rl', 120), L('humano', 104)], 'rl'),
+  braco_ausente: deltaContraRegua(tres, 'ninguem'),
+  lista_vazia: deltaContraRegua([], 'rl'),
+}));
+"""
+
+
+@sem_node
+def test_o_delta_contra_a_regua_e_derivado_e_nunca_aponta_para_si(tmp_path):
+    r = _node(_DELTA % json.dumps(_url("placar.js")), tmp_path)
+    # A PORCENTAGEM é o que vai grande na tela, e ela existe porque o absoluto sozinho
+    # mente por omissão: +11,6 carros da RL sobre o timer em 120 s (a média das 12
+    # seeds held-out do A8) é +10,3% de vazão. "Dez carros" soa a ruído; "10%" é o
+    # resultado do projeto. Mesmo dado.
+    assert abs(r["pct_rl"] - (9 / 111 * 100)) < 0.01
+    assert abs(r["pct_humano"] - (-7 / 111 * 100)) < 0.01
+    assert r["pct_timer"] is None, "o timer não tem porcentagem contra si mesmo"
+    # E a divisão por zero: no primeiro segundo da rodada a régua ainda está em 0.
+    assert r["pct_regua_zerada"] is None, "dividiu pela régua zerada"
+    assert r["delta_regua_zerada"] == 4, "o ABSOLUTO continua valendo com a régua em 0"
+    assert r["rl_ganhando"] == 9, "120 contra 111 tem de dar +9"
+    assert r["humano_perdendo"] == -7
+    assert r["empatado"] == 0, "empate é 0, não é ausência"
+    # Os quatro casos em que o delta NÃO EXISTE. `0` e `null` são coisas diferentes:
+    # 0 é "empatou com a régua", null é "não há delta a mostrar".
+    assert r["o_proprio_timer"] is None, "o timer não tem delta contra si mesmo"
+    assert r["sem_regua"] is None, "sem a linha do timer não há régua"
+    assert r["braco_ausente"] is None
+    assert r["lista_vazia"] is None
 
 
 # ------------------------------------------------- a rede sintética é a de verdade

@@ -42,16 +42,67 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--so-servidor", action="store_true",
                    help="sobe só a projeção e fica servindo (bancada, contraste, bench)")
     p.add_argument("--grava", default=None)
+    p.add_argument("--ranking", default="results/feira/ranking.json",
+                   help="arquivo do quadro de recordes ('' = só em memória)")
+    # --- gamificação (docs/GAMIFICACAO.md). Tudo OPT-IN: sem estas flags o script se
+    # comporta como antes. `--feira` liga o conjunto que a feira usa.
+    p.add_argument("--feira", action="store_true",
+                   help="preset da feira: --entrada web --abortar operador --resultado-s 12 "
+                        "--ranking-dir results/feira --ranking-validade 30 --ritmo 2 --anuncia-ocioso "
+                        "--grava results/jogo --repete-falha --seeds 100..111")
+    p.add_argument("--entrada", choices=("teclado", "web"), default=None,
+                   help="web = o teclado junto do projetor, lido pela página (FonteWeb) "
+                        "+ o teclado do terminal, os dois ao mesmo tempo")
+    p.add_argument("--abortar", choices=("start", "operador"), default=None,
+                   help="operador = o START do visitante não aborta; Esc 3x/página abortam")
+    p.add_argument("--resultado-s", type=float, default=None,
+                   help="segundos da tela de RESULTADO (motor: 8; feira: 10)")
+    p.add_argument("--ranking-dir", default=None,
+                   help="pasta com um ranking_<dia>.json por dia (substitui --ranking)")
+    p.add_argument("--repete-falha", action="store_true",
+                   help="falha nossa (SUMO caiu) repete a seed para o mesmo visitante")
+    p.add_argument("--ritmo", type=float, default=None,
+                   help="segundos simulados por segundo de parede (1 = tempo real; "
+                        "feira: 2). Só apresentação: a simulação não muda")
+    p.add_argument("--anuncia-ocioso", action="store_true",
+                   help="ao fim da tela de RESULTADO publica um placar de `ocioso`: a "
+                        "projeção volta na hora em vez de esperar o vigia")
+    p.add_argument("--ranking-validade", type=float, default=None, metavar="MIN",
+                   help="minutos que uma marca conta no quadro (feira: 30; 0 = para sempre)")
     a = p.parse_args(argv)
+
+    if a.feira:
+        a.entrada = a.entrada or "web"
+        a.abortar = a.abortar or "operador"
+        a.resultado_s = 10.0 if a.resultado_s is None else a.resultado_s
+        a.anuncia_ocioso = True
+        a.ranking_dir = a.ranking_dir or "results/feira"
+        a.grava = a.grava or "results/jogo"          # caminho_gravacao põe o /rodadas
+        a.repete_falha = True
+        a.ranking_validade = 30.0 if a.ranking_validade is None else a.ranking_validade
+        a.ritmo = 2.0 if a.ritmo is None else a.ritmo
+        if a.seeds == p.get_default("seeds"):
+            a.seeds = ",".join(str(s) for s in range(100, 112))
+    a.entrada = a.entrada or "teclado"
+    a.abortar = a.abortar or "start"
+    a.ritmo = 1.0 if a.ritmo is None else float(a.ritmo)
 
     from feira.contratos import cenario as resolve_cenario
 
     cen = resolve_cenario(a.cenario)
     cen.aplicar(forcar=True)          # ANTES de qualquer import de `sim`
 
+    from feira.jogo.ranking import Ranking
     from feira.jogo.web import ArenaPublicada, EstadoProjecao, PublicadorProjecao, ServidorProjecao
 
-    estado = EstadoProjecao(cenario=cen)
+    # O quadro de recordes sobrevive ao processo: a feira reinicia o jogo várias vezes
+    # por dia e o público espera que o recorde da manhã ainda esteja lá à tarde.
+    validade = a.ranking_validade * 60.0 if a.ranking_validade else None
+    if a.ranking_dir:
+        ranking = Ranking.do_dia(Path(a.ranking_dir), validade_s=validade)
+    else:
+        ranking = Ranking(Path(a.ranking) if a.ranking else None, validade_s=validade)
+    estado = EstadoProjecao(cenario=cen, ranking=ranking, ritmo=a.ritmo)
     pub = PublicadorProjecao(estado)
     srv = ServidorProjecao(estado, host=a.host, porta=a.porta)
     if not srv.sobe():
@@ -72,11 +123,23 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     from feira.arena import ArenaSumo
-    from feira.entrada import TecladoInput, linhas_do_mapa
+    from feira.entrada import FonteComposta, FonteWeb, TecladoInput, linhas_do_mapa
     from feira.jogo.motor import MotorDoJogo
 
     seeds = tuple(int(s) for s in a.seeds.split(",") if s.strip())
-    fonte = TecladoInput(12)
+    teclado = TecladoInput(12)
+    if a.entrada == "web":
+        # O teclado junto do projetor: a página captura as teclas e manda por WS; o
+        # feedback (os 12 LEDs) volta pelo mesmo broadcast que o placar. O teclado do
+        # terminal continua lido JUNTO — quem tiver o foco manda.
+        fonte_web = FonteWeb(12, ao_feedback=estado.entrega)
+        estado.fonte_web = fonte_web
+        fonte = FonteComposta(fonte_web, teclado)
+    else:
+        fonte = teclado
+    kw = {}
+    if a.resultado_s is not None:
+        kw["resultado_s"] = float(a.resultado_s)
     motor = MotorDoJogo(
         cen, fonte=fonte, publicador=pub, seeds=seeds,
         # O braço da rodada é sempre o HUMANO: é a corrida dele que a Arena roda aqui.
@@ -84,13 +147,27 @@ def main(argv: list[str] | None = None) -> int:
         bracos=("timer",) if a.sem_rl else ("timer", "rl"),
         ao_vivo=not a.rapido, prefetch=not a.sem_prefetch,
         grava_em=Path(a.grava) if a.grava else None,
+        abortar_por=a.abortar, repete_falha=a.repete_falha, ritmo=a.ritmo,
+        anuncia_ocioso=a.anuncia_ocioso, **kw,
     )
+    # Os ganchos do operador e o nível da próxima seed, para a tela e para `/operador`.
+    estado.ao_abortar = motor.abortar
+    estado.ao_pular = motor.pula_resultado
+    estado.proxima_seed = lambda: motor.seed
 
     print("SmartTraffic — modo jogo com projeção (%s, janela de %g s)"
           % (cen.chave, motor.janela().duracao))
     for linha in linhas_do_mapa(fonte.n_botoes):
         print("    " + linha)
-    print("  ESPAÇO = começar / abortar   ·   Ctrl-C = sair")
+    if a.abortar == "operador":
+        print("  ESPAÇO = começar   ·   Esc 3x em 1,5 s = abortar (operador)   ·   Ctrl-C = sair")
+    else:
+        print("  ESPAÇO = começar / abortar   ·   Ctrl-C = sair")
+    if a.entrada == "web":
+        print("  entrada WEB ligada: a página projetada lê o teclado (foco no navegador)")
+    if a.ritmo != 1.0:
+        print("  ritmo %gx: %g s simulados em %.0f s de relógio (só apresentação)"
+              % (a.ritmo, motor.janela().duracao, motor.janela().duracao / a.ritmo))
 
     feitas = 0
     try:

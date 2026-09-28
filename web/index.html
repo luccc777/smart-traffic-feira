@@ -15,24 +15,99 @@
 
   <div id="hud">
 
-    <header id="topo">
-      <span class="marca">SMART<i>·</i>TRAFFIC</span>
-      <span class="chip" id="chip-chave">…</span>
-      <span class="chip" id="chip-janela"></span>
-      <span class="chip" id="chip-rede">…</span>
-      <span class="chip fase">fase <b id="fase-nome">OCIOSO</b></span>
-      <span class="chip live"><i></i><b id="live-txt">conectando</b></span>
-    </header>
+    <!-- ================= o placar: tarja RESERVADA, embaixo =====================
+         Ela EMPURRA o canvas de propósito. A versão flutuante ganhava ~40 px de
+         mapa e pagava com texto por cima de via desenhada.
 
-    <!-- ================= o placar: a tarja de baixo, sempre no mesmo lugar ======= -->
+         A FORMA É A DA REFERÊNCIA: a tarja `#solo` da projeção do maquete
+         (`smart-traffic-maquete/dashboard/frontend/projecao/index.html`). De lá vêm,
+         na mesma ordem e com os mesmos papéis:
+
+           · a LINHA DE CROMO — marca, sobrancelha, catálogo de cores e as pastilhas
+             de estado, tudo numa tira só, na borda de cima da tarja;
+           · o CORPO EM MÉTRICAS — uma coluna por métrica, separadas por filete, cada
+             uma com o rótulo pequeno em versalete, o DELTA grande com seta, e uma
+             linha fina por política (barra + número tabular).
+
+         O QUE MUDOU EM RELAÇÃO À REFERÊNCIA, e por quê: lá são DOIS braços (timer e
+         rede) e cada tile repete os rótulos "timer"/"rede". Aqui são TRÊS, e repetir
+         três nomes em três colunas gastaria a largura que é das barras. Então a
+         identidade saiu para uma COLUNA À ESQUERDA, compartilhada pelas três
+         métricas — o resto é a tarja de lá. A barra do `entregues` também é a única
+         que carrega régua, ticks e moldura de vencedor: ela é a manchete (ver o
+         cabeçalho de placar.js), as outras duas são contexto.
+
+         A FAIXA DO TOPO SUMIU. Era uma tarja reservada de 44 px só para o cromo do
+         operador, e o mapa pagava por ela. Na referência não existe topo nenhum no
+         modo de malha única (`body.solo #top { display: none }`): o cromo mora na
+         linha de cima da tarja, junto da marca. Aqui também. -->
     <section id="placar">
-      <div id="placar-cab">
-        <span class="manchete">CARROS ENTREGUES</span>
-        <span class="regua-legenda"><i></i> régua: o timer fixo</span>
-        <span class="relogio">faltam <b id="relogio">—</b> s</span>
+
+      <!-- O CROMO DO OPERADOR MORA ATRÁS DA TECLA `I`, junto da régua de bancada.
+           Ele estava numa tira permanente: quatro pastilhas (faixas/semáforos, seed +
+           sha da demanda, janela, fase) mais um catálogo de cores de quatro itens.
+           São dez textos de 17 a 19 px ocupando a borda de cima da tarja a feira
+           inteira — e nenhum deles é lido pela plateia a dois metros. Cenário, seed e
+           sha são para quem opera e para a foto de auditoria, e é lá que eles ficam
+           agora. O catálogo saiu junto: as bolinhas se leem, as palavras não. -->
+      <div id="placar-cromo">
+        <span class="cromo-meta">
+          <span class="chip" id="chip-rede">…</span>
+          <span class="chip" id="chip-chave">…</span>
+          <span class="chip" id="chip-janela"></span>
+          <span class="chip fase">fase <b id="fase-nome">OCIOSO</b></span>
+        </span>
       </div>
-      <div id="placar-linhas"></div>
+
+      <div id="placar-corpo">
+
+        <!-- UMA grade só para identidade + as métricas. O `Placar` (js/placar.js)
+             completa: ele acrescenta o cabeçalho de cada métrica e uma `.pl-linha` por
+             braço, em `display: contents`, atravessando todas as colunas.
+
+             Grade ÚNICA, e não uma por linha: com grades separadas a faixa
+             `max-content` do delta era calculada POR LINHA, e a barra de quem estava
+             ganhando saía mais curta que a de quem estava perdendo.
+
+             A célula da identidade é ESTÁTICA e vem primeiro no DOM (é o que a põe na
+             coluna 1 da primeira linha da grade). Ela guarda a marca e, logo abaixo, o
+             RELÓGIO durante a rodada — o mesmo lugar, dois conteúdos que nunca
+             coexistem: fora da rodada não há tempo correndo, e aí o slot volta a ser a
+             sobrancelha. Uma faixa própria só para o relógio custaria altura de mapa
+             para mostrar algo que só existe em duas das cinco fases. -->
+        <div id="placar-linhas">
+          <div class="t-hd t-hd-id">
+            <span class="marca-linha">
+              <span class="marca">SMART<i>·</i>TRAFFIC</span>
+              <span class="chip live"><i></i><b id="live-txt">conectando</b></span>
+            </span>
+            <span class="sobrancelha">Iniciação Científica · FIAP</span>
+            <span class="relogio">faltam <b id="relogio">—</b> s</span>
+          </div>
+        </div>
+
+        <!-- O quadro de recordes: a disputa ENTRE VISITANTES, que é outra da que o
+             placar mostra. Vem de `GET /api/ranking` (ver feira/jogo/ranking.py) —
+             HTTP e não mensagem nova no fio, porque o C7 é contrato congelado. -->
+        <aside id="ranking">
+          <div class="rk-cab"><b id="rk-titulo">MELHORES DA FEIRA</b><span id="rk-resumo"></span></div>
+          <ol id="rk-lista"></ol>
+        </aside>
+      </div>
+
       <div id="veredito"></div>
+      <!-- A COLOCAÇÃO do visitante e a medalha (gamificação, docs/GAMIFICACAO.md §3.6).
+           Vem da mensagem `ranking` com `ultima`, logo depois do placar de resultado.
+           Escondida quando não há marca (rodada travada, não pareada, teste) e fora
+           do RESULTADO. -->
+      <div id="colocacao" hidden data-medalha="">
+        <i id="colocacao-med"></i>
+        <span class="col-txt">
+          <b id="colocacao-titulo"></b>
+          <span id="colocacao-sub"></span>
+          <span id="colocacao-med-txt"></span>
+        </span>
+      </div>
     </section>
 
     <!-- ================= telas por fase ========================================= -->
@@ -42,8 +117,17 @@
          encostada no placar, onde não cobre via nenhuma. -->
     <div class="tela" id="tela-ocioso">
       <div class="faixa">
+        <!-- Com a entrada web ligada o convite vira o CAMPO DE APELIDO (o visitante
+             digita olhando para o chão) e depois "ANA · APERTE ESPAÇO". Sem ela, é o
+             convite de sempre. `#nivel` é a hora de trânsito sorteada e o nível dela
+             (DIFICULDADE.md §5): aparece quando o servidor manda `proxima`. -->
         <div class="convite">APERTE O BOTÃO VERDE PARA JOGAR</div>
-        <div class="media">a rede neural controla os 12 semáforos · o timer fixo é a régua</div>
+        <div class="media">12 semáforos · 120 segundos · a mesma hora de trânsito para os três</div>
+        <div class="nivel" id="nivel" hidden></div>
+        <!-- A legenda das PLACAS (docs/GAMIFICACAO.md; entrada.js, cabeçalho): amarelo =
+             pedido registrado, verde = trocou, vermelho = cedo demais. Só com a entrada
+             web ligada — o `projecao.js` preenche e mostra. -->
+        <div class="legenda" id="legenda" hidden></div>
       </div>
     </div>
 
@@ -70,6 +154,11 @@
       <div class="d-corpo" id="denuncia-corpo"></div>
       <div class="d-nota" id="denuncia-nota"></div>
     </div>
+
+    <!-- A única falha nova que a entrada web introduz: o navegador perder o foco
+         (alguém clicou no notebook, Alt-Tab). As teclas param de chegar, e a página
+         diz isso no chão, grande, até o foco voltar. -->
+    <div id="foco"><b>CLIQUE NA TELA DO NOTEBOOK</b><span>o teclado não está chegando à projeção</span></div>
 
     <div id="degradado">
       <b>MODO DEGRADADO</b><span id="degradado-msg"></span>

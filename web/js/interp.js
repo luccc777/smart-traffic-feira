@@ -55,7 +55,7 @@ function hermite(p, v, dt, k) {
   };
 }
 
-const DELAY = 1.15;      // s simulados atrás do frame mais novo (>1 step: sempre há par)
+export const DELAY = 1.15;      // s simulados atrás do frame mais novo (>1 step: sempre há par)
 const DRIFT_GAIN = 0.5;
 const RATE_MIN = 0.85, RATE_MAX = 1.15;
 const MAX_DT = 0.25;     // passo real (s) acima disto = gap (aba inativa) -> re-sincroniza

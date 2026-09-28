@@ -74,16 +74,38 @@ class Placar:
     # frame fecha do lado do braço: o cliente tem que poder DENUNCIAR, não adivinhar.
     motivo: str = ""               # por que a rodada terminou assim (livre, humano)
     pareado: bool = True           # os selos de t0 bateram? False => não compare
+    # Dois campos ADITIVOS (Onda 3½, gamificação — docs/GAMIFICACAO.md §6.2), com
+    # default para nenhum consumidor existente quebrar:
+    #
+    # `rodada`: o contador de rodadas do motor. É a IDENTIDADE da rodada no fio. Sem
+    # ele, quem consome o placar (o quadro de recordes) só consegue distinguir duas
+    # rodadas pela tupla de números — e duas pessoas que entregam o mesmo tanto na
+    # mesma seed colidem legitimamente. 0 = "mensagem anterior ao campo".
+    #
+    # `sinais`: os sinais de saúde do braço humano (`feira/metricas.py::
+    # sinais_de_travamento`, com o timer da mesma seed como referência). Vazio = são.
+    # Não vazio = a rodada NÃO VALE como comparação — a malha travou neste braço — e
+    # o vencedor fica em branco. É o terceiro significado de `vencedor=None` que o
+    # fio precisava separar: sem este campo, "TRAVOU" chegaria à tela idêntico a
+    # "EMPATE" (`pareado=true`, sem vencedor, com linha do humano), e distingui-los
+    # exigiria parsear `motivo` — string livre como discriminador de estado, a
+    # classe de erro que `pareado` foi criado para eliminar.
+    rodada: int = 0
+    sinais: tuple[str, ...] = ()
 
     @staticmethod
     def monta(fase: str, t: float, chave: Chave, linhas: list[LinhaPlacar],
               *, t_restante: float = 0.0, vencedor: str | None = None,
-              motivo: str = "", pareado: bool = True) -> "Placar":
+              motivo: str = "", pareado: bool = True,
+              rodada: int = 0, sinais=()) -> "Placar":
         if fase not in FASES:
             raise ValueError("fase %r desconhecida (use %r)" % (fase, FASES))
         for ln in linhas:
             if ln.braco not in BRACOS:
                 raise ValueError("braço %r desconhecido (use %r)" % (ln.braco, BRACOS))
+        sinais = tuple(str(s) for s in (sinais or ()))
+        if sinais and vencedor is not None:
+            raise ValueError("rodada com sinais de travamento não pode ter vencedor")
         return Placar(
             tipo="placar",
             fase=fase,
@@ -96,7 +118,14 @@ class Placar:
             vencedor=vencedor,
             motivo=str(motivo or ""),
             pareado=bool(pareado),
+            rodada=int(rodada),
+            sinais=sinais,
         )
+
+    @property
+    def valida(self) -> bool:
+        """A rodada vale como comparação? Pareada E sem sinal de travamento."""
+        return self.pareado and not self.sinais
 
     def json(self) -> dict:
         # `type` SAI JUNTO de `tipo`, de propósito. O frame usa `type` porque
@@ -106,7 +135,7 @@ class Placar:
         # `m.type || m.tipo`, e o dia em que alguém esquecer a segunda metade a
         # mensagem some sem erro. Duplicar 16 bytes fecha o buraco sem quebrar
         # nenhum dos dois lados (achado do agente A7).
-        return {**asdict(self), "type": self.tipo}
+        return {**asdict(self), "type": self.tipo, "sinais": list(self.sinais)}
 
 
 def frame_wire(braco: str, t: float, *, decisao: int, substep: int, politica: str,

@@ -282,6 +282,19 @@ class EstadoProjecao:
     enviadas: int = 0
     clientes_caidos: int = 0
     bench: dict | None = None
+    # O quadro de recordes da feira. Alimentado pela MESMA mensagem `placar` do C7 que
+    # a tela já recebe — nada novo no contrato, nada novo no motor (ver ranking.py).
+    ranking: Any = None
+    # --- gamificação (Onda 3½, docs/GAMIFICACAO.md) — tudo opcional, tudo com default:
+    # sem nada disto ligado o servidor se comporta exatamente como antes.
+    jogador: str | None = None          # apelido de quem vai jogar a PRÓXIMA rodada
+    teste_proxima: bool = False         # a próxima rodada é do operador/ensaio
+    fonte_web: Any = None               # `FonteWeb`: o teclado lido pela página (WS /entrada)
+    ao_abortar: Callable[[], None] | None = None     # o motor, pela página do operador
+    ao_pular: Callable[[], None] | None = None       # idem: encurtar o RESULTADO
+    proxima_seed: Callable[[], int] | None = None    # `lambda: motor.seed`, para o nível
+    ritmo: float = 1.0                  # segundos simulados por segundo de parede (motor)
+    ultima_marca: Any = None
     relogio: Callable[[], float] = time.perf_counter
     _rede: dict | None = None
     _loop: asyncio.AbstractEventLoop | None = None
@@ -330,6 +343,7 @@ class EstadoProjecao:
         tipo = msg.get("tipo") or msg.get("type")
         if tipo == "placar":
             self.ultimo_placar = msg
+            self._registra(msg)
             fase = msg.get("fase")
             if fase in FASES:
                 self.fase = fase
@@ -352,6 +366,79 @@ class EstadoProjecao:
             self._bcast.put_nowait(msg)
         except asyncio.QueueFull:
             self.descartadas += 1
+
+    # ------------------------------------------------------------ gamificação
+    def _registra(self, msg: dict) -> None:
+        """Um `placar` chegou: se for RESULTADO de rodada de gente, vira marca.
+
+        O apelido é consumido quando a rodada ACONTECEU (há linha do humano), mesmo
+        que não tenha virado marca (travou, não pareada): a pessoa jogou. Rodada não
+        concluída (sem linha do humano — SUMO caiu) NÃO consome: é a rodada grátis, e
+        o mesmo nome vale para a repetição.
+        """
+        if msg.get("fase") != RESULTADO:
+            return
+        marca = None
+        if self.ranking is not None:
+            try:
+                marca = self.ranking.registra(msg, nome=self.jogador,
+                                              teste=self.teste_proxima)
+            except Exception:
+                marca = None
+        jogou = any(ln.get("braco") == "humano" for ln in (msg.get("linhas") or ()))
+        if marca is not None:
+            self.ultima_marca = marca
+            try:
+                self._difunde(self.ranking.json(ultima=marca))
+            except Exception:
+                pass
+        if jogou:
+            self.define_jogador(None)
+            self.teste_proxima = False
+
+    def define_jogador(self, nome: str | None) -> dict:
+        """Quem joga a próxima rodada. Difunde para a tela mostrar o nome no `ocioso`."""
+        from .ranking import normaliza_nome
+
+        self.jogador = normaliza_nome(nome) or None
+        msg = self.msg_jogador()
+        self._difunde(msg)
+        return msg
+
+    def msg_jogador(self) -> dict:
+        from .ranking import ANONIMO
+
+        n = 1
+        if self.ranking is not None:
+            try:
+                n = 1 + max((m.ordem for m in self.ranking._marcas), default=0)
+            except Exception:
+                pass
+        return {"tipo": "jogador", "nome": self.jogador, "teste": self.teste_proxima,
+                "anonimo": "%s %d" % (ANONIMO, n)}
+
+    def proxima(self) -> dict | None:
+        """A seed da próxima rodada e o nível dela (docs/GAMIFICACAO.md §2.6)."""
+        if self.proxima_seed is None:
+            return None
+        from .dificuldade import descreve
+
+        try:
+            seed = int(self.proxima_seed())
+        except Exception:
+            return None
+        hoje = None
+        if self.ranking is not None:
+            try:
+                hoje = self.ranking.por_seed(seed)
+            except Exception:
+                hoje = None
+        return {"tipo": "proxima", **descreve(seed, hoje)}
+
+    def entrada(self, msg: dict) -> None:
+        """Uma mensagem da página para a `FonteWeb` (WS /entrada)."""
+        if self.fonte_web is not None:
+            self.fonte_web.recebe(msg)
 
     # ------------------------------------------------------------- divergência
     def divergencia(self) -> str:
@@ -407,7 +494,41 @@ class EstadoProjecao:
             "recebidas": self.recebidas, "descartadas": self.descartadas,
             "clientes": len(self.clientes),
             "t_servidor": round(time.time(), 3),
+            # gamificação: a página só captura teclas se a entrada web estiver ligada
+            "entrada_web": self.fonte_web is not None,
+            "jogador": self.jogador,
+            "proxima": self.proxima(),
+            "ritmo": float(self.ritmo),
+            # a grade da rodada, para a página explicar a espera (docs/GAMIFICACAO.md §2.8)
+            "grade": self.grade(),
+            # as teclas estão chegando? (a pergunta nº 1 quando "não funciona")
+            "entrada": self.entrada_status(),
         }
+
+    def entrada_status(self) -> dict | None:
+        fw = self.fonte_web
+        if fw is None:
+            return None
+        try:
+            viu = float(getattr(fw, "viu_em", 0.0) or 0.0)
+            return {"mensagens": int(getattr(fw, "n_mensagens", 0)),
+                    "desconhecidas": int(getattr(fw, "n_desconhecidas", 0)),
+                    "ticks": int(getattr(fw, "n_ticks", 0)),
+                    "abortos": int(getattr(fw, "n_abortos", 0)),
+                    "ha_s": None if not viu else round(time.monotonic() - viu, 1)}
+        except Exception:
+            return None
+
+    def grade(self) -> dict | None:
+        """`decision_interval` / `min_green` / `yellow` do cenário, em s simulados."""
+        r = getattr(self.cenario, "restricoes", None)
+        if r is None:
+            return None
+        try:
+            return {"di": float(r.decision_interval), "min_green": float(r.min_green),
+                    "yellow": float(r.yellow)}
+        except Exception:
+            return None
 
     def rede(self) -> dict:
         if self._rede is None:
@@ -424,6 +545,9 @@ class EstadoProjecao:
                 saida.append(self.ultimo_frame[braco])
         if self.ultimo_placar is not None:
             saida.append(self.ultimo_placar)
+        if self.fonte_web is not None:
+            saida.append(self.fonte_web.quadro_leds())
+            saida.append(self.msg_jogador())
         return saida
 
 
@@ -616,6 +740,101 @@ def cria_app(estado: EstadoProjecao, *, raiz: Path | None = None):
     @app.get("/api/estado")
     async def api_estado():
         return JSONResponse(estado.status())
+
+    @app.get("/api/ranking")
+    async def api_ranking(n: int = 5, escopo: str = "dia"):
+        """As melhores rodadas HUMANAS da feira.
+
+        HTTP e não uma mensagem nova no fio: o C7 é contrato congelado e um quadro de
+        recordes é assunto de TELA, não de rodada. O front busca isto ao carregar e
+        quando a fase entra em `resultado`. `escopo=feira` une os arquivos de todos
+        os dias da pasta.
+        """
+        if estado.ranking is None:
+            return JSONResponse({"tipo": "ranking", "total": 0, "vitorias": 0,
+                                 "topo": [], "desligado": True})
+        n = max(1, min(50, int(n)))
+        if escopo == "feira" and estado.ranking.caminho is not None:
+            marcas = estado.ranking.da_feira(estado.ranking.caminho.parent)
+            return JSONResponse(estado.ranking.json(n, marcas=marcas, escopo="feira"))
+        return JSONResponse(estado.ranking.json(n, ultima=estado.ultima_marca))
+
+    # ------------------------------------------------------------ gamificação
+    @app.get("/api/jogador")
+    async def api_jogador_get():
+        return JSONResponse(estado.msg_jogador())
+
+    @app.post("/api/jogador")
+    async def api_jogador_post(payload: dict):
+        """O apelido de quem vai jogar a PRÓXIMA rodada — vem da página projetada
+        (o visitante digitou no teclado, olhando para o chão)."""
+        return JSONResponse(estado.define_jogador(payload.get("nome")))
+
+    @app.get("/api/proxima")
+    async def api_proxima():
+        return JSONResponse(estado.proxima() or {"tipo": "proxima", "seed": None})
+
+    @app.post("/api/abortar")
+    async def api_abortar():
+        """Só o operador aborta (docs/GAMIFICACAO.md §2.5). A página do operador
+        pede confirmação; aqui é só o gancho."""
+        if estado.ao_abortar is None:
+            return JSONResponse({"ok": False, "motivo": "sem motor ligado"})
+        estado.ao_abortar()
+        return JSONResponse({"ok": True})
+
+    @app.post("/api/pular")
+    async def api_pular():
+        if estado.ao_pular is None:
+            return JSONResponse({"ok": False, "motivo": "sem motor ligado"})
+        estado.ao_pular()
+        return JSONResponse({"ok": True})
+
+    @app.post("/api/teste")
+    async def api_teste(payload: dict):
+        """Marca a PRÓXIMA rodada como teste do operador: fica no arquivo, sai do quadro."""
+        estado.teste_proxima = bool(payload.get("teste", True))
+        return JSONResponse(estado.msg_jogador())
+
+    @app.patch("/api/ranking/{id}")
+    async def api_ranking_patch(id: str, payload: dict):
+        """Moderação: renomear, marcar teste, remover (soft). Só da tela do notebook."""
+        if estado.ranking is None:
+            return JSONResponse({"ok": False, "motivo": "quadro desligado"})
+        m = estado.ranking.altera(id, nome=payload.get("nome"), teste=payload.get("teste"),
+                                  removida=payload.get("removida"))
+        if m is None:
+            return JSONResponse({"ok": False, "motivo": "marca %s não existe" % id})
+        estado._difunde(estado.ranking.json())
+        return JSONResponse({"ok": True, "marca": m.json()})
+
+    @app.delete("/api/ranking/{id}")
+    async def api_ranking_delete(id: str):
+        if estado.ranking is None:
+            return JSONResponse({"ok": False, "motivo": "quadro desligado"})
+        m = estado.ranking.altera(id, removida=True)
+        if m is None:
+            return JSONResponse({"ok": False, "motivo": "marca %s não existe" % id})
+        estado._difunde(estado.ranking.json())
+        return JSONResponse({"ok": True})
+
+    @app.websocket("/entrada")
+    async def entrada(websocket: WebSocket):
+        """O teclado junto do projetor: a página manda as teclas para a `FonteWeb`.
+
+        Recebe-só. O feedback (os 12 LEDs) volta pelo `/ws` normal, junto de tudo
+        o mais que a página já recebe — não há segundo canal para desenhar.
+        """
+        await websocket.accept()
+        try:
+            while True:
+                msg = await websocket.receive_json()
+                if isinstance(msg, dict):
+                    estado.entrada(msg)
+        except WebSocketDisconnect:
+            pass
+        except Exception:
+            pass
 
     @app.get("/api/bench")
     async def api_bench_get():

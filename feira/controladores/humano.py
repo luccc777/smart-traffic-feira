@@ -157,6 +157,16 @@ class ControladorHumano:
         self.gravacao.append(tuple(apertados))
         self.n_decisoes += 1
         self.fonte.feedback(list(self._ultimo))
+        # O TICK, anunciado a quem souber ouvir (a página projetada, pela `FonteWeb`):
+        # é AQUI que a intenção é julgada, e a tela precisa do instante exato para o
+        # anel do pedido encher até o momento certo — não até uma estimativa. Fora do
+        # C6 de propósito: fonte sem `ao_tick` simplesmente não fica sabendo.
+        tick = getattr(self.fonte, "ao_tick", None)
+        if callable(tick):
+            try:
+                tick(float(obs.t))
+            except Exception:
+                pass
         avanca = getattr(self.fonte, "avanca_tick", None)
         if callable(avanca):
             avanca()

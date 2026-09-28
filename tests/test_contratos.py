@@ -486,3 +486,23 @@ def test_chave_gravada_sem_aquecimento_le_como_timer():
                    "janela": {"t0": 300.0, "t1": 420.0},
                    "demanda_sha": "cd" * 32, "restricoes": "di5/vm7/am3/mr0"})
     assert k.aquecimento == "timer"
+
+
+def test_placar_ganhou_rodada_e_sinais_aditivos():
+    """Onda 3½: `rodada` (identidade da rodada no fio) e `sinais` (o portão de saúde
+    da rodada curta). Com default, para nenhum consumidor existente quebrar; e uma
+    rodada com sinais NÃO pode ter vencedor — TRAVOU não é EMPATE."""
+    k = Chave(cenario="x", seed=1, janela=Janela(0.0, 10.0), demanda_sha="a" * 64,
+              restricoes="di5/vm7/am3/mr0")
+    linhas = [LinhaPlacar(b, b.upper(), 10, 1.0, 2.0, b != "humano")
+              for b in ("timer", "rl", "humano")]
+    antigo = Placar.monta("resultado", 10.0, k, linhas).json()
+    assert antigo["rodada"] == 0 and antigo["sinais"] == []
+    travou = Placar.monta("resultado", 10.0, k, linhas, rodada=17,
+                          sinais=("acúmulo excedente +51 pp",), motivo="o trânsito travou")
+    d = travou.json()
+    assert d["rodada"] == 17 and d["sinais"] == ["acúmulo excedente +51 pp"]
+    assert d["pareado"] is True and d["vencedor"] is None
+    assert not travou.valida and Placar.monta("jogando", 1.0, k, linhas).valida
+    with pytest.raises(ValueError, match="sinais"):
+        Placar.monta("resultado", 10.0, k, linhas, vencedor="rl", sinais=["x"])

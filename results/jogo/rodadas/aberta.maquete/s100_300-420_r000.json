@@ -1,7 +1,7 @@
 {
  "cenario": "aberta.maquete",
- "demanda_sha": "af695bc569ba396386692f3c0f716a2f5290731a6ebc6ec58f81dd94f6a013b0",
- "fonte": "teclado",
+ "demanda_sha": "b7439f0da2c68d11cc686f1eec68fd97ffe9b8bf585e429fa61849f2d4464e9c",
+ "fonte": "web+teclado",
  "n_botoes": 12,
  "restricoes": "di5/vm7/am3/mr0",
  "seed": 100,
@@ -9,14 +9,32 @@
  "t1": 420.0,
  "ticks": [
   [],
+  [
+   0,
+   5
+  ],
   [],
+  [
+   2,
+   9
+  ],
+  [
+   3,
+   4
+  ],
+  [
+   1,
+   10
+  ],
+  [
+   6,
+   8
+  ],
   [],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [],
+  [
+   7,
+   11
+  ],
   [],
   [],
   [],

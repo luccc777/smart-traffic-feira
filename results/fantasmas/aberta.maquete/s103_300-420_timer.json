@@ -1,0 +1,755 @@
+{
+ "chave": {
+  "aquecimento": "timer",
+  "cenario": "aberta.maquete",
+  "demanda_sha": "3eda2ba3237992c4c482f32988036a97573bbb7032d0693a0e7b6033f98c3c52",
+  "janela": {
+   "t0": 300.0,
+   "t1": 420.0
+  },
+  "restricoes": "di5/vm7/am3/mr0",
+  "seed": 103
+ },
+ "controlador": "timer:uniforme_27s",
+ "final": {
+  "ativos_fim": 166,
+  "ativos_inicio": 125,
+  "backlog_insercao": 0,
+  "chave": {
+   "aquecimento": "timer",
+   "cenario": "aberta.maquete",
+   "demanda_sha": "3eda2ba3237992c4c482f32988036a97573bbb7032d0693a0e7b6033f98c3c52",
+   "janela": {
+    "t0": 300.0,
+    "t1": 420.0
+   },
+   "restricoes": "di5/vm7/am3/mr0",
+   "seed": 103
+  },
+  "controlador": "timer:uniforme_27s",
+  "entregues": 92,
+  "espera_media": 582.4333333333333,
+  "fila_media": 50.325,
+  "inseridos": 133,
+  "perdidos": 0,
+  "tempo_medio_entregue": 155.07608695652175,
+  "tempo_medio_no_sistema": 107.24806201550388,
+  "travou": false
+ },
+ "serie": [
+  {
+   "entregues": 0,
+   "fila": 64.0,
+   "t": 302.0,
+   "tempo_medio": 0.0
+  },
+  {
+   "entregues": 0,
+   "fila": 67.0,
+   "t": 303.0,
+   "tempo_medio": 0.0
+  },
+  {
+   "entregues": 1,
+   "fila": 73.0,
+   "t": 304.0,
+   "tempo_medio": 207.0
+  },
+  {
+   "entregues": 1,
+   "fila": 46.0,
+   "t": 305.0,
+   "tempo_medio": 207.0
+  },
+  {
+   "entregues": 2,
+   "fila": 33.0,
+   "t": 306.0,
+   "tempo_medio": 182.0
+  },
+  {
+   "entregues": 5,
+   "fila": 26.0,
+   "t": 307.0,
+   "tempo_medio": 172.6
+  },
+  {
+   "entregues": 5,
+   "fila": 26.0,
+   "t": 308.0,
+   "tempo_medio": 172.6
+  },
+  {
+   "entregues": 7,
+   "fila": 23.0,
+   "t": 309.0,
+   "tempo_medio": 166.9
+  },
+  {
+   "entregues": 7,
+   "fila": 26.0,
+   "t": 310.0,
+   "tempo_medio": 166.9
+  },
+  {
+   "entregues": 8,
+   "fila": 27.0,
+   "t": 311.0,
+   "tempo_medio": 171.0
+  },
+  {
+   "entregues": 8,
+   "fila": 32.0,
+   "t": 312.0,
+   "tempo_medio": 171.0
+  },
+  {
+   "entregues": 9,
+   "fila": 32.0,
+   "t": 313.0,
+   "tempo_medio": 166.3
+  },
+  {
+   "entregues": 11,
+   "fila": 31.0,
+   "t": 314.0,
+   "tempo_medio": 159.5
+  },
+  {
+   "entregues": 11,
+   "fila": 30.0,
+   "t": 315.0,
+   "tempo_medio": 159.5
+  },
+  {
+   "entregues": 11,
+   "fila": 31.0,
+   "t": 316.0,
+   "tempo_medio": 159.5
+  },
+  {
+   "entregues": 11,
+   "fila": 32.0,
+   "t": 317.0,
+   "tempo_medio": 159.5
+  },
+  {
+   "entregues": 11,
+   "fila": 35.0,
+   "t": 318.0,
+   "tempo_medio": 159.5
+  },
+  {
+   "entregues": 11,
+   "fila": 40.0,
+   "t": 319.0,
+   "tempo_medio": 159.5
+  },
+  {
+   "entregues": 11,
+   "fila": 44.0,
+   "t": 320.0,
+   "tempo_medio": 159.5
+  },
+  {
+   "entregues": 13,
+   "fila": 47.0,
+   "t": 321.0,
+   "tempo_medio": 158.8
+  },
+  {
+   "entregues": 14,
+   "fila": 48.0,
+   "t": 322.0,
+   "tempo_medio": 154.3
+  },
+  {
+   "entregues": 15,
+   "fila": 50.0,
+   "t": 323.0,
+   "tempo_medio": 157.5
+  },
+  {
+   "entregues": 16,
+   "fila": 52.0,
+   "t": 324.0,
+   "tempo_medio": 162.1
+  },
+  {
+   "entregues": 16,
+   "fila": 53.0,
+   "t": 325.0,
+   "tempo_medio": 162.1
+  },
+  {
+   "entregues": 16,
+   "fila": 52.0,
+   "t": 326.0,
+   "tempo_medio": 162.1
+  },
+  {
+   "entregues": 16,
+   "fila": 51.0,
+   "t": 327.0,
+   "tempo_medio": 162.1
+  },
+  {
+   "entregues": 17,
+   "fila": 52.0,
+   "t": 328.0,
+   "tempo_medio": 160.2
+  },
+  {
+   "entregues": 18,
+   "fila": 53.0,
+   "t": 329.0,
+   "tempo_medio": 157.9
+  },
+  {
+   "entregues": 18,
+   "fila": 55.0,
+   "t": 330.0,
+   "tempo_medio": 157.9
+  },
+  {
+   "entregues": 19,
+   "fila": 59.0,
+   "t": 331.0,
+   "tempo_medio": 157.3
+  },
+  {
+   "entregues": 20,
+   "fila": 61.0,
+   "t": 332.0,
+   "tempo_medio": 155.8
+  },
+  {
+   "entregues": 20,
+   "fila": 62.0,
+   "t": 333.0,
+   "tempo_medio": 155.8
+  },
+  {
+   "entregues": 20,
+   "fila": 68.0,
+   "t": 334.0,
+   "tempo_medio": 155.8
+  },
+  {
+   "entregues": 21,
+   "fila": 54.0,
+   "t": 335.0,
+   "tempo_medio": 154.6
+  },
+  {
+   "entregues": 24,
+   "fila": 41.0,
+   "t": 336.0,
+   "tempo_medio": 153.3
+  },
+  {
+   "entregues": 26,
+   "fila": 32.0,
+   "t": 337.0,
+   "tempo_medio": 151.7
+  },
+  {
+   "entregues": 26,
+   "fila": 30.0,
+   "t": 338.0,
+   "tempo_medio": 151.7
+  },
+  {
+   "entregues": 27,
+   "fila": 29.0,
+   "t": 339.0,
+   "tempo_medio": 153.5
+  },
+  {
+   "entregues": 27,
+   "fila": 28.0,
+   "t": 340.0,
+   "tempo_medio": 153.5
+  },
+  {
+   "entregues": 27,
+   "fila": 28.0,
+   "t": 341.0,
+   "tempo_medio": 153.5
+  },
+  {
+   "entregues": 27,
+   "fila": 32.0,
+   "t": 342.0,
+   "tempo_medio": 153.5
+  },
+  {
+   "entregues": 27,
+   "fila": 33.0,
+   "t": 343.0,
+   "tempo_medio": 153.5
+  },
+  {
+   "entregues": 29,
+   "fila": 32.0,
+   "t": 344.0,
+   "tempo_medio": 153.3
+  },
+  {
+   "entregues": 29,
+   "fila": 33.0,
+   "t": 345.0,
+   "tempo_medio": 153.3
+  },
+  {
+   "entregues": 30,
+   "fila": 35.0,
+   "t": 346.0,
+   "tempo_medio": 154.3
+  },
+  {
+   "entregues": 30,
+   "fila": 37.0,
+   "t": 347.0,
+   "tempo_medio": 154.3
+  },
+  {
+   "entregues": 30,
+   "fila": 38.0,
+   "t": 348.0,
+   "tempo_medio": 154.3
+  },
+  {
+   "entregues": 30,
+   "fila": 42.0,
+   "t": 349.0,
+   "tempo_medio": 154.3
+  },
+  {
+   "entregues": 31,
+   "fila": 43.0,
+   "t": 350.0,
+   "tempo_medio": 152.5
+  },
+  {
+   "entregues": 33,
+   "fila": 46.0,
+   "t": 351.0,
+   "tempo_medio": 156.2
+  },
+  {
+   "entregues": 34,
+   "fila": 48.0,
+   "t": 352.0,
+   "tempo_medio": 157.8
+  },
+  {
+   "entregues": 35,
+   "fila": 53.0,
+   "t": 353.0,
+   "tempo_medio": 157.4
+  },
+  {
+   "entregues": 36,
+   "fila": 59.0,
+   "t": 354.0,
+   "tempo_medio": 157.4
+  },
+  {
+   "entregues": 37,
+   "fila": 63.0,
+   "t": 355.0,
+   "tempo_medio": 155.9
+  },
+  {
+   "entregues": 39,
+   "fila": 68.0,
+   "t": 356.0,
+   "tempo_medio": 155.4
+  },
+  {
+   "entregues": 40,
+   "fila": 71.0,
+   "t": 357.0,
+   "tempo_medio": 156.4
+  },
+  {
+   "entregues": 41,
+   "fila": 75.0,
+   "t": 358.0,
+   "tempo_medio": 155.3
+  },
+  {
+   "entregues": 41,
+   "fila": 77.0,
+   "t": 359.0,
+   "tempo_medio": 155.3
+  },
+  {
+   "entregues": 41,
+   "fila": 78.0,
+   "t": 360.0,
+   "tempo_medio": 155.3
+  },
+  {
+   "entregues": 41,
+   "fila": 82.0,
+   "t": 361.0,
+   "tempo_medio": 155.3
+  },
+  {
+   "entregues": 42,
+   "fila": 88.0,
+   "t": 362.0,
+   "tempo_medio": 154.4
+  },
+  {
+   "entregues": 42,
+   "fila": 92.0,
+   "t": 363.0,
+   "tempo_medio": 154.4
+  },
+  {
+   "entregues": 43,
+   "fila": 98.0,
+   "t": 364.0,
+   "tempo_medio": 155.8
+  },
+  {
+   "entregues": 43,
+   "fila": 68.0,
+   "t": 365.0,
+   "tempo_medio": 155.8
+  },
+  {
+   "entregues": 45,
+   "fila": 48.0,
+   "t": 366.0,
+   "tempo_medio": 155.9
+  },
+  {
+   "entregues": 45,
+   "fila": 39.0,
+   "t": 367.0,
+   "tempo_medio": 155.9
+  },
+  {
+   "entregues": 47,
+   "fila": 41.0,
+   "t": 368.0,
+   "tempo_medio": 154.6
+  },
+  {
+   "entregues": 48,
+   "fila": 37.0,
+   "t": 369.0,
+   "tempo_medio": 155.3
+  },
+  {
+   "entregues": 48,
+   "fila": 35.0,
+   "t": 370.0,
+   "tempo_medio": 155.3
+  },
+  {
+   "entregues": 48,
+   "fila": 35.0,
+   "t": 371.0,
+   "tempo_medio": 155.3
+  },
+  {
+   "entregues": 48,
+   "fila": 33.0,
+   "t": 372.0,
+   "tempo_medio": 155.3
+  },
+  {
+   "entregues": 49,
+   "fila": 33.0,
+   "t": 373.0,
+   "tempo_medio": 155.7
+  },
+  {
+   "entregues": 49,
+   "fila": 34.0,
+   "t": 374.0,
+   "tempo_medio": 155.7
+  },
+  {
+   "entregues": 49,
+   "fila": 34.0,
+   "t": 375.0,
+   "tempo_medio": 155.7
+  },
+  {
+   "entregues": 49,
+   "fila": 36.0,
+   "t": 376.0,
+   "tempo_medio": 155.7
+  },
+  {
+   "entregues": 49,
+   "fila": 37.0,
+   "t": 377.0,
+   "tempo_medio": 155.7
+  },
+  {
+   "entregues": 49,
+   "fila": 43.0,
+   "t": 378.0,
+   "tempo_medio": 155.7
+  },
+  {
+   "entregues": 51,
+   "fila": 47.0,
+   "t": 379.0,
+   "tempo_medio": 154.7
+  },
+  {
+   "entregues": 54,
+   "fila": 49.0,
+   "t": 380.0,
+   "tempo_medio": 153.9
+  },
+  {
+   "entregues": 55,
+   "fila": 54.0,
+   "t": 381.0,
+   "tempo_medio": 153.9
+  },
+  {
+   "entregues": 56,
+   "fila": 54.0,
+   "t": 382.0,
+   "tempo_medio": 153.8
+  },
+  {
+   "entregues": 57,
+   "fila": 55.0,
+   "t": 383.0,
+   "tempo_medio": 153.8
+  },
+  {
+   "entregues": 60,
+   "fila": 59.0,
+   "t": 384.0,
+   "tempo_medio": 155.3
+  },
+  {
+   "entregues": 61,
+   "fila": 61.0,
+   "t": 385.0,
+   "tempo_medio": 154.3
+  },
+  {
+   "entregues": 61,
+   "fila": 64.0,
+   "t": 386.0,
+   "tempo_medio": 154.3
+  },
+  {
+   "entregues": 62,
+   "fila": 64.0,
+   "t": 387.0,
+   "tempo_medio": 154.6
+  },
+  {
+   "entregues": 64,
+   "fila": 63.0,
+   "t": 388.0,
+   "tempo_medio": 154.3
+  },
+  {
+   "entregues": 65,
+   "fila": 65.0,
+   "t": 389.0,
+   "tempo_medio": 154.1
+  },
+  {
+   "entregues": 66,
+   "fila": 66.0,
+   "t": 390.0,
+   "tempo_medio": 153.1
+  },
+  {
+   "entregues": 68,
+   "fila": 67.0,
+   "t": 391.0,
+   "tempo_medio": 153.1
+  },
+  {
+   "entregues": 70,
+   "fila": 71.0,
+   "t": 392.0,
+   "tempo_medio": 153.5
+  },
+  {
+   "entregues": 70,
+   "fila": 75.0,
+   "t": 393.0,
+   "tempo_medio": 153.5
+  },
+  {
+   "entregues": 71,
+   "fila": 85.0,
+   "t": 394.0,
+   "tempo_medio": 153.1
+  },
+  {
+   "entregues": 72,
+   "fila": 64.0,
+   "t": 395.0,
+   "tempo_medio": 152.2
+  },
+  {
+   "entregues": 72,
+   "fila": 53.0,
+   "t": 396.0,
+   "tempo_medio": 152.2
+  },
+  {
+   "entregues": 72,
+   "fila": 38.0,
+   "t": 397.0,
+   "tempo_medio": 152.2
+  },
+  {
+   "entregues": 73,
+   "fila": 35.0,
+   "t": 398.0,
+   "tempo_medio": 152.1
+  },
+  {
+   "entregues": 74,
+   "fila": 31.0,
+   "t": 399.0,
+   "tempo_medio": 152.2
+  },
+  {
+   "entregues": 74,
+   "fila": 29.0,
+   "t": 400.0,
+   "tempo_medio": 152.2
+  },
+  {
+   "entregues": 74,
+   "fila": 33.0,
+   "t": 401.0,
+   "tempo_medio": 152.2
+  },
+  {
+   "entregues": 77,
+   "fila": 35.0,
+   "t": 402.0,
+   "tempo_medio": 151.7
+  },
+  {
+   "entregues": 78,
+   "fila": 40.0,
+   "t": 403.0,
+   "tempo_medio": 151.1
+  },
+  {
+   "entregues": 79,
+   "fila": 42.0,
+   "t": 404.0,
+   "tempo_medio": 152.0
+  },
+  {
+   "entregues": 79,
+   "fila": 43.0,
+   "t": 405.0,
+   "tempo_medio": 152.0
+  },
+  {
+   "entregues": 79,
+   "fila": 46.0,
+   "t": 406.0,
+   "tempo_medio": 152.0
+  },
+  {
+   "entregues": 79,
+   "fila": 48.0,
+   "t": 407.0,
+   "tempo_medio": 152.0
+  },
+  {
+   "entregues": 79,
+   "fila": 49.0,
+   "t": 408.0,
+   "tempo_medio": 152.0
+  },
+  {
+   "entregues": 79,
+   "fila": 50.0,
+   "t": 409.0,
+   "tempo_medio": 152.0
+  },
+  {
+   "entregues": 79,
+   "fila": 55.0,
+   "t": 410.0,
+   "tempo_medio": 152.0
+  },
+  {
+   "entregues": 79,
+   "fila": 57.0,
+   "t": 411.0,
+   "tempo_medio": 152.0
+  },
+  {
+   "entregues": 79,
+   "fila": 60.0,
+   "t": 412.0,
+   "tempo_medio": 152.0
+  },
+  {
+   "entregues": 81,
+   "fila": 64.0,
+   "t": 413.0,
+   "tempo_medio": 152.8
+  },
+  {
+   "entregues": 82,
+   "fila": 69.0,
+   "t": 414.0,
+   "tempo_medio": 153.0
+  },
+  {
+   "entregues": 82,
+   "fila": 74.0,
+   "t": 415.0,
+   "tempo_medio": 153.0
+  },
+  {
+   "entregues": 84,
+   "fila": 76.0,
+   "t": 416.0,
+   "tempo_medio": 153.6
+  },
+  {
+   "entregues": 86,
+   "fila": 77.0,
+   "t": 417.0,
+   "tempo_medio": 153.3
+  },
+  {
+   "entregues": 87,
+   "fila": 78.0,
+   "t": 418.0,
+   "tempo_medio": 153.5
+  },
+  {
+   "entregues": 89,
+   "fila": 79.0,
+   "t": 419.0,
+   "tempo_medio": 153.8
+  },
+  {
+   "entregues": 90,
+   "fila": 79.0,
+   "t": 420.0,
+   "tempo_medio": 153.6
+  }
+ ]
+}
