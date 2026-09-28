@@ -26,6 +26,8 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 VAL = RAIZ / "docs" / "validation"
 
+BR = chr(10)
+
 MIME = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}
 
 
@@ -373,6 +375,56 @@ def main() -> int:
             "<code>feira/arena/</code>, <code>results/rl/</code> e <code>experiments/</code>."))
     A("</table>")
 
+    A("<h3>3.4 — O visitante de verdade (teclado, reflexos, desistência)</h3>")
+    A("<p>Um teclado no chão, uma fila atrás e ninguém explicando. Estes itens não "
+      "perguntam se o jogo funciona — perguntam o que acontece quando a pessoa "
+      "<b>desiste</b>, erra, segura a tecla ou aperta a tecla que todo usuário de "
+      "computador aperta para cancelar.</p>")
+    A("<table><tr><th>item</th><th>veredito</th><th>evidência</th></tr>")
+    A(linha("Desistir DEPOIS de confirmar o apelido devolve a vez", "PASSOU",
+            "Medido no sistema rodando: <code>MARIA</code> → ENTER (servidor: "
+            "<code>MARIA</code>) → <kbd>Esc</kbd> (servidor: <code>null</code>) → o "
+            "próximo digita <code>JOAO</code> e joga como <code>JOAO</code>. "
+            "Antes não havia volta — ver §4.8."))
+    A(linha("Apelido abandonado expira sozinho", "PASSOU",
+            "<code>revisaEspera</code> (função pura) devolve a vez depois de 90 s sem "
+            "toque, e a página a consulta a 1 Hz. Não incomoda quem está digitando nem "
+            "a rodada em curso. Coberto por "
+            "<code>test_o_apelido_abandonado_expira_sozinho</code>."))
+    A(linha("ESPAÇO na tela de resultado não come a rodada seguinte", "PASSOU",
+            "Martelei <kbd>ESPAÇO</kbd> 4× no resultado: a tela padrão <b>ficou</b> no "
+            "ar com o campo aberto e só 1 rodada rodou. Antes a tela padrão durava "
+            "20 ms — ver §4.10."))
+    A(linha("Um <kbd>Esc</kbd> sozinho não aborta a rodada", "PASSOU",
+            "São necessários três em 1,5 s. Três espaçados também não abortam. É a "
+            "tecla do reflexo, então a abertura é deliberada, nunca acidental."))
+    A(linha("<kbd>Esc</kbd> não derruba a projeção da tela cheia", "PASSOU",
+            "A Keyboard Lock API prende o <code>Escape</code> enquanto a projeção está "
+            "em tela cheia: a tecla chega à página (cancela o apelido) e a imagem fica "
+            "no chão. Para sair de verdade, segura-se o <kbd>Esc</kbd>. Disponível "
+            "neste Chrome (verificado); sem suporte, degrada."))
+    A(linha("Teclas do jogo não vazam enquanto o nome é digitado", "PASSOU",
+            "<code>q w e r</code> viram letras do apelido e nenhuma ação sai para o "
+            "servidor; com o campo fechado elas voltam a ser os 12 semáforos."))
+    A(linha("ESPAÇO com o apelido pela metade é ignorado", "PASSOU",
+            "Confirmado no sistema rodando: digitei <code>AN</code>, apertei "
+            "<kbd>ESPAÇO</kbd> e nenhuma rodada começou. Só ENTER confirma — ou "
+            "ESPAÇO com o campo vazio, que joga como <i>Visitante N</i>."))
+    A(linha("Tecla segurada não vira rajada", "PASSOU",
+            "Seis <code>keydown</code> com <code>repeat</code> deixaram um único "
+            "caractere. No jogo, a repetição é descartada antes do fio — e antes de "
+            "vazar para os atalhos do operador."))
+    A(linha("Apelido muito longo é cortado com limpeza", "PASSOU",
+            "20 caracteres digitados viraram 12 (<code>NOME_MAX</code>), sem estourar "
+            "a faixa de texto."))
+    A(linha("Martelar o botão no 3·2·1 não dá trocas de graça", "PASSOU",
+            "A fonte é drenada durante a contagem e o que vier é descartado "
+            "(<code>MotorDoJogo._contagem</code>)."))
+    A(linha("START durante a rodada não aborta (preset da feira)", "PASSOU",
+            "Com <code>--abortar operador</code> o ESPAÇO do visitante é contado e "
+            "ignorado, e o botão grande pisca <code>deny</code>."))
+    A("</table>")
+
     # ------------------------------------------------------------ 4. bugs
     A("<h2>4. Bugs encontrados e corrigidos</h2>")
 
@@ -476,6 +528,58 @@ def main() -> int:
       "exemplos do cabeçalho usam caminho absoluto. Uma linha: "
       "<code>Path(a.saida).resolve()</code>.</p>")
 
+    A("<h3>4.8 — Depois do ENTER não havia como desistir</h3>")
+    A("<p><b>Sintoma.</b> Entre o ENTER e o ESPAÇO existe um estado em que a pessoa já "
+      "disse o nome e ainda não jogou. Dali não havia volta: <kbd>Esc</kbd> não fazia "
+      "nada, <kbd>Backspace</kbd> não fazia nada, e <kbd>Esc</kbd> 3× mandava "
+      "<code>abortar</code> — que fora da rodada é no-op — deixando o nome pendurado "
+      "do mesmo jeito.</p>")
+    A('<div class="aviso">Consequência numa fila: quem desistia ali <b>entregava o '
+      'apelido ao próximo</b>, que jogava e entrava no quadro de recordes com o nome '
+      'errado. E o nome só saía quando alguma rodada finalmente acontecesse.</div>')
+    A("<p><b>Correção.</b> No <code>ocioso</code>, <kbd>Esc</kbd> cancela e "
+      "<kbd>Backspace</kbd> reabre para corrigir; as duas avisam o servidor com nome "
+      "vazio, porque enquanto o campo está aberto ninguém está confirmado. Na rodada "
+      "em curso <kbd>Esc</kbd> continua sendo o abortar do operador — a fase é que "
+      "decide.</p>")
+
+    A("<h3>4.9 — O apelido abandonado não expirava</h3>")
+    A("<p>Nenhuma tecla resolve o caso de quem confirma e vai embora sem apertar mais "
+      "nada. Quem resolve é o relógio: <code>revisaEspera</code> devolve a vez depois "
+      "de 90 s, e a página a consulta a 1 Hz. É função pura e só produz mensagem "
+      "quando há o que expirar.</p>")
+
+    A("<h3>4.10 — O ESPAÇO da tela de resultado comia a rodada seguinte</h3>")
+    A("<p><b>Sintoma.</b> O reflexo mais comum que existe: quem acaba de jogar aperta "
+      "<kbd>ESPAÇO</kbd> de novo (“mais uma!”), olhando para o próprio resultado. O "
+      "evento ficava na fila da fonte e o <code>espera_start()</code> seguinte o "
+      "encontrava esperando por ele.</p>")
+    A("<pre><code>resultado   493159 ms" + BR + "ocioso      500176 ms   (7,0 s — correto)"
+      + BR + "preparando  500196 ms   (20 ms depois)</code></pre>")
+    A('<div class="aviso"><b>Vinte milissegundos de tela padrão.</b> Três perdas de '
+      'uma vez: a demonstração RL × timer nunca aparecia entre as rodadas, o próximo '
+      'da fila não tinha como digitar o apelido, e a rodada saía como '
+      '<i>Visitante N</i> — porque o nome do anterior já tinha sido consumido. Quem '
+      'apertou não pediu nada disso.</div>')
+    A("<p><b>Correção.</b> <code>MotorDoJogo._descarta_entrada</code> aplica no fim da "
+      "rodada o <b>mesmo cuidado que a contagem já tinha</b> (“quem martela o botão no "
+      "3·2·1 não começa a rodada com 12 trocas de graça”) — faltava na outra ponta, "
+      "onde o efeito era pior. Depois da correção: <kbd>ESPAÇO</kbd> martelado 4× no "
+      "resultado, a tela padrão fica no ar com o campo aberto, e só 1 rodada rodou.</p>")
+
+    A("<h3>4.11 — <kbd>Esc</kbd> derrubava a projeção da tela cheia</h3>")
+    A("<p>Esc é a tecla que o visitante aperta por reflexo para “cancelar” — e o "
+      "navegador responde <b>saindo da tela cheia</b>. No meio da feira isso tira a "
+      "projeção do chão até alguém notar e apertar <kbd>F</kbd> de novo. "
+      "<code>preventDefault</code> não resolve: nenhuma página impede o Esc de sair da "
+      "tela cheia por essa via.</p>")
+    A("<p><b>Correção.</b> A Keyboard Lock API, feita exatamente para isto. Com "
+      "<code>Escape</code> travado, a tecla <b>chega à página</b> (e cancela o "
+      "apelido, que é o que a pessoa queria) e a tela cheia fica; para sair de "
+      "verdade, segura-se o Esc. Precisa de contexto seguro, e "
+      "<code>http://127.0.0.1</code> é um. Sem suporte (Firefox, Safari) a tela cheia "
+      "entra do mesmo jeito: degrada, não quebra.</p>")
+
     # ------------------------------------------------------------ 5. limites
     A("<h2>5. O que não foi possível testar, e por quê</h2>")
     A("<ul>")
@@ -512,7 +616,7 @@ def main() -> int:
 
     passou = VEREDITOS.count("PASSOU")
     cartoes = ['<div class="grade">']
-    for rot, val in (("suíte automática", "784 passam"),
+    for rot, val in (("suíte automática", "799 passam"),
                      ("rodadas completas gravadas", "3"),
                      ("tela de resultado", "7,02 s"),
                      ("itens do checklist",

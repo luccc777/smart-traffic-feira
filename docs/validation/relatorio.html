@@ -98,10 +98,10 @@ li{margin:5px 0}
 <div class="nota"><b>O que este relatório prova.</b> O sistema foi rodado de verdade — SUMO, servidor, projeção e teclado — e uma pessoa jogou uma rodada inteira pelo navegador. Três rodadas completas foram gravadas mensagem a mensagem no WebSocket da projeção; todo número citado aqui sai desses arquivos (<code>docs/validation/fio_r*.json</code>), não de estimativa.</div>
 <h2>Resumo</h2>
 <div class="grade">
-<div class="cartao"><div class="n">784 passam</div><div class="r">suíte automática</div></div>
+<div class="cartao"><div class="n">799 passam</div><div class="r">suíte automática</div></div>
 <div class="cartao"><div class="n">3</div><div class="r">rodadas completas gravadas</div></div>
 <div class="cartao"><div class="n">7,02 s</div><div class="r">tela de resultado</div></div>
-<div class="cartao"><div class="n">16 de 16</div><div class="r">itens do checklist</div></div>
+<div class="cartao"><div class="n">27 de 27</div><div class="r">itens do checklist</div></div>
 </div>
 <h2>1. Como rodar</h2>
 <p>Um comando. O preset <code>--feira</code> liga tudo que a feira usa: teclado lido pela página projetada, quadro de recordes do dia com validade de 30 min, gravação das rodadas, e a <b>tela padrão</b> (os dois braços rodando ao vivo enquanto ninguém joga).</p>
@@ -159,6 +159,21 @@ python scripts\valida_fluxo.py --analisa turno.jsonl</code></pre>
 <tr><td>Resultado aparece, fica 7 s e volta ao ocioso</td><td class="v ok">PASSOU</td><td>Três rodadas gravadas, três vezes <b>7,02 s</b> (<code>[7.02]</code>, <code>[7.02]</code>, <code>[7.02]</code>), sempre seguidas de <code>ocioso</code> sem intervenção.</td></tr>
 <tr><td>Nada da RL foi tocado</td><td class="v ok">PASSOU</td><td><code>git diff</code> vazio em <code>feira/treino/</code>, <code>feira/controladores/rl.py</code>, <code>feira/adversarios/politicas.py</code>, <code>feira/arena/</code>, <code>results/rl/</code> e <code>experiments/</code>.</td></tr>
 </table></div>
+<h3>3.4 — O visitante de verdade (teclado, reflexos, desistência)</h3>
+<p>Um teclado no chão, uma fila atrás e ninguém explicando. Estes itens não perguntam se o jogo funciona — perguntam o que acontece quando a pessoa <b>desiste</b>, erra, segura a tecla ou aperta a tecla que todo usuário de computador aperta para cancelar.</p>
+<div class="rolagem"><table><tr><th>item</th><th>veredito</th><th>evidência</th></tr>
+<tr><td>Desistir DEPOIS de confirmar o apelido devolve a vez</td><td class="v ok">PASSOU</td><td>Medido no sistema rodando: <code>MARIA</code> → ENTER (servidor: <code>MARIA</code>) → <kbd>Esc</kbd> (servidor: <code>null</code>) → o próximo digita <code>JOAO</code> e joga como <code>JOAO</code>. Antes não havia volta — ver §4.8.</td></tr>
+<tr><td>Apelido abandonado expira sozinho</td><td class="v ok">PASSOU</td><td><code>revisaEspera</code> (função pura) devolve a vez depois de 90 s sem toque, e a página a consulta a 1 Hz. Não incomoda quem está digitando nem a rodada em curso. Coberto por <code>test_o_apelido_abandonado_expira_sozinho</code>.</td></tr>
+<tr><td>ESPAÇO na tela de resultado não come a rodada seguinte</td><td class="v ok">PASSOU</td><td>Martelei <kbd>ESPAÇO</kbd> 4× no resultado: a tela padrão <b>ficou</b> no ar com o campo aberto e só 1 rodada rodou. Antes a tela padrão durava 20 ms — ver §4.10.</td></tr>
+<tr><td>Um <kbd>Esc</kbd> sozinho não aborta a rodada</td><td class="v ok">PASSOU</td><td>São necessários três em 1,5 s. Três espaçados também não abortam. É a tecla do reflexo, então a abertura é deliberada, nunca acidental.</td></tr>
+<tr><td><kbd>Esc</kbd> não derruba a projeção da tela cheia</td><td class="v ok">PASSOU</td><td>A Keyboard Lock API prende o <code>Escape</code> enquanto a projeção está em tela cheia: a tecla chega à página (cancela o apelido) e a imagem fica no chão. Para sair de verdade, segura-se o <kbd>Esc</kbd>. Disponível neste Chrome (verificado); sem suporte, degrada.</td></tr>
+<tr><td>Teclas do jogo não vazam enquanto o nome é digitado</td><td class="v ok">PASSOU</td><td><code>q w e r</code> viram letras do apelido e nenhuma ação sai para o servidor; com o campo fechado elas voltam a ser os 12 semáforos.</td></tr>
+<tr><td>ESPAÇO com o apelido pela metade é ignorado</td><td class="v ok">PASSOU</td><td>Confirmado no sistema rodando: digitei <code>AN</code>, apertei <kbd>ESPAÇO</kbd> e nenhuma rodada começou. Só ENTER confirma — ou ESPAÇO com o campo vazio, que joga como <i>Visitante N</i>.</td></tr>
+<tr><td>Tecla segurada não vira rajada</td><td class="v ok">PASSOU</td><td>Seis <code>keydown</code> com <code>repeat</code> deixaram um único caractere. No jogo, a repetição é descartada antes do fio — e antes de vazar para os atalhos do operador.</td></tr>
+<tr><td>Apelido muito longo é cortado com limpeza</td><td class="v ok">PASSOU</td><td>20 caracteres digitados viraram 12 (<code>NOME_MAX</code>), sem estourar a faixa de texto.</td></tr>
+<tr><td>Martelar o botão no 3·2·1 não dá trocas de graça</td><td class="v ok">PASSOU</td><td>A fonte é drenada durante a contagem e o que vier é descartado (<code>MotorDoJogo._contagem</code>).</td></tr>
+<tr><td>START durante a rodada não aborta (preset da feira)</td><td class="v ok">PASSOU</td><td>Com <code>--abortar operador</code> o ESPAÇO do visitante é contado e ignorado, e o botão grande pisca <code>deny</code>.</td></tr>
+</table></div>
 <h2>4. Bugs encontrados e corrigidos</h2>
 <h3>4.1 — O convite era desenhado por cima da malha</h3>
 <p><b>Sintoma.</b> A instrução de como jogar ficava ancorada na base da área de simulação, sobre um degradê que <i>apagava</i> a malha atrás dela para o texto se ler. Funcionava como tipografia e falhava como projeção: o degradê comia ~140 px de via desenhada — a fileira de quarteirões de baixo, onde vão os prédios físicos.</p>
@@ -188,6 +203,22 @@ python scripts\valida_fluxo.py --analisa turno.jsonl</code></pre>
 <p>Confirmado no fio: <code>ocioso_mesma_seed = True</code>, seeds por braço <code>{'timer': 101, 'rl': 101}</code>.</p>
 <h3>4.7 — <code>projecao_telas.py</code> reportava FALHOU com a foto gravada</h3>
 <p>O script passava um caminho <b>relativo</b> para o <code>--screenshot</code> do Chrome e depois procurava o arquivo a partir do processo Python. A foto ia para outro lugar e as cinco fases saíam “FALHOU”. Só não aparecia porque os exemplos do cabeçalho usam caminho absoluto. Uma linha: <code>Path(a.saida).resolve()</code>.</p>
+<h3>4.8 — Depois do ENTER não havia como desistir</h3>
+<p><b>Sintoma.</b> Entre o ENTER e o ESPAÇO existe um estado em que a pessoa já disse o nome e ainda não jogou. Dali não havia volta: <kbd>Esc</kbd> não fazia nada, <kbd>Backspace</kbd> não fazia nada, e <kbd>Esc</kbd> 3× mandava <code>abortar</code> — que fora da rodada é no-op — deixando o nome pendurado do mesmo jeito.</p>
+<div class="aviso">Consequência numa fila: quem desistia ali <b>entregava o apelido ao próximo</b>, que jogava e entrava no quadro de recordes com o nome errado. E o nome só saía quando alguma rodada finalmente acontecesse.</div>
+<p><b>Correção.</b> No <code>ocioso</code>, <kbd>Esc</kbd> cancela e <kbd>Backspace</kbd> reabre para corrigir; as duas avisam o servidor com nome vazio, porque enquanto o campo está aberto ninguém está confirmado. Na rodada em curso <kbd>Esc</kbd> continua sendo o abortar do operador — a fase é que decide.</p>
+<h3>4.9 — O apelido abandonado não expirava</h3>
+<p>Nenhuma tecla resolve o caso de quem confirma e vai embora sem apertar mais nada. Quem resolve é o relógio: <code>revisaEspera</code> devolve a vez depois de 90 s, e a página a consulta a 1 Hz. É função pura e só produz mensagem quando há o que expirar.</p>
+<h3>4.10 — O ESPAÇO da tela de resultado comia a rodada seguinte</h3>
+<p><b>Sintoma.</b> O reflexo mais comum que existe: quem acaba de jogar aperta <kbd>ESPAÇO</kbd> de novo (“mais uma!”), olhando para o próprio resultado. O evento ficava na fila da fonte e o <code>espera_start()</code> seguinte o encontrava esperando por ele.</p>
+<pre><code>resultado   493159 ms
+ocioso      500176 ms   (7,0 s — correto)
+preparando  500196 ms   (20 ms depois)</code></pre>
+<div class="aviso"><b>Vinte milissegundos de tela padrão.</b> Três perdas de uma vez: a demonstração RL × timer nunca aparecia entre as rodadas, o próximo da fila não tinha como digitar o apelido, e a rodada saía como <i>Visitante N</i> — porque o nome do anterior já tinha sido consumido. Quem apertou não pediu nada disso.</div>
+<p><b>Correção.</b> <code>MotorDoJogo._descarta_entrada</code> aplica no fim da rodada o <b>mesmo cuidado que a contagem já tinha</b> (“quem martela o botão no 3·2·1 não começa a rodada com 12 trocas de graça”) — faltava na outra ponta, onde o efeito era pior. Depois da correção: <kbd>ESPAÇO</kbd> martelado 4× no resultado, a tela padrão fica no ar com o campo aberto, e só 1 rodada rodou.</p>
+<h3>4.11 — <kbd>Esc</kbd> derrubava a projeção da tela cheia</h3>
+<p>Esc é a tecla que o visitante aperta por reflexo para “cancelar” — e o navegador responde <b>saindo da tela cheia</b>. No meio da feira isso tira a projeção do chão até alguém notar e apertar <kbd>F</kbd> de novo. <code>preventDefault</code> não resolve: nenhuma página impede o Esc de sair da tela cheia por essa via.</p>
+<p><b>Correção.</b> A Keyboard Lock API, feita exatamente para isto. Com <code>Escape</code> travado, a tecla <b>chega à página</b> (e cancela o apelido, que é o que a pessoa queria) e a tela cheia fica; para sair de verdade, segura-se o Esc. Precisa de contexto seguro, e <code>http://127.0.0.1</code> é um. Sem suporte (Firefox, Safari) a tela cheia entra do mesmo jeito: degrada, não quebra.</p>
 <h2>5. O que não foi possível testar, e por quê</h2>
 <ul>
 <li><b>Legibilidade real a 2 m no chão.</b> Depende de brilho do projetor, luz ambiente e distância — só existe na bancada, com o projetor ligado. O que dá para afirmar daqui é a geometria (fotos em 1920×1080) e a conta de contraste e de minutos de arco, que o próprio repo audita (<code>scripts/projecao_contraste.py</code>, 0 reprovados a 25 lux). <b>Pendente para o dono:</b> a lista de conferência de bancada em docs/PROJECAO.md §2.2.</li>
