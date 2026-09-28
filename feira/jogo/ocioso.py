@@ -143,23 +143,46 @@ class SupervisorOcioso:
         """Um passo da máquina. Pública para o teste chamar sem thread nem sleep."""
         if self.estado.fase != OCIOSO:
             if self.rodando:
-                self.log("ocioso: fase %s — descendo os feeds" % self.estado.fase)
+                # A VOLTA MORRE AQUI, e por isso a seed anda. Os feeds são derrubados
+                # (os 120 s do visitante não dividem CPU com dois SUMOs) e, quando o
+                # ocioso voltar, eles recomeçam do t0 com aquecimento novo — não há
+                # como pausar o SUMO no meio e retomar. Se a seed não andasse, numa
+                # feira com um visitante a cada dois minutos a volta NUNCA chegaria ao
+                # fim, e o público veria a mesma hora de trânsito recomeçar o dia
+                # inteiro — exatamente o que o rodízio existe para evitar.
+                self._fecha_volta("rodada começou")
                 self.derruba()
             return
         if not self.rodando:
             if time.monotonic() >= self._proxima_em:
                 self.sobe()
             return
-        # Volta terminada = os DOIS braços saíram. Enquanto um continua, o outro que
-        # já acabou fica quieto: não se puxa a próxima seed com meia tela viva.
-        if all(p.poll() is not None for p in self._procs.values()):
-            codigos = {b: p.returncode for b, p in self._procs.items()}
-            self.voltas += 1
-            self.log("ocioso: volta %d (seed %d) terminada: %s"
-                     % (self.voltas, self.seed_atual, codigos))
-            self._procs.clear()
-            self.i_seed += 1
-            self._proxima_em = time.monotonic() + FOLGA_VOLTA_S
+        # A VOLTA ACABA QUANDO O PRIMEIRO BRAÇO SAI, não quando os dois saem.
+        #
+        # Era `all(...)`, com a ideia de "não puxar a próxima seed com meia tela viva".
+        # O efeito era o contrário: o braço sobrevivente continuava desenhando mapa e o
+        # PLACAR CONGELAVA, porque ele só pode sair no maior `t` que os DOIS passaram
+        # (`EstadoProjecao.placar_ocioso`). Meia tela viva era precisamente o que
+        # aquela espera produzia — mapa andando, números parados, por até o resto da
+        # volta. E isso não é raro: o vigia de população aborta a volta ANTES no braço
+        # que congestiona mais, que é justamente o timer.
+        #
+        # Quando um braço para, a comparação acabou. O que sobra é encerrar a volta e
+        # começar a próxima, pareada desde o t0.
+        if any(p.poll() is not None for p in self._procs.values()):
+            mortos = [b for b, p in self._procs.items() if p.poll() is not None]
+            self._fecha_volta("saiu: %s" % ",".join(sorted(mortos)))
+            self.derruba()
+
+    def _fecha_volta(self, motivo: str) -> None:
+        """Encerra a volta corrente e aponta o rodízio para a próxima hora de trânsito."""
+        if not self._procs:
+            return
+        self.voltas += 1
+        self.log("ocioso: volta %d (seed %d) encerrada — %s"
+                 % (self.voltas, self.seed_atual, motivo))
+        self.i_seed += 1
+        self._proxima_em = time.monotonic() + FOLGA_VOLTA_S
 
     # ----------------------------------------------------------- subprocessos
     def sobe(self) -> None:

@@ -219,18 +219,42 @@ def test_supervisor_sobe_no_ocioso_e_desce_na_rodada(estado, monkeypatch):
     assert sup.rodando
 
 
-def test_proxima_volta_so_comeca_com_os_DOIS_bracos_terminados(estado, monkeypatch):
+def test_a_volta_acaba_quando_o_PRIMEIRO_braco_sai(estado, monkeypatch):
+    """Era `all(...)`: esperava os DOIS para não ficar com "meia tela viva". O efeito
+    era o contrário.
+
+    O placar do ocioso só pode sair no maior `t` que os DOIS braços passaram. Com um
+    braço morto e o outro vivo, o mapa continuava andando e os NÚMEROS CONGELAVAM —
+    meia tela viva era exatamente o que aquela espera produzia, por até o resto da
+    volta. E não é raro: o vigia de população aborta antes no braço que congestiona
+    mais, que é o timer.
+    """
     sup, subiu = _supervisor(estado, monkeypatch)
     sup.ronda()
-    sup._procs["rl"].codigo = 0                # a RL terminou; o timer continua
+    sup._procs["rl"].codigo = 0                # um braço saiu; a comparação acabou
     sup.ronda()
-    assert sup.rodando and subiu == [100], "meia tela viva não puxa a próxima seed"
-    sup._procs["timer"].codigo = 0
-    sup.ronda()                                # agora sim: recolhe e avança a seed
-    assert not sup.rodando and sup.voltas == 1
+    assert not sup.rodando, "sobrou braço desenhando mapa com o placar congelado"
+    assert sup.voltas == 1
     sup._proxima_em = 0.0
     sup.ronda()
-    assert subiu == [100, 101]
+    assert subiu == [100, 101], "a próxima volta tem de ser outra hora de trânsito"
+
+
+def test_a_rodada_do_visitante_faz_a_hora_de_transito_rodar(estado, monkeypatch):
+    """A volta morre quando alguém joga (não há como pausar o SUMO e retomar), então
+    ela CONTA como volta dada. Sem isso, numa feira com um visitante a cada dois
+    minutos a volta nunca chegaria ao fim e o público veria a mesma hora de trânsito
+    recomeçar o dia inteiro — o oposto do que o rodízio existe para fazer."""
+    sup, subiu = _supervisor(estado, monkeypatch, seeds=(100, 101, 102))
+    for _ in range(3):
+        estado.fase = OCIOSO
+        sup._proxima_em = 0.0
+        sup.ronda()
+        estado.fase = JOGANDO
+        sup.ronda()
+        assert not sup.rodando
+    assert subiu == [100, 101, 102]
+    assert sup.voltas == 3
 
 
 # ------------------------------------------ 4. a época: cada fase tem os seus quadros
