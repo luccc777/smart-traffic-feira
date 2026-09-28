@@ -1,0 +1,33 @@
+# Versões EXATAS do ambiente em que a suíte fecha 784 passed (2026-09-27).
+#
+# Este repo NÃO tem .venv próprio, de propósito: ele usa o do `smart-traffic`, que é
+# o mesmo do `smart-traffic-rl`. Este arquivo existe para reconstruir esse ambiente
+# numa máquina nova, e para dizer exatamente com o que os números foram medidos.
+#
+#     ..\smart-traffic\.venv\Scripts\python.exe -m pip install -r requirements.txt
+#
+# O que NÃO está aqui, e por quê:
+#   traci, sumolib   vêm do SUMO (%SUMO_HOME%\tools), não do pip
+#   sim              o ambiente de RL, instalado do repo vizinho em modo editável:
+#                    pip install -e ..\smart-traffic-maquete --no-deps
+#
+# Python 3.12.10
+
+# --- núcleo (o `pyproject.toml` declara só `numpy`; o resto é dos extras)
+numpy==2.4.6
+scipy==1.18.0
+
+# --- a rede neural (extra: vem junto do pacote `sim` do maquete)
+torch==2.12.0
+
+# --- a projeção (extra `web`)
+fastapi==0.138.2
+uvicorn==0.49.0
+websockets==16.0
+
+# --- desenvolvimento (extra `dev`)
+pytest==9.1.1
+ruff==0.15.20
+
+# --- a botoeira (extra `serial`; o teclado não precisa)
+# pyserial>=3.5
