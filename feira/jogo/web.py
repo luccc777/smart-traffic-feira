@@ -368,6 +368,18 @@ class EstadoProjecao:
             if fase in FASES:
                 if fase != self.fase:
                     self._vira_epoca()
+                    if fase == OCIOSO:
+                        # A LINHA DO NÍVEL TEM DE ACOMPANHAR A VEZ. `proxima` (a seed
+                        # da próxima rodada e a dificuldade dela) só viajava no status
+                        # INICIAL — quem abrisse a projeção via a hora de trânsito
+                        # daquele instante e nunca mais. Depois da primeira rodada o
+                        # visitante lia "HORA DE TRÂNSITO 100 · hoje 0 de 0" enquanto o
+                        # motor já estava na 101, e o "0 de 0" também mentia: a seed
+                        # 100 já tinha um jogador. Voltar ao `ocioso` é exatamente
+                        # quando a vez é oferecida a alguém — é aqui que ela se diz.
+                        p = self.proxima()
+                        if p is not None:
+                            self._difunde(p)
                 self.fase = fase
             self.visto_em = self.relogio()
             if self.degradado:

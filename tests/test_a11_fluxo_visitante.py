@@ -318,3 +318,39 @@ def test_descartar_entrada_sobrevive_a_fonte_morta():
     motor = MotorDoJogo.__new__(MotorDoJogo)
     motor.fonte = FonteQueExplode()
     motor._descarta_entrada()                     # não levanta
+
+
+def test_voltar_ao_ocioso_anuncia_a_proxima_hora_de_transito():
+    """`proxima` só viajava no status INICIAL: quem abrisse a projeção via a seed
+    daquele instante e nunca mais.
+
+    Na feira isso aparece na primeira rodada: o motor passa para a 101 e a faixa
+    continua dizendo "HORA DE TRÂNSITO 100 · hoje 0 de 0" — seed errada e estatística
+    errada (a 100 já tinha um jogador). Medido na tela contra `/api/proxima`.
+    """
+    seeds = iter([100, 101])
+    est = EstadoProjecao()
+    est.proxima_seed = lambda: next(seeds)
+    difundidas = []
+    est._difunde = difundidas.append
+
+    est.fase = "jogando"
+    est.absorve({"tipo": "placar", "fase": OCIOSO, "t": 420.0, "t_restante": 0.0,
+                 "chave": {}, "linhas": []})
+    proximas = [m for m in difundidas if m.get("tipo") == "proxima"]
+    assert proximas, "voltou ao ocioso sem dizer qual é a próxima hora de trânsito"
+    assert proximas[-1]["seed"] == 100
+
+
+def test_so_anuncia_quando_a_fase_MUDA_para_ocioso():
+    """O ocioso publica placar a 1 Hz; anunciar em todo um deles seria uma mensagem
+    por segundo para dizer sempre a mesma coisa."""
+    est = EstadoProjecao()
+    est.proxima_seed = lambda: 107
+    difundidas = []
+    est._difunde = difundidas.append
+    est.fase = OCIOSO
+    for _ in range(3):
+        est.absorve({"tipo": "placar", "fase": OCIOSO, "t": 1.0, "t_restante": 0.0,
+                     "chave": {}, "linhas": []})
+    assert [m for m in difundidas if m.get("tipo") == "proxima"] == []
