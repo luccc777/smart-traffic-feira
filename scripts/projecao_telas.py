@@ -88,7 +88,12 @@ def main(argv=None) -> int:
         print("o servidor não subiu", file=sys.stderr)
         return 2
 
-    saida = Path(a.saida)
+    # ABSOLUTO, e tem de ser: o `--screenshot` do Chrome resolve o caminho por conta
+    # dele, e com um destino relativo a foto ia parar num lugar que este processo não
+    # olhava — `_foto` via `destino.exists() == False` e reportava FALHOU com a imagem
+    # gravada em outro canto. Só passava despercebido porque os exemplos do cabeçalho
+    # usam caminho absoluto.
+    saida = Path(a.saida).resolve()
     saida.mkdir(parents=True, exist_ok=True)
     fases = [a.fase] if a.fase else list(FASES)
     if a.denuncia:

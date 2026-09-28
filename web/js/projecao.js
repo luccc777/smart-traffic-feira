@@ -930,13 +930,16 @@ function demo(qual) {
     return;
   }
   if (qual === 'ocioso') {
-    // Sem mensagem `placar`: no ocioso de verdade ela não existe, e as linhas saem dos
-    // `stats` que a Arena já mede. O demo faz igual para a foto não mentir.
+    // COM mensagem `placar`, e passou a ter: no ocioso de verdade quem monta as duas
+    // linhas é o SERVIDOR (`EstadoProjecao.placar_ocioso`), que alinha os dois braços
+    // no mesmo `t` — a página não recalcula mais nada. O demo faz igual, senão a foto
+    // de bancada sairia com a tarja vazia e não seria a tela que a feira mostra.
     // `base`, nao `linhas`: no ocioso `frac` e 0 e `linhas` sai com entregues zerado.
     const [ti, rl] = [base.find(l => l.braco === 'timer'), base.find(l => l.braco === 'rl')];
     const st_ = l => ({ entregues: l.entregues, ativos: n, tempo_medio_entregue: l.tempo_medio, fila_media: l.fila });
     recebe({ ...demoFrame('rl', 372, n, J), stats: st_(rl) });
     recebe({ ...demoFrame('timer', 372, n, J), stats: st_(ti) });
+    recebe(pl('ocioso', { linhas: [ti, rl] }));
   } else if (qual === 'preparando') {
     // `linhas: []` porque é o que o motor publica em PREPARANDO e em CONTAGEM
     // (`_placar(fase, t, {}, None)`): ainda não há fantasma carregado nem humano
@@ -1017,7 +1020,10 @@ function demo(qual) {
       const ti = vivas.find(l => l.braco === 'timer'), rl = vivas.find(l => l.braco === 'rl');
       recebe({ ...demoFrame('rl', t, n, J), stats: st_(rl) });
       recebe({ ...demoFrame('timer', t, n, J), stats: st_(ti) });
-      return;                     // no ocioso não existe mensagem `placar`
+      // O placar do ocioso EXISTE (o servidor o publica, alinhado no mesmo `t`), e a
+      // tarja do demo tem de andar junto com os quadros como anda na feira.
+      recebe({ ...msg, linhas: [ti, rl] });
+      return;
     }
     if (qual === 'jogando') recebe(demoFrame('humano', t, n, J));
     if (qual === 'contagem') {

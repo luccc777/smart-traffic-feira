@@ -1,0 +1,113 @@
+{
+ "arquivo": "C:\\Users\\lucso\\AppData\\Local\\Temp\\claude\\C--Users-lucso-Documents-ic-smart-traffic-feira\\f4d244af-d7d2-412a-9d3c-bb7342502cc7\\scratchpad\\validacao_r2.jsonl",
+ "mensagens": 779,
+ "tipos": {
+  "projecao": 1,
+  "frame": 372,
+  "placar": 221,
+  "leds": 181,
+  "jogador": 3,
+  "ranking": 1
+ },
+ "duracao_s": 200.0,
+ "fases": [
+  {
+   "fase": "ocioso",
+   "inicio_s": 0.0,
+   "duracao_s": 59.4
+  },
+  {
+   "fase": "preparando",
+   "inicio_s": 59.4,
+   "duracao_s": 2.02
+  },
+  {
+   "fase": "contagem",
+   "inicio_s": 61.42,
+   "duracao_s": 3.02
+  },
+  {
+   "fase": "jogando",
+   "inicio_s": 64.44,
+   "duracao_s": 60.05
+  },
+  {
+   "fase": "resultado",
+   "inicio_s": 124.49,
+   "duracao_s": 7.02
+  },
+  {
+   "fase": "ocioso",
+   "inicio_s": 131.51,
+   "duracao_s": 68.51
+  }
+ ],
+ "ordem_das_fases": [
+  "ocioso",
+  "preparando",
+  "contagem",
+  "jogando",
+  "resultado",
+  "ocioso"
+ ],
+ "resultado_no_ar_s": [
+  7.02
+ ],
+ "voltou_sozinho_ao_ocioso": true,
+ "placares_do_ocioso": 95,
+ "ocioso_bracos": [
+  "rl",
+  "timer"
+ ],
+ "ocioso_ao_vivo": true,
+ "ocioso_exemplo": {
+  "timer": 52,
+  "rl": 62
+ },
+ "ocioso_seeds_por_braco": {
+  "timer": 101,
+  "rl": 101
+ },
+ "ocioso_mesma_seed": true,
+ "feedback_dos_botoes": {
+  "off": 1951,
+  "armed": 67,
+  "on": 154
+ },
+ "houve_troca_aceita": true,
+ "houve_recusa_por_cooldown": false,
+ "tls_amostrados_do_humano": 1440,
+ "tls_em_amarelo": 66,
+ "houve_transicao_amarela": true,
+ "resultado": {
+  "bracos": [
+   "humano",
+   "rl",
+   "timer"
+  ],
+  "entregues": {
+   "timer": 109,
+   "rl": 128,
+   "humano": 87
+  },
+  "vencedor": "rl",
+  "pareado": true,
+  "motivo": "",
+  "sinais": []
+ },
+ "comparou_humano_rl_timer": true,
+ "mensagens_de_ranking": 1,
+ "ranking_marcas": 1,
+ "ranking_validade_s": 1800.0,
+ "ranking_expira": true,
+ "ranking_topo": [
+  {
+   "nome": "CLAUDE",
+   "entregues": 87,
+   "score": -22,
+   "seed": 101,
+   "posicao": 1
+  }
+ ],
+ "ranking_registrou": true
+}

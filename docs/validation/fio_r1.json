@@ -1,0 +1,99 @@
+{
+ "arquivo": "C:\\Users\\lucso\\AppData\\Local\\Temp\\claude\\C--Users-lucso-Documents-ic-smart-traffic-feira\\f4d244af-d7d2-412a-9d3c-bb7342502cc7\\scratchpad\\validacao_r1.jsonl",
+ "mensagens": 873,
+ "tipos": {
+  "projecao": 1,
+  "frame": 443,
+  "placar": 249,
+  "leds": 177,
+  "jogador": 3
+ },
+ "duracao_s": 235.6,
+ "fases": [
+  {
+   "fase": "ocioso",
+   "inicio_s": 0.0,
+   "duracao_s": 73.77
+  },
+  {
+   "fase": "preparando",
+   "inicio_s": 73.77,
+   "duracao_s": 2.01
+  },
+  {
+   "fase": "contagem",
+   "inicio_s": 75.78,
+   "duracao_s": 3.03
+  },
+  {
+   "fase": "jogando",
+   "inicio_s": 78.81,
+   "duracao_s": 60.06
+  },
+  {
+   "fase": "resultado",
+   "inicio_s": 138.87,
+   "duracao_s": 7.02
+  },
+  {
+   "fase": "ocioso",
+   "inicio_s": 145.89,
+   "duracao_s": 89.75
+  }
+ ],
+ "ordem_das_fases": [
+  "ocioso",
+  "preparando",
+  "contagem",
+  "jogando",
+  "resultado",
+  "ocioso"
+ ],
+ "resultado_no_ar_s": [
+  7.02
+ ],
+ "voltou_sozinho_ao_ocioso": true,
+ "placares_do_ocioso": 123,
+ "ocioso_bracos": [
+  "rl",
+  "timer"
+ ],
+ "ocioso_ao_vivo": true,
+ "ocioso_exemplo": {
+  "timer": 78,
+  "rl": 92
+ },
+ "ocioso_seeds_por_braco": {
+  "rl": 101,
+  "timer": 101
+ },
+ "ocioso_mesma_seed": true,
+ "feedback_dos_botoes": {
+  "off": 2124
+ },
+ "houve_troca_aceita": false,
+ "houve_recusa_por_cooldown": false,
+ "tls_amostrados_do_humano": 1440,
+ "tls_em_amarelo": 0,
+ "houve_transicao_amarela": false,
+ "resultado": {
+  "bracos": [
+   "humano",
+   "rl",
+   "timer"
+  ],
+  "entregues": {
+   "timer": 111,
+   "rl": 125,
+   "humano": 38
+  },
+  "vencedor": null,
+  "pareado": true,
+  "motivo": "o trânsito travou: acúmulo excedente +53.0 pp sobre timer:uniforme_27s > 20 pp (a malha encheu neste braço e não no de referência) — você pediu 0 trocas em 24 ciclos, 0 aceitas",
+  "sinais": [
+   "acúmulo excedente +53.0 pp sobre timer:uniforme_27s > 20 pp (a malha encheu neste braço e não no de referência)"
+  ]
+ },
+ "comparou_humano_rl_timer": true,
+ "mensagens_de_ranking": 0
+}
