@@ -231,3 +231,41 @@ def test_proxima_volta_so_comeca_com_os_DOIS_bracos_terminados(estado, monkeypat
     sup._proxima_em = 0.0
     sup.ronda()
     assert subiu == [100, 101]
+
+
+# ------------------------------------------ 4. a época: cada fase tem os seus quadros
+def test_comecar_a_rodada_nao_denuncia_janela_do_feed_ocioso(estado):
+    """O DEFEITO, visto na bancada assim que a tela padrão e a rodada passaram a
+    conviver: o feed ocioso roda a janela dele (600 s de volta -> [300, 900]) e a
+    rodada roda a do jogo ([300, 420]). Ao apertar ESPAÇO, os quadros de `timer`/`rl`
+    continuavam guardados com a janela ANTIGA e `divergencia()` abria a rodada com
+    'JANELAS DIFERENTES — ESTA COMPARAÇÃO NÃO VALE' por cima de quem começou a jogar.
+
+    A denúncia estava certa sobre o que viu e errada sobre o mundo: não havia duas
+    medidas concorrentes, havia uma medida velha que ninguém apagou.
+    """
+    longa = (300.0, 900.0)
+    estado.absorve_externo(_frame("timer", 400.0, janela=longa))
+    estado.absorve_externo(_frame("rl", 400.0, janela=longa))
+    assert estado.divergencia() == ""
+
+    estado.absorve({"tipo": "placar", "fase": CONTAGEM, "t": 300.0, "t_restante": 120.0,
+                    "chave": {"cenario": "aberta.maquete", "seed": 100,
+                              "janela": [300.0, 420.0], "demanda": "abc"},
+                    "linhas": []})
+    assert estado.divergencia() == "", "a rodada abriu denunciando o feed anterior"
+    assert estado.ultimo_frame == {}
+
+
+def test_voltar_ao_ocioso_nao_denuncia_janela_da_rodada(estado):
+    """O simétrico: o quadro do `humano` ficava com a janela da rodada e denunciava a
+    tela padrão que vinha depois."""
+    estado.fase = "jogando"
+    estado.absorve({"tipo": "frame", "braco": "humano", "t": 350.0,
+                    "janela": [300.0, 420.0], "stats": {}})
+    estado.absorve({"tipo": "placar", "fase": OCIOSO, "t": 420.0, "t_restante": 0.0,
+                    "chave": {}, "linhas": []})
+    assert estado.ultimo_frame == {}
+    estado.absorve_externo(_frame("timer", 400.0, janela=(300.0, 900.0)))
+    estado.absorve_externo(_frame("rl", 400.0, janela=(300.0, 900.0)))
+    assert estado.divergencia() == ""

@@ -94,15 +94,32 @@
    * ali não era nem mapa nem fundo. A regra da feira é a da referência: texto EMBAIXO,
    * fora da área do mapa, nunca sobreposto.
    *
-   * 150 px cabem o convite (52 px, 61' de arco) mais a linha de contexto (24 px, 28')
-   * com o respiro entre eles. Somada ao placar dá 376 px de 1080 = 34,8% reservados,
-   * que é a mesma ordem da referência (336 px de folga natural, 31%).
+   * O NÚMERO SAIU DA MEDIDA, não do desenho. A faixa tem quatro linhas na configuração
+   * da feira (`--entrada web`), e medidas na página elas somam 172 px a 1080p:
+   *
+   *     convite  52 px   QUAL O SEU APELIDO? / APERTE ESPAÇO PARA COMEÇAR
+   *     contexto 32 px   DIGITE O NOME -> ENTER -> ESPAÇO
+   *     nível    31 px   HORA DE TRÂNSITO 100 · NÍVEL DIFÍCIL
+   *     legenda  27 px   o que cada cor de placa quer dizer
+   *     3 respiros de 10 px
+   *
+   * A primeira versão reservou 150 px olhando só para as duas primeiras — e as outras
+   * duas só existem com a entrada web, que é justamente como a feira roda. A faixa
+   * transbordava 8 px para dentro do mapa e 8 px para dentro do placar. 186 px cobrem
+   * as quatro com folga; `#tela-ocioso` recorta, para um texto mais comprido nunca
+   * voltar a vazar.
+   *
+   * Somada ao placar dá 412 px de 1080 = 38% reservados. É mais que os 31% da
+   * referência, e a razão é a rede: o quadro dela é 2,0:1 numa tela 1,78:1, então não
+   * existe folga natural nenhuma para o texto morar — na referência, 2,58:1 numa
+   * 1,78:1, a folga caía de graça. Aqui ela sai do mapa, que é a troca que a regra da
+   * feira manda fazer: texto legível primeiro, malha depois.
    *
    * É reservada em TODA fase, não só no `ocioso`, e isso é de propósito: o retângulo
    * do mapa fica CONSTANTE entre a tela padrão e a rodada. A escala do sprite não
    * muda quando o visitante aperta ESPAÇO, e a corrida dele aparece exatamente do
    * tamanho em que ele viu a demonstração. `H_MAPA_FOLGA` no projecao.js é a soma. */
-  --h-convite: 150px;
+  --h-convite: 186px;
 
   --fundo: #000000;
   --trilho: #4e5c6c;          /* L=0,104 — degrau 1,64 sobre o preto */
@@ -491,15 +508,22 @@ html[data-live="1"] .chip.live i {
  * 89 a 146 na mesma política. Ou seja, o primeiro lugar do quadro pode ter jogado
  * uma hora de trânsito mais fácil que o quinto. "Bateu a IA" é a única coluna que é
  * justa entre seeds, porque compara cada um com a rede neural da SUA rodada. */
+/* A LARGURA saiu da medida do título mais longo, não do gosto. Com `--ranking-validade`
+ * ligado (o preset da feira usa 30 min) o título é "MELHORES · ÚLTIMOS 30 MIN", que a
+ * 22 px com 0,14em de entreletra mede 388 px a 1080p. A coluna tinha 318 px com 24 de
+ * recuo — 294 úteis —, e `white-space: nowrap` com `overflow: visible` não avisava: o
+ * título simplesmente vazava para fora da tela e a plateia lia "ÚLTIMOS 30 MI". */
 #ranking {
-  flex: none; width: calc(318px * var(--u));
+  flex: none; width: calc(420px * var(--u));
   display: flex; flex-direction: column; gap: calc(7px * var(--u));
   padding-left: calc(24px * var(--u)); border-left: 1px solid var(--fio-forte);
 }
 .rk-cab {
   flex: none; display: flex; flex-direction: column; gap: calc(5px * var(--u));
-  font: 700 calc(22px * var(--u))/1 var(--sans);
-  letter-spacing: .14em; color: var(--texto); white-space: nowrap;
+  font: 700 calc(22px * var(--u))/1.15 var(--sans);
+  letter-spacing: .14em; color: var(--texto);
+  /* QUEBRA, não corta: uma validade de três dígitos ainda cabe, em duas linhas. */
+  white-space: normal; overflow-wrap: anywhere;
 }
 /* o resumo do dia ("27 rodadas · 11 venceram a IA") era o menor texto da tela e falava
  * da FEIRA, não de quem está na frente do projetor. Fica só no resultado. */
@@ -591,6 +615,9 @@ html[data-fase="resultado"] .rk-cab span {
   top: auto; height: calc(var(--h-convite) * var(--u));
   bottom: calc(var(--h-placar) * var(--u));
   justify-content: center; gap: 0;
+  /* A garantia, não a medida: se um texto crescer (apelido longo, nível com frase
+   * maior), ele é cortado aqui em vez de vazar para cima do mapa ou do placar. */
+  overflow: hidden;
 }
 #tela-ocioso .faixa {
   width: 100%;

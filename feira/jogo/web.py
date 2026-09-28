@@ -366,6 +366,8 @@ class EstadoProjecao:
             self._registra(msg)
             fase = msg.get("fase")
             if fase in FASES:
+                if fase != self.fase:
+                    self._vira_epoca()
                 self.fase = fase
             self.visto_em = self.relogio()
             if self.degradado:
@@ -386,6 +388,28 @@ class EstadoProjecao:
             self._bcast.put_nowait(msg)
         except asyncio.QueueFull:
             self.descartadas += 1
+
+    def _vira_epoca(self) -> None:
+        """A fase mudou: os quadros da fase anterior descrevem OUTRA corrida.
+
+        O defeito que isto fecha, visto na bancada assim que a tela padrão e a rodada
+        passaram a conviver: o feed ocioso roda a janela dele ([300, 900] com uma volta
+        de 600 s) e a rodada roda a do jogo ([300, 420]). Quando o visitante aperta
+        ESPAÇO, os últimos quadros de `timer`/`rl` continuam guardados aqui com a
+        janela ANTIGA, o placar da rodada chega com a nova, e `divergencia()` — com
+        toda a razão — denuncia "JANELAS DIFERENTES: ESTA COMPARAÇÃO NÃO VALE" em cima
+        da rodada de quem acabou de começar a jogar.
+
+        E o simétrico também: ao voltar para o `ocioso`, o quadro do `humano` ficava
+        com a janela da rodada e denunciava a tela padrão.
+
+        Nos dois casos a denúncia está CERTA sobre o que ela viu e ERRADA sobre o
+        mundo — não há duas medidas concorrentes, há uma medida velha que ninguém
+        apagou. Apagar é o conserto: cada época repovoa em menos de um segundo.
+        """
+        self.ultimo_frame.clear()
+        self._serie_ocioso.clear()
+        self._ocioso_em = 0.0
 
     # -------------------------------------------------- feed externo (ocioso)
     def absorve_externo(self, msg: dict) -> None:

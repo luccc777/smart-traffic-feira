@@ -275,8 +275,13 @@ def test_cliente_novo_recebe_o_estado_de_agora(servidor):
     est, srv = servidor
     connect = pytest.importorskip("websockets.sync.client").connect
     pub = PublicadorProjecao(est)
-    pub(_frame("rl"))
+    # O PLACAR PRIMEIRO, e agora isso importa: trocar de fase começa uma ÉPOCA nova e
+    # descarta os quadros da anterior (`EstadoProjecao._vira_epoca` — os quadros da
+    # fase que passou carregam a janela dela e faziam a tela abrir denunciando). Este
+    # teste publicava o quadro numa fase e o placar em outra, uma ordem que a rodada
+    # não produz: lá a fase já está posta quando a Arena começa a espelhar.
     pub(_placar(entregues=13))
+    pub(_frame("rl"))
     time.sleep(0.5)
     with connect("ws://127.0.0.1:%d/ws" % srv.porta, open_timeout=10) as ws:
         vistas = [json.loads(ws.recv(timeout=2.0)) for _ in range(3)]

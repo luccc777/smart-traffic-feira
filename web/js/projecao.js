@@ -56,11 +56,11 @@ const QUEDA_MS = 2500;
 const H_TOPO = 0;
 // A soma das DUAS tarjas reservadas embaixo, e tem de bater com o CSS:
 //   --h-placar  226  os dados de vantagem + o quadro de recordes
-//   --h-convite 150  a instrução de como jogar (ver o comentário no CSS)
+//   --h-convite 186  a instrução de como jogar (ver o comentário no CSS)
 // O convite era a última coisa desenhada por cima do mapa; virou tarja pelo mesmo
 // motivo que o placar já era. Reservado em toda fase, para o retângulo do mapa não
 // mudar entre a tela padrão e a rodada.
-const H_MAPA_FOLGA = 226 + 150;
+const H_MAPA_FOLGA = 226 + 186;
 const RECONECTA_MS = 800;
 
 // --------------------------------------------------------------------- estado
@@ -306,6 +306,14 @@ function poeFase(nova) {
   const antes = fase;
   fase = nova;
   document.documentElement.dataset.fase = fase;
+  // ÉPOCA NOVA. Os quadros da fase anterior descrevem outra corrida, e o que sobra
+  // deles é a JANELA velha em `janelaDe` — que faz `confereJanela()` denunciar uma
+  // divergência que não existe. Aconteceu assim que a tela padrão e a rodada passaram
+  // a conviver: o feed ocioso roda [300, 900] e a rodada roda [300, 420], então
+  // apertar ESPAÇO abria a rodada com "JANELAS DIFERENTES" por cima. O servidor faz o
+  // mesmo no `_vira_epoca`; aqui é o lado da tela, que tem buffer próprio.
+  for (const b of BRACOS) { bufs[b] = new FrameBuffer(); janelaDe[b] = ''; }
+  confereJanela();
   // A escala da barra é por RODADA: `preparando` é onde a rodada nova começa.
   if (fase === 'preparando' && antes !== 'preparando' && placar) placar.reinicia();
   // ...e o painel das placas também: o relógio dos ticks e o histórico dos faróis
@@ -588,26 +596,21 @@ function recebeFrame(m) {
   if (!boards[b] && rede) boards[b] = novoBoard();
   if (boards[b] && !boards[b].T) layout();
   volta();
-  // No ocioso o placar sai do PRÓPRIO frame (não há mensagem `placar` fora da rodada):
-  // são os `stats` que a Arena já mede, com os mesmos nomes do C5.
-  if (fase === 'ocioso') placarDoOcioso();
 }
 
-function placarDoOcioso() {
-  const linhas = [];
-  for (const b of ['timer', 'rl']) {
-    const f = bufs[b].newestFrame;
-    if (!f || !f.stats) continue;
-    linhas.push({
-      braco: b, rotulo: b === 'timer' ? 'TIMER FIXO' : 'REDE NEURAL',
-      entregues: f.stats.entregues || 0,
-      fila: f.stats.fila_media || 0,
-      tempo_medio: f.stats.tempo_medio_entregue || 0,
-      fantasma: false,
-    });
-  }
-  if (linhas.length && placar) placar.atualiza(linhas, { fase: 'ocioso' });
-}
+// O PLACAR DO OCIOSO NÃO É MONTADO AQUI, e deixou de ser.
+//
+// Havia uma versão nesta função que, a cada quadro, lia `bufs.timer.newestFrame` e
+// `bufs.rl.newestFrame` e montava as duas linhas. Ela tinha um defeito silencioso: os
+// dois braços vêm de PROCESSOS diferentes, a RL roda uma inferência do torch por
+// decisão e fica para trás — medido, 4 s de tempo simulado e crescendo. `newestFrame`
+// de cada um são instantes DIFERENTES, e com `entregues` monotônico isso dava ao
+// braço adiantado uma vantagem de graça, com a tarja perfeitamente plausível.
+//
+// Quem monta agora é o SERVIDOR (`EstadoProjecao.placar_ocioso`), que tem os dois
+// braços e publica no maior `t` que os DOIS já passaram — e se recusa a publicar
+// quando as seeds ou as janelas discordam. Chega por `placar`, como o da rodada, e
+// cai no mesmo `recebePlacar`. Um dono só para a comparação.
 
 function recebePlacar(m) {
   rodadaAtual = m.rodada || 0;
