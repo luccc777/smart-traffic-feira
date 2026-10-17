@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SmartTraffic — Notebook</title>
+  <link rel="stylesheet" href="./css/notebook.css">
+</head>
+<body>
+<header><div class="marca" aria-label="SmartTraffic — Trânsito inteligente para cidades melhores">
+  <img class="marca-simbolo" src="./assets/marca/SmartTraffic_Logotipo_claro.svg" alt="">
+  <div><img class="marca-tipografia" src="./assets/marca/SmartTraffic_Tipografia_claro.svg" alt="SmartTraffic"><p>Trânsito inteligente para cidades melhores</p></div>
+  </div>
+  <nav><a href="./" target="smarttraffic-projecao">Abrir projeção ↗</a><a href="./operador.html" target="smarttraffic-operador">Administração ↗</a></nav>
+  <span id="conexao" role="status">Conectando…</span></header>
+<main>
+  <section class="card principal">
+    <div class="eyebrow">RODADA</div><h1 id="fase">Aguardando conexão</h1>
+    <p id="orientacao">Mova a janela da projeção para o segundo monitor e use esta tela para jogar.</p>
+    <p id="situacao" role="status"></p>
+    <form id="cadastro"><label for="apelido">Apelido</label><div class="form-row">
+      <input id="apelido" maxlength="12" autocomplete="off" placeholder="Como quer aparecer no ranking?">
+      <button id="iniciar" type="submit" disabled>Iniciar rodada</button></div>
+      <small>Enter ou o botão inicia. Com o foco fora do campo, Espaço também inicia.</small></form>
+    <div id="andamento"><span>Tempo restante</span><strong id="tempo">—:—</strong><span id="participante"></span></div>
+    <div id="erro" role="alert"></div>
+  </section>
+  <section class="card comandos"><div class="eyebrow">SEUS SEMÁFOROS</div>
+    <h2>Teclado ou clique</h2><p>As teclas seguem a posição dos cruzamentos na cidade.</p>
+    <div id="teclas" class="key-grid"></div>
+    <p class="legenda">Amarelo: pedido recebido · Verde: trocou · Vermelho: aguarde o tempo mínimo.</p>
+  </section>
+  <section class="card"><div class="eyebrow">COMPARAÇÃO AO VIVO</div>
+    <h2 id="resultado">Timer × rede neural × você</h2>
+    <p id="competidor">O resultado do último competidor ficará aqui.</p>
+    <table><thead><tr><th>Controle</th><th>Entregues</th><th>Tempo médio</th><th>Fila média</th></tr></thead><tbody id="metricas"></tbody></table>
+    <p id="motivo"></p></section>
+  <section class="card"><div class="eyebrow">RANKING</div><h2>Melhores da feira</h2>
+    <p id="ranking-info"></p><ol id="ranking"></ol></section>
+</main>
+<footer>A projeção mantém as ruas no mesmo lugar durante início, jogo e resultado. Calibre a segunda tela uma vez; deixe o foco neste notebook.</footer>
+<script type="module" src="./js/notebook.js"></script>
+</body></html>

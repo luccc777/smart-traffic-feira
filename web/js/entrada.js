@@ -15,7 +15,7 @@
 //         o campo está aberto — por construção, não por filtro: o servidor nunca vê
 //         letra de nome. ESPAÇO com o campo VAZIO começa a rodada sem nome
 //         (`Visitante N`); com texto digitado, é ignorado (apelido não tem espaço).
-//   JOGO  (qualquer outra situação)  `q w e r / a s d f / z x c v` viram botão,
+//   JOGO  (qualquer outra situação)  `a b c d / e f g h / i j k l` viram botão,
 //         ESPAÇO vira START, Escape vira ABORTAR (o servidor só aborta se o
 //         operador ligou esse modo; a página não pergunta — é o operador que aperta).
 //
@@ -47,8 +47,11 @@
 // O servidor deixa `on`/`deny` acesos até o tick seguinte (5 s simulados); a DURAÇÃO
 // VISUAL é da página, porque 5 s de placa verde lê como "travou no verde".
 
-const LETRAS = ['q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'z', 'x', 'c', 'v'];
+const LETRAS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
 export const MAPA_TECLAS = Object.fromEntries(LETRAS.map((k, i) => [k, i]));
+export function mensagemControle(msg) {
+  return msg.tipo === 'tecla' ? { tipo: 'botao', i: MAPA_TECLAS[msg.k] } : msg;
+}
 export const NOME_MAX = 12;
 export const ESC_VEZES = 3;          // Esc 3x em 1,5 s = abortar (só o operador faz isso de propósito)
 export const ESC_JANELA_MS = 1500;
@@ -715,7 +718,7 @@ export class EntradaWeb {
 
   _envia(msg) {
     if (this.ws && this.ws.readyState === 1) {
-      this.ws.send(JSON.stringify(msg));
+      this.ws.send(JSON.stringify(mensagemControle(msg)));
       this.enviadas++;
     } else {
       this.perdidas++;         // sem fio não há fila: a tecla de agora não vale depois

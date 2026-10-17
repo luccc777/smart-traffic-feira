@@ -113,9 +113,9 @@ const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(3)})`;
 export const Q_JAM = 5;
 
 // Quanto de APROXIMAÇÃO fica no quadro além do semáforo mais externo, em metros de
-// mundo. Ver o bloco ENQUADRAMENTO no construtor do Board: 12 m são ~14 vagas de fila,
-// quase o triplo do `Q_JAM` que já satura a rampa.
-export const MARGEM_M = 12;
+// mundo. Quatro metros mantêm os cruzamentos e suas placas no quadro, ampliando
+// a malha ao reduzir o espaço reservado às pontas de entrada e saída.
+export const MARGEM_M = 4;
 
 // Velocidade de fluxo livre para normalizar a cor do carro. NA REDE ABERTA DA FEIRA
 // tudo está em SIMILITUDE K=6: a secundária de 40 km/h vira 11,11/6 = 1,852 m/s. Herdar
@@ -232,16 +232,13 @@ export class Board {
     // ponta vazia. Tudo o que é informação — via, carro, fila, farol — era desenhado na
     // escala que sobrava: 9,2 px/m, com o carro em 7,1 × 4,7 px.
     //
-    // O quadro agora é o MIOLO + `MARGEM_M` de aproximação. Em 12 m cabem ~14 vagas de
-    // fila em cada entrada, quase o triplo do `Q_JAM`: uma fila que estoure isso já
-    // saturou a rampa há muito tempo e está gritando em vermelho dentro do quadro. O
+    // O quadro é o MIOLO + `MARGEM_M` de aproximação. A margem de 4 m deixa
+    // os cruzamentos visíveis e dá mais espaço de tela às vias e aos carros. O
     // que se perde é ver o carro nos últimos metros antes de sumir — e ele some no
     // enquadramento, não na simulação: nada aqui toca no que o SUMO calcula.
     //
-    // O que se ganha: o quadro vira 2,0:1, a escala sobe ~44%, e via, carro e fila
-    // sobem junto. É a única alavanca de tamanho que ainda existia — a tarja já foi de
-    // 388 px para 226, e o exagero da via já está no ponto em que o carro cabe na
-    // faixa na proporção real (ver `_multPara`).
+    // Via, carro e fila crescem juntos, preservando a proporção e o espaço
+    // reservado ao placar e às instruções (ver `_multPara`).
     const tls = net.junctions.filter(j => j.type === 'traffic_light');
     const eq = { xmin: bb.xmin, ymin: bb.ymin, xmax: bb.xmax, ymax: bb.ymax };
     if (tls.length) {
@@ -407,6 +404,7 @@ export class Board {
   _paintBase(ctx) {
     const T = this.T, mult = this.laneMult();
     const w = this.laneW * T.s * mult;
+    this._paintTrianon(ctx, w);
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
     // SEM ACOSTAMENTO. Eu tinha posto um traço quase-preto mais largo por baixo do
@@ -421,6 +419,8 @@ export class Board {
     ctx.strokeStyle = COL.road;
     ctx.lineWidth = w * 0.92;
     for (const ln of this.lanes) { poly(ctx, T, ln.shape); ctx.stroke(); }
+
+    this._paintCiclofaixa(ctx, w);
 
     // A junção fecha a costura das pontas de faixa por cima.
     ctx.fillStyle = COL.junction;
@@ -440,6 +440,135 @@ export class Board {
     for (const ln of this.lanes) { poly(ctx, T, ln.shape); ctx.stroke(); }
     ctx.setLineDash([]);
     ctx.globalAlpha = 1;
+  }
+
+  // Planta do parque no miolo E-F-I-J. As árvores são físicas na maquete.
+  _paintTrianon(ctx, larguraVia) {
+    const T = this.T;
+    const ids = ['H2V1', 'H2V2', 'H3V1', 'H3V2']; // placas E, F, I, J
+    const corners = ids.map(id => this.net.junctions.find(j => j.id === id));
+    if (corners.some(j => !j)) return;
+    const xs = corners.map(j => T.X(j.center[0]));
+    const ys = corners.map(j => T.Y(j.center[1]));
+    let left = Math.min(...xs), right = Math.max(...xs);
+    let top = Math.min(...ys), bottom = Math.max(...ys);
+    const cx = (left + right) / 2, cy = (top + bottom) / 2;
+    // Recuo a partir das faixas desenhadas, incluindo seu exagero visual.
+    for (const ln of this.lanes) {
+      const ends = (ln.street || '').split('|');
+      if (ends.length !== 2 || !ends.every(id => ids.includes(id))) continue;
+      const px = ln.shape.map(p => T.X(p[0]));
+      const py = ln.shape.map(p => T.Y(p[1]));
+      if (Math.max(...px) - Math.min(...px) > Math.max(...py) - Math.min(...py)) {
+        if ((Math.min(...py) + Math.max(...py)) / 2 < cy) top = Math.max(top, ...py.map(y => y + larguraVia / 2));
+        else bottom = Math.min(bottom, ...py.map(y => y - larguraVia / 2));
+      } else {
+        if ((Math.min(...px) + Math.max(...px)) / 2 < cx) left = Math.max(left, ...px.map(x => x + larguraVia / 2));
+        else right = Math.min(right, ...px.map(x => x - larguraVia / 2));
+      }
+    }
+    const margin = larguraVia * .38;
+    const x = left + margin, y = top + margin;
+    const w = right - left - margin * 2, h = bottom - top - margin * 2;
+    if (w < 24 || h < 24) return;
+    const unit = Math.min(w, h);
+    const X = u => x + u * w, Y = v => y + v * h;
+    ctx.save();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+    // Calçada estreita e gramado contínuo, sem copas ou perspectiva.
+    rrect(ctx, x, y, w, h, unit * .045);
+    ctx.fillStyle = '#96998a'; ctx.fill();
+    const inset = unit * .025;
+    rrect(ctx, x + inset, y + inset, w - 2 * inset, h - 2 * inset, unit * .035);
+    ctx.fillStyle = '#397c49'; ctx.fill();
+    ctx.save(); ctx.clip();
+    const paths = () => {
+      ctx.beginPath();
+      ctx.moveTo(X(.5), Y(0));
+      ctx.bezierCurveTo(X(.5), Y(.23), X(.27), Y(.28), X(.31), Y(.49));
+      ctx.bezierCurveTo(X(.35), Y(.72), X(.62), Y(.7), X(.57), Y(1));
+      ctx.moveTo(X(.31), Y(.49));
+      ctx.bezierCurveTo(X(.08), Y(.35), X(.14), Y(.16), X(.39), Y(.17));
+      ctx.bezierCurveTo(X(.64), Y(.14), X(.84), Y(.23), X(.82), Y(.49));
+      ctx.bezierCurveTo(X(.84), Y(.77), X(.71), Y(.87), X(.48), Y(.83));
+      ctx.bezierCurveTo(X(.2), Y(.87), X(.12), Y(.7), X(.31), Y(.49));
+      ctx.moveTo(X(.31), Y(.49));
+      ctx.bezierCurveTo(X(.48), Y(.42), X(.65), Y(.56), X(.82), Y(.49));
+      ctx.lineTo(X(1), Y(.49));
+    };
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    paths(); ctx.strokeStyle = '#275736'; ctx.lineWidth = unit * .047; ctx.stroke();
+    paths(); ctx.strokeStyle = '#c6bfa0'; ctx.lineWidth = unit * .031; ctx.stroke();
+    ctx.restore();
+    // Duas linhas de grade em planta, com postes e vãos nos três acessos.
+    ctx.strokeStyle = '#182e23'; ctx.lineCap = 'butt';
+    ctx.lineWidth = Math.max(1, unit * .007);
+    const segment = (a, b, c, d) => { ctx.moveTo(X(a), Y(b)); ctx.lineTo(X(c), Y(d)); };
+    ctx.beginPath();
+    for (const d of [.035, .047]) {
+      segment(d, d, .46, d); segment(.54, d, 1 - d, d);
+      segment(1 - d, d, 1 - d, .45); segment(1 - d, .53, 1 - d, 1 - d);
+      segment(d, 1 - d, .53, 1 - d); segment(.61, 1 - d, 1 - d, 1 - d);
+      segment(d, d, d, 1 - d);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#d0d1b5';
+    const post = Math.max(1.5, unit * .012);
+    for (let t = .04; t < .97; t += .055) {
+      for (const [u, v] of [[t, .04], [t, .96], [.04, t], [.96, t]]) {
+        if ((v === .04 && u > .45 && u < .55) ||
+            (v === .96 && u > .52 && u < .62) ||
+            (u === .96 && v > .44 && v < .54)) continue;
+        ctx.fillRect(X(u) - post / 2, Y(v) - post / 2, post, post);
+      }
+    }
+    ctx.restore();
+  }
+
+  // Apenas tinta no canteiro da Paulista (H2): não altera faixas, layout ou SUMO.
+  _paintCiclofaixa(ctx, larguraVia) {
+    const T = this.T;
+    const trechos = new Map();
+    for (const ln of this.lanes) {
+      if (!/^H2[EW]_/.test(ln.id)) continue;
+      if (!trechos.has(ln.street)) trechos.set(ln.street, { E: [], W: [] });
+      trechos.get(ln.street)[ln.id.startsWith('H2E_') ? 'E' : 'W'].push(ln);
+    }
+    ctx.save();
+    for (const { E, W } of trechos.values()) {
+      if (!E.length || !W.length) continue;
+      const ysE = E.flatMap(l => l.shape.map(p => T.Y(p[1])));
+      const ysW = W.flatMap(l => l.shape.map(p => T.Y(p[1])));
+      const topo = Math.max(...ysW) + larguraVia * .46 + 3;
+      const fundo = Math.min(...ysE) - larguraVia * .46 - 3;
+      const altura = fundo - topo;
+      const xs = [...E, ...W].map(l => l.shape.map(p => T.X(p[0])));
+      const x = Math.max(...xs.map(a => Math.min(...a))) + larguraVia * .6;
+      const fim = Math.min(...xs.map(a => Math.max(...a))) - larguraVia * .6;
+      if (altura < 6 || fim <= x) continue;
+      ctx.fillStyle = '#A95F59';
+      ctx.fillRect(x, topo, fim - x, altura);
+      ctx.strokeStyle = 'rgba(255,247,235,.78)';
+      ctx.lineWidth = Math.max(.8, Math.min(1.3, altura * .045));
+      ctx.lineCap = 'butt';
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      for (const y of [topo + 1, fundo - 1]) { ctx.moveTo(x, y); ctx.lineTo(fim, y); }
+      ctx.stroke();
+      ctx.setLineDash([altura * .45, altura * .4]);
+      ctx.beginPath();ctx.moveTo(x, topo + altura / 2);ctx.lineTo(fim, topo + altura / 2);ctx.stroke();
+      ctx.setLineDash([]);
+      // Setas opostas, uma em cada sentido, espaçadas para não carregar o desenho.
+      const seta = Math.min(6, altura * .21);
+      for (let cx = x + 45; cx < fim - 20; cx += 135) {
+        for (const [y, sentido] of [[topo + altura * .25, -1], [topo + altura * .75, 1]]) {
+          ctx.beginPath();ctx.moveTo(cx - sentido * seta, y);ctx.lineTo(cx + sentido * seta, y);
+          ctx.moveTo(cx, y - seta * .55);ctx.lineTo(cx + sentido * seta, y);ctx.lineTo(cx, y + seta * .55);ctx.stroke();
+        }
+      }
+    }
+    ctx.restore();
   }
 
 

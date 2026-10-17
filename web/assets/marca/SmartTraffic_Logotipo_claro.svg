@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="182.5 79 256 246" width="256" height="246"><title>SmartTraffic — Símbolo</title><g id="simbolo" fill="#F3F4F1">
+    <g id="vias">
+      <path id="via-superior-esquerda" d="M 282.5,89 V 145 C 282.5,163.5 267.5,178.5 249,178.5 H 192.5 V 174 C 192.5,168 197.5,163 203.5,163 H 249 C 259.1,163 267,155.1 267,145 V 100 C 267,93.9 271.9,89 278,89 Z" />
+      <path id="via-superior-direita" d="M 338.5,89 V 145 C 338.5,163.5 353.5,178.5 372,178.5 H 428.5 V 174 C 428.5,168 423.5,163 417.5,163 H 372 C 361.9,163 354,155.1 354,145 V 100 C 354,93.9 349.1,89 343,89 Z" />
+      <path id="via-inferior-esquerda" d="M 282.5,315 V 259 C 282.5,240.5 267.5,225.5 249,225.5 H 192.5 V 230 C 192.5,236 197.5,241 203.5,241 H 249 C 259.1,241 267,248.9 267,259 V 304 C 267,310.1 271.9,315 278,315 Z" />
+      <path id="via-inferior-direita" d="M 338.5,315 V 259 C 338.5,240.5 353.5,225.5 372,225.5 H 428.5 V 230 C 428.5,236 423.5,241 417.5,241 H 372 C 361.9,241 354,248.9 354,259 V 304 C 354,310.1 349.1,315 343,315 Z" />
+      <path id="curva-central-superior" d="M 303.5,160 H 317 C 317,179.6 332.9,195.5 352.5,195.5 H 359 V 209 H 352.5 C 325.4,209 303.5,187.1 303.5,160 Z" />
+      <path id="curva-central-inferior" d="M 317.5,244 H 304 C 304,224.4 288.1,208.5 268.5,208.5 H 262 V 195 H 268.5 C 295.6,195 317.5,216.9 317.5,244 Z" />
+    </g>
+    <g id="marcadores-de-faixa">
+      <path id="faixa-norte" d="M303.5 91.5H317.5V110H303.5Z" />
+      <path id="faixa-sul" d="M303.5 294H317.5V312.5H303.5Z" />
+      <path id="faixa-oeste" d="M192.5 195H211V209H192.5Z" />
+      <path id="faixa-leste" d="M410 195H428.5V209H410Z" />
+    </g>
+    <g id="sinais">
+      <circle id="sinal-vermelho" cx="310.5" cy="135" r="15" fill="#F43B35" />
+      <circle id="sinal-ambar-esquerdo" cx="235.5" cy="202" r="15" fill="#FCB437" />
+      <circle id="sinal-ambar-direito" cx="385.5" cy="202" r="15" fill="#FCB437" />
+      <circle id="sinal-verde" cx="310.5" cy="269" r="15" fill="#37AD94" />
+    </g>
+  </g>
+  </svg>

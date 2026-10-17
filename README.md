@@ -79,20 +79,70 @@ ic\
 # 3. este repo
 ..\smart-traffic\.venv\Scripts\python.exe -m pip install -e . --no-deps
 
-# 4. confere: a suíte inteira, sem precisar de SUMO
+# 4. arquivos de trafego regeneraveis (nao acompanham a copia do repo)
+..\smart-traffic\.venv\Scripts\python.exe -m feira.demanda
+# Para os testes de integracao do treinamento, gere tambem as seeds 200-223 e 230-233:
+..\smart-traffic\.venv\Scripts\python.exe -c "from feira.treino import SEEDS_TREINO, SEEDS_VALIDACAO; from feira.demanda.__main__ import main; main(['--seeds', ','.join(map(str, SEEDS_TREINO + SEEDS_VALIDACAO))])"
+
+# 5. confere: a suíte inteira, sem precisar de SUMO
 .\run_testes.ps1
 ```
 
-O passo 4 tem de terminar em `802 passed`. Se não terminar, pare aqui — não adianta
+O passo 5 deve terminar sem falhas (os testes de integracao exigem SUMO_HOME;
+sem ele, esses testes sao pulados). Se falhar, pare aqui — não adianta
 subir a feira com a suíte vermelha.
 
 ## 3. Como rodar
+
+### Notebook e projetor (duas telas)
+
+Depois de iniciar o servidor, use o Windows em **Estender** (`Win + P`):
+
+- **Notebook:** abra <http://127.0.0.1:8080/notebook.html>. Aqui ficam apelido,
+  início da rodada, controles, estatísticas e ranking. Inicie pelo botão ou Enter
+  no apelido; Espaço também inicia quando o foco está fora do campo.
+- **Projetor:** abra <http://127.0.0.1:8080/> em outra janela e arraste para a
+  segunda tela. Pressione **F** nessa janela para tela cheia.
+- Volte o foco ao notebook para jogar com **ABCD / EFGH / IJKL** ou pelos botões.
+  As duas páginas acompanham a mesma rodada automaticamente.
+
+No notebook, a comparação conserva o nome e os números do último competidor
+durante a demonstração e a preparação seguinte. Ao começar a jogar, acompanha o
+novo competidor. O último resultado também é guardado no navegador para recargas.
+Partidas concluídas entram no ranking mesmo quando o jogador congestiona a cidade;
+a pontuação continua sendo a diferença de entregas contra o timer. Partidas sem
+resultado humano ou com condições iniciais incompatíveis não entram.
+
+A projeção mostra apenas cidade, três barras lado a lado e tempo restante.
+O espaço reservado às ruas é constante no início, preparação, jogo e resultado;
+a cidade permanece visível em todas as fases. Posicione a janela, entre em tela
+cheia e calibre antes de alinhar os prédios físicos. Não redimensione a janela
+durante a apresentação. Os atalhos de calibração exigem **Ctrl + Alt**.
+
+Use o modo completo abaixo: `-SoProjecao` é demonstração e não aceita partidas.
+
+Ao trocar a versão do SUMO ou trazer `results/fantasmas` de outra máquina,
+recalcule os adversários no ambiente atual antes da apresentação. Dados antigos
+podem ter o mesmo identificador de cenário e ainda partir de outro estado inicial;
+nesse caso o jogo corretamente recusa o ranking. Com `SUMO_HOME` configurado:
+
+```powershell
+100..111 | ForEach-Object {
+    foreach ($braco in 'timer', 'rl') {
+        ..\smart-traffic\.venv\Scripts\python.exe -m feira.jogo.fantasmas --seed $_ --braco $braco
+    }
+}
+```
 
 ### O dia da feira — um comando
 
 ```powershell
 .\run_feira.ps1
 ```
+
+Use esse comando sem `-SoProjecao` para jogar: essa opcao desliga o jogo e serve
+apenas a demonstracao. Nesta instalacao, o launcher tambem encontra automaticamente
+o SUMO instalado via `eclipse-sumo` no ambiente compartilhado.
 
 Ele imprime uma URL (`http://127.0.0.1:8080/`). Abra **na tela do projetor** e
 aperte <kbd>F</kbd> para tela cheia. Pronto: a tela padrão já está rodando.
@@ -148,13 +198,15 @@ python -m feira.jogo
 
 ### O visitante
 
+Os comandos abaixo são usados em `notebook.html`, com o foco nessa janela.
+
 | quando | tecla | o que faz |
 |---|---|---|
-| tela padrão | letras e números | digita o apelido |
-| tela padrão | <kbd>ENTER</kbd> | confirma o apelido |
-| tela padrão | <kbd>ESPAÇO</kbd> | começa a rodada (campo vazio = *Visitante N*) |
-| tela padrão | <kbd>Backspace</kbd> / <kbd>Esc</kbd> | apaga / limpa o apelido |
-| na rodada | <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd> <kbd>R</kbd><br><kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>F</kbd><br><kbd>Z</kbd> <kbd>X</kbd> <kbd>C</kbd> <kbd>V</kbd> | os 12 semáforos, na posição do mapa |
+| campo de apelido | letras e números | digita o apelido |
+| campo de apelido | <kbd>ENTER</kbd> | salva o apelido e inicia a rodada |
+| fora do campo | <kbd>ESPAÇO</kbd> | começa a rodada (campo vazio = *Visitante N*) |
+| campo de apelido | <kbd>Backspace</kbd> | apaga o apelido |
+| na rodada | <kbd>A</kbd> <kbd>B</kbd> <kbd>C</kbd> <kbd>D</kbd><br><kbd>E</kbd> <kbd>F</kbd> <kbd>G</kbd> <kbd>H</kbd><br><kbd>I</kbd> <kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd> | os 12 semáforos, na posição do mapa |
 
 Cada cruzamento tem uma **placa** com a letra da tecla, e ela fala a mesma língua do
 farol embaixo: clara = pode apertar; apagada com anel e os segundos = ainda no verde
@@ -162,6 +214,10 @@ mínimo, espere; amarela = pedido registrado; verde = trocou; vermelha piscando 
 cedo demais.
 
 ### O operador
+
+Na projeção, use **Ctrl + Alt** junto dos atalhos de calibração abaixo.
+**F** sozinho entra ou sai de tela cheia. **Esc 3×** para abortar funciona no notebook.
+O HUD compacto permanece visível; os painéis antigos de diagnóstico ficam ocultos.
 
 | tecla | o que faz |
 |---|---|

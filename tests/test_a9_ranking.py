@@ -91,10 +91,14 @@ def test_sem_timer_nao_ha_score_e_a_marca_nao_entra_no_topo():
 
 
 # ----------------------------------------------------------------- filtros
-def test_rodada_travada_nao_vira_recorde():
-    r = Ranking()
-    assert r.registra(_placar(humano=36, vencedor=None, sinais=["acúmulo +51 pp"])) is None
-    assert r.topo(5) == []
+def test_rodada_congestionada_registra_pontuacao_e_persiste(tmp_path):
+    arq = tmp_path / "ranking.json"
+    r = Ranking(arq)
+    m = r.registra(_placar(humano=36, timer=111, vencedor=None,
+                          sinais=["acúmulo +51 pp"]), nome="Visitante")
+    assert m is not None and m.score == -75
+    assert r.topo(5)[0].nome == "Visitante"
+    assert Ranking(arq).topo(5)[0].score == -75
 
 
 def test_rodada_de_teste_fica_no_arquivo_e_sai_do_topo(tmp_path):

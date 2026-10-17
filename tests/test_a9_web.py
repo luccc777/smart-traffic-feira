@@ -48,11 +48,12 @@ def test_rodada_nao_concluida_nao_consome_o_apelido():
     assert est.jogador == "Ana" and est.ultima_marca is None
 
 
-def test_rodada_travada_consome_o_apelido_mas_nao_vira_marca():
+def test_rodada_congestionada_consome_o_apelido_e_registra_marca():
     est = EstadoProjecao(ranking=Ranking())
     est.define_jogador("Ana")
     est.absorve(_placar(rodada=1, humano=36, vencedor=None, sinais=["acúmulo +51 pp"]))
-    assert est.jogador is None and est.ultima_marca is None
+    assert est.jogador is None
+    assert est.ultima_marca.nome == "Ana" and est.ultima_marca.score == -75
 
 
 def test_teste_do_operador_marca_a_proxima_e_se_apaga():

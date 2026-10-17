@@ -96,7 +96,7 @@ out.confirmado = { nome: r.e.nome, acoes: r.acoes, campo: r.e.campo, confirmado:
 // A fase entra explícita porque ela MANDA no Escape: no `ocioso` com o campo fechado
 // (nome confirmado, esperando o ESPAÇO) Esc é "desistir" e devolve a vez — ver
 // `tests/test_a11_fluxo_visitante.py`. Abortar é da rodada em curso.
-r = passos({ ...r.e, fase: 'jogando' }, ['q', 'V', ' ', 'Escape', 'Escape', 'Escape', 'h']);
+r = passos({ ...r.e, fase: 'jogando' }, ['a', 'L', ' ', 'Escape', 'Escape', 'Escape', 'q']);
 // um Esc sozinho NÃO aborta (é a tecla do reflexo); três em 1,5 s, sim
 out.esc_um = reduzEntrada({ campo: false, nome: '', escs: [] }, 'Escape', 1000).acoes;
 out.esc_tres = passos({ campo: false, nome: '', escs: [] }, ['Escape', 'Escape', 'Escape']).acoes;
@@ -141,8 +141,8 @@ def test_com_o_campo_de_nome_aberto_nenhuma_tecla_vira_botao(tmp_path):
     # ENTER: o nome vai para o POST, o campo fecha
     assert r["confirmado"]["acoes"] == [{"tipo": "nome", "nome": "ANAQW"}]
     assert r["confirmado"]["campo"] is False and r["confirmado"]["confirmado"] is True
-    # campo fechado: botão, botão, START, ABORTAR — e `h` não é nada
-    assert r["jogo"]["acoes"] == [{"tipo": "tecla", "k": "q"}, {"tipo": "tecla", "k": "v"},
+    # campo fechado: A e L são botões, Q não pertence ao novo mapa.
+    assert r["jogo"]["acoes"] == [{"tipo": "tecla", "k": "a"}, {"tipo": "tecla", "k": "l"},
                                   {"tipo": "start"}, {"tipo": "abortar"}]
     # Esc: um só não faz nada; três seguidos abortam; três espaçados de 1 s, não
     assert r["esc_um"] == [] and r["esc_tres"] == [{"tipo": "abortar"}] and r["esc_lento"] == []
@@ -159,7 +159,7 @@ def test_espaco_com_o_campo_vazio_comeca_e_o_resto_das_regras_do_nome(tmp_path):
     assert r["saiu"]["campo"] is False
     assert r["voltou"] == {"campo": True, "nome": "", "confirmado": False}
     # as teclas do operador passam quando não são do jogo; `d` É do jogo
-    assert r["passa"] == {"i": False, "seta": False, "d": True}
+    assert r["passa"] == {"i": True, "seta": False, "d": True}
     t = r["texto_aberto"]
     assert t["convite"].startswith("QUAL O SEU APELIDO?")
     assert "Visitante 27" in t["sub"]

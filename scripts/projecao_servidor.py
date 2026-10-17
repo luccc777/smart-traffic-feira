@@ -144,7 +144,8 @@ def main(argv: list[str] | None = None) -> int:
     srv = ServidorProjecao(estado, host=a.host, porta=a.porta)
     if not srv.sobe():
         print("a projeção não subiu em 15 s — seguindo sem ela", file=sys.stderr)
-    print("projeção em %s   (F = tela cheia · I = régua de bancada)" % srv.url)
+    print("projeção em %s   (F = tela cheia)" % srv.url)
+    print("notebook em %s/notebook.html   (apelido, início e controles)" % srv.url.rstrip('/'))
 
     # A TELA PADRÃO. Os dois braços rodando ao vivo enquanto ninguém joga, em trava de
     # seed, subindo e descendo com a fase — ver feira/jogo/ocioso.py.
@@ -219,7 +220,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print("  ESPAÇO = começar / abortar   ·   Ctrl-C = sair")
     if a.entrada == "web":
-        print("  entrada WEB ligada: a página projetada lê o teclado (foco no navegador)")
+        print("  entrada WEB ligada: notebook.html lê o teclado (mantenha o foco no notebook)")
     if a.ritmo != 1.0:
         print("  ritmo %gx: %g s simulados em %.0f s de relógio (só apresentação)"
               % (a.ritmo, motor.janela().duracao, motor.janela().duracao / a.ritmo))

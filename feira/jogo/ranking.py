@@ -10,11 +10,9 @@ recebe, no `ocioso`) e entra por `registra(msg, nome=...)`.
 
 O QUE ENTRA, E O QUE NÃO ENTRA
 ------------------------------
-Entra rodada de gente: `fase == 'resultado'`, com linha do humano, **pareada** e
-**sem sinal de travamento** (`Placar.sinais`, o portão de saúde da rodada curta). Os
-filtros são a mesma regra que o resto da tela segue — se a comparação não vale, não
-vale para o quadro também. Uma rodada travada num quadro de recordes é pior que não
-ter quadro: vira um "36" que ninguém entende e que ninguém quer bater.
+Entra rodada de gente concluída e pareada, com linha do humano. Congestionar a
+cidade faz parte do desempenho do jogador: a pontuação baixa também é registrada.
+Falhas de pareamento e partidas sem resultado humano continuam fora do quadro.
 
 A PONTUAÇÃO É PAREADA (docs/GAMIFICACAO.md §3.1)
 ------------------------------------------------
@@ -280,8 +278,6 @@ class Ranking:
             # `pareado` ausente = mensagem antiga: assume pareada, como o resto da tela.
             if msg.get("pareado") is False:
                 return None
-            if msg.get("sinais"):
-                return None                     # travou: a rodada não vale
             humano = _linha(msg, "humano")
             if humano is None:
                 return None                     # rodada abortada: ninguém jogou

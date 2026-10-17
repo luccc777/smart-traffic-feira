@@ -1,12 +1,7 @@
 // projecao.js — a PROJEÇÃO do modo jogo. Cliente do servidor `feira.jogo.web`.
 //
-// O que vai no chão, por fase da rodada (as cinco de `FASES`, no C7):
-//
-//   ocioso      a RL rodando ao vivo, o TIMER como régua, e o convite para jogar
-//   preparando  "calculando a rodada" — pode demorar 9 s (fantasma da RL sem cache)
-//   contagem    3 · 2 · 1 gigantes por cima do mapa congelado
-//   jogando     as TRÊS barras vivas em carros entregues + o mapa do braço humano
-//   resultado   o placar em tela cheia, com as linhas vindas do `Resultado` (C5)
+// Cidade e faixa compacta permanecem em todas as fases.
+// Controles, apelido e ranking ficam em notebook.html.
 //
 // TRÊS PROPRIEDADES QUE NÃO PODEM CAIR
 // ------------------------------------
@@ -26,9 +21,10 @@
 
 import { DELAY, FrameBuffer } from './interp.js';
 import { Board } from './paint.js';
+import { HudCompacto, retanguloProjecao } from './compacto.js';
 import { Placar, QuadroDeRecordes, textoColocacao, veredito } from './placar.js';
-import { EntradaWeb, LEGENDA, PainelLeds, centrosDosTls, faltaParaTrocar, observaTls,
-         pintaTeclas, textoOcioso, PLATEIA, passaAoOperador } from './entrada.js';
+import { LEGENDA, PainelLeds, centrosDosTls, faltaParaTrocar, observaTls,
+         pintaTeclas, textoOcioso } from './entrada.js';
 
 const $ = id => document.getElementById(id);
 const BRACOS = ['timer', 'rl', 'humano'];
@@ -37,30 +33,7 @@ const STORE = 'st-feira-projecao-v1';
 // Vigia do FRONT. O do servidor tem rédea 2,0 s + tique 0,25 s; este é o backstop
 // para o servidor inteiro morrer, e fica abaixo dos 3 s da DoD com folga.
 const QUEDA_MS = 2500;
-// A UNICA faixa RESERVADA, em px a 1080p. Tem de bater com `--h-placar` no CSS: e ela
-// que decide o retangulo do mapa, e portanto a escala do sprite.
-//
-// RESERVADA, e nao sobreposta. Houve uma versao em que a tarja flutuava sobre o
-// canvas para o mapa ganhar altura -- esta rede e 1,70:1 numa tela 1,78:1, entao cada
-// pixel de altura vale 1,7 px de largura, e a troca parecia barata. Nao era: o que
-// ela comprava eram ~40 px de malha, e o que pagava era TEXTO POR CIMA DE VIA
-// DESENHADA, que nao se le nem some. O mapa termina onde a tarja comeca.
-//
-// O ganho de verdade veio de encolher o que e reservado, nao de esconde-lo -- e
-// encolher, aqui, foi TIRAR TEXTO em vez de diminuir corpo. Sairam a faixa de topo (o
-// cromo do operador foi para tras da tecla `I`), o catalogo de cores (o unico texto da
-// tela abaixo do piso de 22' de arco) e as colunas de `tempo de viagem` e `carros
-// parados`, que agora so aparecem no RESULTADO. Total reservado: de 388 px na primeira
-// versao para 226 px, e todo texto que sobrou ficou MAIOR do que era.
-// Ver docs/PROJECAO.md §2.1 e §3.4.
-const H_TOPO = 0;
-// A soma das DUAS tarjas reservadas embaixo, e tem de bater com o CSS:
-//   --h-placar  226  os dados de vantagem + o quadro de recordes
-//   --h-convite 186  a instrução de como jogar (ver o comentário no CSS)
-// O convite era a última coisa desenhada por cima do mapa; virou tarja pelo mesmo
-// motivo que o placar já era. Reservado em toda fase, para o retângulo do mapa não
-// mudar entre a tela padrão e a rodada.
-const H_MAPA_FOLGA = 226 + 186;
+// Faixa fixa definida em compacto.js e duas-telas.css.
 const RECONECTA_MS = 800;
 
 // --------------------------------------------------------------------- estado
@@ -107,6 +80,7 @@ for (const b of BRACOS) bufs[b] = new FrameBuffer();
 let ritmo = 1;            // s simulados por s de parede, do status do servidor
 
 let rede = null, placar = null;
+let compacto = null, entradaAtiva = false, ultimoMapa = null;
 let cv, ctx, base, bctx, SW = 0, SH = 0, U = 1, dpr = 1;
 let baseSujo = true, ultimoNow = 0, lacoVivo = false;
 let fase = 'ocioso', degradado = false, motivo = '';
@@ -129,7 +103,7 @@ let motivoJaNaTela = false;
 // Tudo abaixo só existe quando o servidor manda (docs/GAMIFICACAO.md): `entrada_web`
 // no status liga a captura de teclas; `jogador`, `leds`, `proxima` e `ranking` são
 // mensagens novas. Sem elas, nada aqui acende e a tela é a de antes.
-let entrada = null;                 // `EntradaWeb`, quando o servidor liga a entrada web
+const entrada = null;               // A captura de teclas pertence a notebook.html.
 // O atraso das placas = o render-delay do mapa (`DELAY` s simulados), em parede: a
 // placa tem que trocar quando o FAROL que a tela mostra troca, não quando o servidor
 // decidiu — o mapa anda ~1 s simulado atrás do frame mais novo.
@@ -183,13 +157,8 @@ function layout() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  // O mapa nunca entra embaixo do placar: o retângulo dele é o que sobra. O retângulo
-  // NÃO muda na fase `resultado` (onde o placar toma a tela) de propósito: ali o mapa
-  // simplesmente não é desenhado — encolher o retângulo faria o sprite do carro cair
-  // abaixo da pegada do SUMO e o pintor teria que esticá-lo, quebrando a honestidade
-  // numa tela em que o mapa nem aparece.
-  const topo = H_TOPO * U;
-  const r = { x: 0, y: topo, w: SW, h: Math.max(120, SH - topo - H_MAPA_FOLGA * U) };
+  // A mesma área em todas as fases mantém as ruas alinhadas à maquete física.
+  const r = retanguloProjecao(SW, SH, U);
   for (const b of BRACOS) {
     if (boards[b]) boards[b].layout(r, { zoom: st.zoom, panX: st.panX, panY: st.panY });
   }
@@ -209,7 +178,7 @@ function bracoDoMapa() {
   const pref = (fase === 'jogando' || fase === 'contagem' || fase === 'resultado')
     ? ['humano', 'rl', 'timer'] : ['rl', 'timer', 'humano'];
   for (const b of pref) if (boards[b] && !bufs[b].vazio) return b;
-  return null;
+  return boards.rl ? 'rl' : null;
 }
 
 // O laço é RE-ARMÁVEL, e isso não é firula de teste. `layout()` reatribui
@@ -230,10 +199,8 @@ function desenha(now) {
   const dt = ultimoNow ? Math.min(0.25, (now - ultimoNow) / 1000) : 0.016;
   ultimoNow = now;
 
-  // No RESULTADO o mapa some: a comparação É a mensagem, e um mapa parado atrás do
-  // placar só joga luz no chão de graça (e custa quadro justo quando a plateia está
-  // lendo número).
-  const braco = fase === 'resultado' ? null : bracoDoMapa();
+  // Mantém a cidade inclusive no resultado e entre fluxos de frames.
+  const braco = bracoDoMapa();
   const board = braco ? boards[braco] : null;
   if (board && baseSujo) {
     bctx.clearRect(0, 0, SW, SH);
@@ -243,7 +210,9 @@ function desenha(now) {
   ctx.clearRect(0, 0, SW, SH);
   if (board) {
     ctx.drawImage(base, 0, 0, SW, SH);
-    const snap = bufs[braco].sample(now);
+    const atual = bufs[braco].sample(now);
+    if (atual) ultimoMapa = atual;
+    const snap = atual || ultimoMapa;
     if (snap) {
       board.paint(ctx, snap, now, dt,
                   { footprint: st.pegada, verdade: st.verdade });
@@ -251,7 +220,7 @@ function desenha(now) {
     // O painel da botoeira, projetado: os 12 LEDs durante a rodada, e as letras do
     // bloco 3x4 sobre os cruzamentos no ocioso (é o mapa de teclas E o manual). Só
     // com a entrada web ligada — sem ela a tela não tem botão nenhum para mostrar.
-    if (entrada) {
+    if (entradaAtiva) {
       const centros = centrosDosTls(rede, board);
       // A letra fica no sinal em TODAS as fases com mapa; o estado só vale na rodada.
       // O bloqueio é estimado do farol que a tela está MOSTRANDO (o `t` interpolado),
@@ -313,6 +282,7 @@ function poeFase(nova) {
   // apertar ESPAÇO abria a rodada com "JANELAS DIFERENTES" por cima. O servidor faz o
   // mesmo no `_vira_epoca`; aqui é o lado da tela, que tem buffer próprio.
   for (const b of BRACOS) { bufs[b] = new FrameBuffer(); janelaDe[b] = ''; }
+  janelaDe.placar = '';
   confereJanela();
   // A escala da barra é por RODADA: `preparando` é onde a rodada nova começa.
   if (fase === 'preparando' && antes !== 'preparando' && placar) placar.reinicia();
@@ -429,32 +399,6 @@ function recebeRanking(m) {
   }
 }
 
-function ligaEntrada(ligar) {
-  if (ligar && !entrada) {
-    // A plateia vê o que a plateia tem que ver: o que o localStorage guardou de uma
-    // bancada (ou do estrago de um visitante) não vale na feira.
-    Object.assign(st, PLATEIA);
-    baseSujo = true;
-    document.documentElement.dataset.hud = '1';
-    document.documentElement.dataset.diag = '0';
-    document.documentElement.dataset.grade = '0';
-    salva();
-    entrada = new EntradaWeb({ aoMudar: poeOcioso, aoTecla: (i, t) => painel.pulsa(i, t) });
-    entrada.fase(fase);
-    entrada.liga();
-    document.documentElement.dataset.entrada = '1';
-    window.addEventListener('blur', () => { document.documentElement.dataset.foco = '0'; });
-    window.addEventListener('focus', () => { document.documentElement.dataset.foco = '1'; });
-    document.documentElement.dataset.foco = document.hasFocus() ? '1' : '0';
-    poeOcioso();
-  } else if (!ligar && entrada) {
-    entrada.desliga();
-    entrada = null;
-    document.documentElement.dataset.entrada = '0';
-    document.documentElement.dataset.foco = '1';
-    poeOcioso();
-  }
-}
 
 function cai(porque) {
   if (degradado) return;
@@ -534,6 +478,7 @@ const ALERTAS = {
 
 function poeAlerta() {
   const qual = denuncia ? 'janela' : (naoPareada ? 'pareamento' : '');
+  if (qual && compacto) compacto.invalida();
   document.documentElement.dataset.alerta = qual;
   if (!qual) return;
   $('denuncia-titulo').textContent = ALERTAS[qual].titulo;
@@ -551,6 +496,7 @@ function conecta() {
     document.documentElement.dataset.live = '1';
   };
   ws.onclose = () => {
+    if (compacto) compacto.invalida();
     $('live-txt').textContent = 'reconectando';
     document.documentElement.dataset.live = '0';
     setTimeout(conecta, RECONECTA_MS);
@@ -620,8 +566,15 @@ function recebePlacar(m) {
   motivoDoMotor = v.motivo;
   naoPareada = v.estado === 'nao_pareada';
   const k = m.chave || {};
-  janelaDe.placar = k.janela ? k.janela.map(x => (+x).toFixed(1)).join(', ') : '';
+  // O anuncio vazio de retorno traz a chave da rodada anterior, nao a do feed.
+  const anuncioOcioso = m.fase === 'ocioso' && !(m.linhas || []).length;
+  janelaDe.placar = k.janela && !anuncioOcioso
+    ? k.janela.map(x => (+x).toFixed(1)).join(', ') : '';
   confereJanela();                                 // já chama poeAlerta()
+  if (compacto) {
+    compacto.atualiza(m, ritmo);
+    if (denuncia || naoPareada) compacto.invalida();
+  }
   // O cromo do OPERADOR, e ele divide uma linha so com a marca, a legenda e o
   // relogio. A versao anterior repetia o cenario aqui (ele ja esta no `chip-rede`) e
   // gastava 47 caracteres para dizer o que cabe em 23 -- e o que sobrava dessa linha
@@ -682,7 +635,8 @@ function recebeEstado(m) {
   if (m.fase) poeFase(m.fase);
   // gamificação: o servidor diz se a página deve ler o teclado, quem joga e qual é
   // a próxima hora de trânsito. Campos ausentes = servidor antigo = nada muda.
-  if (m.entrada_web !== undefined && !DEMO && !BENCH) ligaEntrada(!!m.entrada_web);
+  // O notebook recebe o teclado; a projeção recebe apenas o feedback dos sinais.
+  if (m.entrada_web !== undefined) entradaAtiva = !!m.entrada_web;
   // RITMO: o feed chega `ritmo` s simulados por s de parede; o interpolador tem que
   // andar na mesma velocidade, senão fica preso em RATE_MAX e salta para o frame novo.
   if (m.ritmo !== undefined && isFinite(+m.ritmo) && +m.ritmo > 0) {
@@ -819,7 +773,8 @@ document.addEventListener('fullscreenchange', () => {
 window.addEventListener('keydown', ev => {
   // Com a entrada web ligada o teclado é do VISITANTE: atalho do operador só com
   // Ctrl+Alt (ver `passaAoOperador` em entrada.js — e o porquê, medido na pele).
-  if (!passaAoOperador(ev, !!entrada)) return;
+  // Calibração explícita evita mover as ruas por uma tecla acidental.
+  if (ev.key.toLowerCase() !== 'f' && !(ev.ctrlKey && ev.altKey)) return;
   const k = ev.key.toLowerCase();
   const fn = TECLAS[k];
   if (!fn) return;
@@ -831,8 +786,7 @@ window.addEventListener('keydown', ev => {
 // ------------------------------------------------------------------- arranque
 function novoBoard() {
   const b = new Board(rede);
-  b.layout({ x: 0, y: H_TOPO * U, w: SW,
-             h: Math.max(120, SH - H_TOPO * U - H_MAPA_FOLGA * U) },
+  b.layout(retanguloProjecao(SW, SH, U),
            { zoom: st.zoom, panX: st.panX, panY: st.panY });
   return b;
 }
@@ -841,6 +795,7 @@ async function iniciar() {
   cv = $('cv'); ctx = cv.getContext('2d');
   base = document.createElement('canvas'); bctx = base.getContext('2d');
   placar = new Placar($('placar-linhas'));
+  compacto = new HudCompacto($('projection-hud'));
   quadro = new QuadroDeRecordes($('rk-lista'), $('rk-resumo'));
   buscaRanking();
   // O quadro EXPIRA marcas por tempo (validade, ver ranking.py): sem rodada nova o

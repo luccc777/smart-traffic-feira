@@ -1,0 +1,20 @@
+/* Projeção: altura fixa em todas as fases. O resto da interface fica no notebook. */
+#hud { display: none !important; }
+#projection-hud {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: calc(84px * var(--u)); box-sizing: border-box;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) calc(130px * var(--u));
+  gap: calc(22px * var(--u)); padding: calc(12px * var(--u)) calc(20px * var(--u));
+  background: #000; border-top: 1px solid #29313b;
+  font-family: var(--mono); color: #fff;
+}
+.compact-card { min-width: 0; --bar-color: #fafcff; }
+.compact-card[data-braco="timer"] { --bar-color: #cb7a18; }
+.compact-card[data-braco="rl"] { --bar-color: #7fcbfa; }
+.compact-label { display:flex; align-items:baseline; gap:.6em; font-size:calc(19px * var(--u)); line-height:1.4; }
+.compact-label span { color:var(--bar-color); font-weight:700; white-space:nowrap; }
+.compact-label b { margin-left:auto; font-size:calc(23px * var(--u)); }
+.compact-label small { width:1.8em; color:#bdd1e7; }
+.compact-track { height:calc(15px * var(--u)); background:#27313d; margin-top:calc(5px * var(--u)); overflow:hidden; border-radius:2px; }
+.compact-track i { display:block; height:100%; width:0; background:var(--bar-color); transition:width .25s; }
+.compact-clock { align-self:center; text-align:center; font-weight:700; font-size:calc(32px * var(--u)); font-variant-numeric:tabular-nums; }

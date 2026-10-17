@@ -129,6 +129,17 @@ def test_janelas_diferentes_nao_viram_placar(estado):
     assert estado.placar_ocioso() is None
 
 
+def test_retorno_ocioso_nao_compara_feed_com_anuncio_vazio(estado):
+    estado.fase = RESULTADO
+    estado.absorve({"tipo": "placar", "fase": OCIOSO, "linhas": [],
+                    "chave": {"janela": [300.0, 420.0]}})
+    estado.absorve_externo(_frame("timer", 301.0, janela=(300.0, 600.0)))
+    assert estado.divergencia() == ""
+    # Continua denunciando duas simulacoes com janelas realmente diferentes.
+    estado.absorve_externo(_frame("rl", 301.0, janela=(300.0, 540.0)))
+    assert "janelas diferentes" in estado.divergencia()
+
+
 def test_frame_sem_seed_nao_vira_placar(estado):
     """Produtor antigo (`seed` é aditivo, default None): sem ela não dá para afirmar
     que os dois rodam a mesma hora de trânsito, então não se afirma nada."""

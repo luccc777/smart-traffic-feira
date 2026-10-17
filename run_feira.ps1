@@ -39,6 +39,10 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$env:PYTHONUTF8 = '1'
+# Grafos pequenos: evita disputar dezenas de threads entre os processos SUMO/RL.
+if (-not $env:OMP_NUM_THREADS) { $env:OMP_NUM_THREADS = '1' }
+if (-not $env:MKL_NUM_THREADS) { $env:MKL_NUM_THREADS = '1' }
 $repo = Split-Path -Parent $MyInvocation.MyCommand.Path
 $py = Join-Path (Split-Path -Parent $repo) 'smart-traffic\.venv\Scripts\python.exe'
 
@@ -46,6 +50,13 @@ if (-not (Test-Path $py)) {
     Write-Host "Interpretador nao encontrado: $py" -ForegroundColor Red
     Write-Host "Este repo usa o venv do smart-traffic (ver README, 'Instalacao')." -ForegroundColor Yellow
     exit 1
+}
+# A instalacao via pip guarda o SUMO dentro do ambiente compartilhado.
+if (-not $env:SUMO_HOME) {
+    $sumoLocal = Join-Path (Split-Path -Parent $repo) 'smart-traffic\.venv\Lib\site-packages\sumo'
+    if (Test-Path (Join-Path $sumoLocal 'bin\sumo.exe')) {
+        $env:SUMO_HOME = $sumoLocal
+    }
 }
 if (-not $env:SUMO_HOME) {
     Write-Host "SUMO_HOME nao esta no ambiente - o SUMO nao vai subir." -ForegroundColor Red

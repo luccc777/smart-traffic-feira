@@ -288,6 +288,7 @@ class EstadoProjecao:
     fila: "queue.Queue[dict]" = field(default_factory=lambda: queue.Queue(maxsize=ANEL))
     clientes: set = field(default_factory=set)
     ultimo_placar: dict | None = None
+    ultimo_resultado: dict | None = None
     ultimo_frame: dict = field(default_factory=dict)      # braco -> frame
     fase: str = OCIOSO
     degradado: bool = False
@@ -363,6 +364,16 @@ class EstadoProjecao:
         tipo = msg.get("tipo") or msg.get("type")
         if tipo == "placar":
             self.ultimo_placar = msg
+            if msg.get("fase") == RESULTADO and (
+                self.ultimo_resultado is None or self.ultimo_resultado["placar"] != msg
+            ) and any(
+                ln.get("braco") == "humano" for ln in msg.get("linhas", [])
+            ):
+                self.ultimo_resultado = {
+                    "tipo": "ultimo_resultado", "placar": msg,
+                    "nome": self.jogador or self.msg_jogador()["anonimo"],
+                }
+                self._difunde(self.ultimo_resultado)
             self._registra(msg)
             fase = msg.get("fase")
             if fase in FASES:
@@ -568,7 +579,7 @@ class EstadoProjecao:
         """Um `placar` chegou: se for RESULTADO de rodada de gente, vira marca.
 
         O apelido é consumido quando a rodada ACONTECEU (há linha do humano), mesmo
-        que não tenha virado marca (travou, não pareada): a pessoa jogou. Rodada não
+        que não tenha virado marca (não pareada): a pessoa jogou. Rodada não
         concluída (sem linha do humano — SUMO caiu) NÃO consome: é a rodada grátis, e
         o mesmo nome vale para a repetição.
         """
@@ -652,7 +663,10 @@ class EstadoProjecao:
             if j:
                 janelas[braco] = tuple(round(float(v), 3) for v in j)
         p = self.ultimo_placar
-        if p and p.get("chave", {}).get("janela"):
+        # O anuncio de volta ao ocioso nao compara resultados: sua chave ainda
+        # e a da rodada encerrada, antes de os dois feeds novos chegarem.
+        anuncio_ocioso = p and p.get("fase") == OCIOSO and not p.get("linhas")
+        if p and not anuncio_ocioso and p.get("chave", {}).get("janela"):
             janelas["placar"] = tuple(round(float(v), 3)
                                       for v in p["chave"]["janela"])
         distintas = set(janelas.values())
@@ -736,6 +750,8 @@ class EstadoProjecao:
     def inicial(self) -> list[dict]:
         """O que um cliente novo recebe antes de entrar no broadcast."""
         saida: list[dict] = [self.status("bem-vindo")]
+        if self.ultimo_resultado is not None:
+            saida.append(self.ultimo_resultado)
         for braco in BRACOS:
             if braco in self.ultimo_frame:
                 saida.append(self.ultimo_frame[braco])
