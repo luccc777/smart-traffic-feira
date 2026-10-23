@@ -1,20 +1,202 @@
-/* Projeção: altura fixa em todas as fases. O resto da interface fica no notebook. */
-#hud { display: none !important; }
+/* duas-telas.css — a projeção quando o notebook é a segunda tela.
+ *
+ * A faixa compacta (84 px a 1080p) substitui o placar grande e as telas de fase do
+ * #hud. As CAMADAS DE SERVIÇO do #hud continuam valendo: conectando, modo degradado,
+ * denúncia ("esta comparação não vale") e a régua de bancada da tecla I. Esconder o
+ * #hud inteiro apagava as quatro junto.
+ *
+ * O retângulo do mapa termina onde a faixa começa, em todas as fases: os prédios
+ * físicos ficam sobre os quarteirões. Por isso as telas de fase daqui (preparando,
+ * 3·2·1, resultado) são VÉUS sobre o mapa, nunca uma mudança de layout. */
+#placar, #hud > .tela { display: none !important; }
+
+:root {
+  --h-faixa: 84px;
+  --cor-timer: #cb7a18;       /* as três barras do projecao.css (auditadas) */
+  --cor-rl: #7fcbfa;
+  --cor-humano: #fafcff;
+  --sinal-vermelho: #F43B35;  /* a identidade do SmartTraffic, nas fases do jogo */
+  --sinal-amarelo: #FCB437;
+  --sinal-verde: #3fd0ad;
+}
+
+/* ------------------------------------------------------------ faixa compacta */
 #projection-hud {
   position: absolute; left: 0; right: 0; bottom: 0;
-  height: calc(84px * var(--u)); box-sizing: border-box;
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) calc(130px * var(--u));
-  gap: calc(22px * var(--u)); padding: calc(12px * var(--u)) calc(20px * var(--u));
+  height: calc(var(--h-faixa) * var(--u)); box-sizing: border-box;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) calc(150px * var(--u));
+  gap: calc(28px * var(--u)); align-items: center;
+  padding: calc(8px * var(--u)) calc(24px * var(--u));
   background: #000; border-top: 1px solid #29313b;
   font-family: var(--mono); color: #fff;
 }
-.compact-card { min-width: 0; --bar-color: #fafcff; }
-.compact-card[data-braco="timer"] { --bar-color: #cb7a18; }
-.compact-card[data-braco="rl"] { --bar-color: #7fcbfa; }
-.compact-label { display:flex; align-items:baseline; gap:.6em; font-size:calc(19px * var(--u)); line-height:1.4; }
-.compact-label span { color:var(--bar-color); font-weight:700; white-space:nowrap; }
-.compact-label b { margin-left:auto; font-size:calc(23px * var(--u)); }
-.compact-label small { width:1.8em; color:#bdd1e7; }
-.compact-track { height:calc(15px * var(--u)); background:#27313d; margin-top:calc(5px * var(--u)); overflow:hidden; border-radius:2px; }
-.compact-track i { display:block; height:100%; width:0; background:var(--bar-color); transition:width .25s; }
-.compact-clock { align-self:center; text-align:center; font-weight:700; font-size:calc(32px * var(--u)); font-variant-numeric:tabular-nums; }
+.compact-card { min-width: 0; --bar-color: var(--cor-humano); }
+.compact-card[data-braco="timer"] { --bar-color: var(--cor-timer); }
+.compact-card[data-braco="rl"] { --bar-color: var(--cor-rl); }
+.compact-label {
+  display: flex; align-items: baseline; gap: calc(12px * var(--u));
+  font-size: calc(22px * var(--u)); line-height: 1.1;
+}
+.compact-label span {
+  color: var(--bar-color); font-family: var(--sans); font-weight: 700;
+  letter-spacing: .08em; white-space: nowrap;
+}
+.compact-label b {
+  margin-left: auto; font-size: calc(36px * var(--u)); font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.compact-label small {
+  min-width: 2.2em; text-align: right; color: #bdd1e7;
+  font-size: calc(20px * var(--u)); font-weight: 600;
+}
+.compact-label small:empty { visibility: hidden; }
+.compact-track {
+  height: calc(14px * var(--u)); background: #27313d;
+  margin-top: calc(8px * var(--u)); overflow: hidden; border-radius: 999px;
+}
+.compact-track i {
+  display: block; height: 100%; width: 0; border-radius: inherit;
+  background: var(--bar-color);
+  transition: width .45s cubic-bezier(.2, .8, .3, 1);
+}
+/* O líder da rodada: a barra ganha um brilho da própria cor e o "1º" acende. */
+.compact-card[data-lider="1"] .compact-track i {
+  box-shadow: 0 0 calc(14px * var(--u)) color-mix(in srgb, var(--bar-color) 70%, transparent);
+}
+.compact-card[data-lider="1"] .compact-label small { color: var(--bar-color); }
+/* Na tela padrão o VOCÊ ainda não existe: no lugar do traço, o convite. */
+.compact-card .convite-hud {
+  display: none; margin-left: auto; color: var(--sinal-amarelo); font-style: normal;
+  font-family: var(--sans); font-size: calc(20px * var(--u)); font-weight: 600;
+  letter-spacing: .06em; white-space: nowrap;
+}
+html[data-fase="ocioso"] .compact-card[data-braco="humano"] .convite-hud,
+html[data-fase="preparando"] .compact-card[data-braco="humano"] .convite-hud { display: inline; }
+html[data-fase="preparando"] .convite-hud { color: #fff; animation: pulso 1.2s ease-in-out infinite; }
+html[data-fase="ocioso"] .compact-card[data-braco="humano"] [data-valor],
+html[data-fase="ocioso"] .compact-card[data-braco="humano"] [data-posto],
+html[data-fase="preparando"] .compact-card[data-braco="humano"] [data-valor],
+html[data-fase="preparando"] .compact-card[data-braco="humano"] [data-posto] { display: none; }
+html[data-fase="ocioso"] .compact-card[data-braco="humano"] .compact-track { opacity: .35; }
+
+.compact-clock {
+  text-align: center; font-weight: 700; font-size: calc(38px * var(--u));
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.compact-clock[data-modo="vivo"] {
+  font-family: var(--sans); font-size: calc(22px * var(--u)); letter-spacing: .14em;
+  color: var(--sinal-verde);
+  display: flex; align-items: center; justify-content: center; gap: calc(10px * var(--u));
+}
+.compact-clock[data-modo="vivo"]::before {
+  content: ''; width: calc(12px * var(--u)); height: calc(12px * var(--u));
+  border-radius: 50%; background: currentColor; animation: pulso 1.6s ease-in-out infinite;
+}
+.compact-clock[data-modo="vazio"] { visibility: hidden; }
+/* Últimos 10 s: o relógio fica vermelho e pulsa. Mesma largura, mesma altura. */
+.compact-clock[data-fim="1"] {
+  color: var(--sinal-vermelho); animation: pulso .9s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------ véus de fase */
+#preparando-palco, #contagem-palco, #resultado-palco {
+  position: absolute; left: 0; right: 0; top: 0;
+  bottom: calc(var(--h-faixa) * var(--u));
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; pointer-events: none;
+}
+
+/* PREPARANDO: o mapa fica parado enquanto os adversários são calculados. Só o véu
+ * sobre a maquete (os prédios ficam no meio, texto ali não se lê); o aviso
+ * "PREPARANDO A RODADA" pisca na faixa de baixo. */
+#preparando-palco { background: rgba(0, 0, 0, .55); }
+html[data-fase="preparando"] #preparando-palco { display: flex; }
+
+/* CONTAGEM: o número no meio do mapa, na cor do farol (3 vermelho, 2 amarelo, 1 e JÁ
+ * verde). O véu escurece a malha sem apagá-la: os prédios continuam com contexto. */
+#contagem-palco {
+  gap: calc(10px * var(--u)); background: rgba(0, 0, 0, .62);
+  --cg-cor: var(--sinal-vermelho);
+}
+html[data-fase="contagem"] #contagem-palco,
+html[data-ja="1"] #contagem-palco { display: flex; }
+#contagem-palco[data-n="2"] { --cg-cor: var(--sinal-amarelo); }
+#contagem-palco[data-n="1"], #contagem-palco[data-n="0"] { --cg-cor: var(--sinal-verde); }
+#cg-num {
+  font: 700 calc(480px * var(--u))/.86 var(--mono);
+  font-variant-numeric: tabular-nums; color: var(--cg-cor);
+  text-shadow: 0 0 calc(70px * var(--u)) color-mix(in srgb, var(--cg-cor) 45%, transparent);
+}
+#contagem-palco[data-n="0"] #cg-num { font-size: calc(340px * var(--u)); font-family: var(--sans); }
+#contagem-palco.bate #cg-num { animation: cg-bate .9s cubic-bezier(.2, .8, .3, 1) both; }
+@keyframes cg-bate {
+  0% { transform: scale(1.35); opacity: 0; }
+  18% { opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* RESULTADO: o veredito na cor de quem venceu e os três números grandes. A faixa
+ * de baixo continua com os mesmos números, e com o relógio em 00:00. */
+#resultado-palco {
+  gap: calc(34px * var(--u)); background: rgba(0, 0, 0, .8);
+  --rs-cor: #fff;
+}
+html[data-fase="resultado"] #resultado-palco { display: flex; }
+html[data-alerta="pareamento"] #resultado-palco { display: none; }
+#resultado-palco[data-quem="timer"] { --rs-cor: var(--cor-timer); }
+#resultado-palco[data-quem="rl"] { --rs-cor: var(--cor-rl); }
+#resultado-palco[data-quem="humano"] { --rs-cor: var(--sinal-verde); }
+#resultado-palco[data-estado="travou"] { --rs-cor: var(--sinal-vermelho); }
+#rs-titulo {
+  font: 700 calc(92px * var(--u))/1 var(--sans); letter-spacing: .06em;
+  color: var(--rs-cor); text-wrap: balance; max-width: 90%;
+  animation: rs-entra .6s cubic-bezier(.2, .8, .3, 1) both;
+}
+#rs-motivo {
+  font: 500 calc(28px * var(--u))/1.35 var(--mono); color: #bdd1e7; max-width: 60ch;
+}
+#rs-bracos {
+  display: grid; grid-template-columns: repeat(3, calc(380px * var(--u)));
+  gap: calc(40px * var(--u));
+}
+.rs-braco {
+  display: grid; gap: calc(6px * var(--u)); justify-items: center;
+  padding-block: calc(20px * var(--u)); border-top: calc(6px * var(--u)) solid var(--cor);
+  background: rgba(255, 255, 255, .04);
+}
+.rs-braco[data-braco="timer"] { --cor: var(--cor-timer); }
+.rs-braco[data-braco="rl"] { --cor: var(--cor-rl); }
+.rs-braco[data-braco="humano"] { --cor: var(--cor-humano); }
+.rs-braco span {
+  font: 700 calc(26px * var(--u))/1 var(--sans); letter-spacing: .12em; color: var(--cor);
+}
+.rs-braco b {
+  font: 700 calc(120px * var(--u))/1 var(--mono); font-variant-numeric: tabular-nums;
+  color: #fff;
+}
+.rs-braco small {
+  font: 500 calc(22px * var(--u))/1.2 var(--mono); color: #bdd1e7;
+}
+.rs-braco[data-vence="1"] { background: color-mix(in srgb, var(--cor) 16%, transparent); }
+#rs-colocacao {
+  font: 600 calc(34px * var(--u))/1.2 var(--sans); letter-spacing: .08em;
+  color: var(--sinal-amarelo);
+}
+@keyframes rs-entra {
+  0% { transform: translateY(calc(18px * var(--u))); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+
+/* ------------------------------------------------------------ serviço */
+/* A denúncia cobria a tarja de 226 px; aqui ela cobre a faixa compacta e sobe o
+ * quanto o texto pedir. */
+#denuncia {
+  top: auto; height: auto; min-height: calc(var(--h-faixa) * var(--u));
+  padding-block: calc(18px * var(--u)); background: #000;
+  border-top: calc(3px * var(--u)) solid var(--alerta);
+}
+html[data-alerta="pareamento"][data-fase="resultado"] #denuncia { height: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  #contagem-palco.bate #cg-num, #rs-titulo { animation: none; }
+}

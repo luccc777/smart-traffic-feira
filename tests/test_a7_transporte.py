@@ -152,6 +152,28 @@ def test_arena_publicada_espelha_os_frames_e_encadeia_o_observador():
     assert msg["janela"] == [300.0, 420.0]       # a janela viaja junto (armadilha b)
 
 
+def test_arena_publicada_publica_a_largada_sem_passar_pelo_observador():
+    """O quadro de t0 vai para a projeção (o mapa da contagem) e NÃO para o motor:
+    o observador conta cadência e amostras, e a largada não é um sim-step."""
+    class ArenaComLargada(_ArenaFalsa):
+        ao_abrir_janela = None
+
+        def roda(self, *a, **k):
+            if self.ao_abrir_janela is not None:
+                self.ao_abrir_janela(_Quadro(300.0))
+            return super().roda(*a, **k)
+
+    est = EstadoProjecao()
+    arena = ArenaComLargada(n_frames=2)
+    vistos = []
+    env = ArenaPublicada(arena, PublicadorProjecao(est), braco="humano")
+    env.roda("cen", 100, _Ctrl(), _Janela(), observador=vistos.append)
+    assert [q.t for q in vistos] == [300.0, 301.0]          # só os sim-steps
+    ts = [est.fila.get_nowait()["t"] for _ in range(est.fila.qsize())]
+    assert ts == [300.0, 300.0, 301.0]                      # largada + os dois
+    assert arena.ao_abrir_janela is None                    # o gancho não vaza
+
+
 def test_arena_publicada_repassa_ao_esperar_para_dentro():
     """O motor faz `hasattr(arena, 'ao_esperar')` e depois ATRIBUI nele. Se a
     atribuição parar no decorador, a cadência de entrada volta para 1 Hz e o botão

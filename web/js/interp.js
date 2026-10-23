@@ -12,10 +12,10 @@
 //   JÁ temos. O relógio de playback anda em tempo real e é puxado por TAXA (não por
 //   salto) para (mais_novo - DELAY), absorvendo o jitter sem nunca extrapolar.
 //
-// O QUE MUDA NA FEIRA: o backend aqui é a `ArenaSumo` com `step-length=1.0` e ritmo
-// 1:1 (`Marcapasso`), então `speed=1` e um frame por segundo simulado — as mesmas
-// premissas do original. O `status` do C7 é `"ok"`; qualquer outro valor não entra na
-// interpolação, porque não traz posições em que se possa confiar.
+// O QUE MUDA NA FEIRA: o backend aqui é a `ArenaSumo` com `step-length=1.0`, um frame
+// por segundo simulado. `speed` é o ritmo do FEED (quem define é a página: 1 na tela
+// padrão, o `ritmo` do status na rodada). O `status` do C7 é `"ok"`; qualquer outro
+// valor não entra na interpolação, porque não traz posições em que se possa confiar.
 
 const DEG = Math.PI / 180;
 
@@ -29,8 +29,11 @@ function lerpAngle(a, b, k) {
 // caminho em reta. A tangente é escalada por TENSION uniforme -> velocidade contínua na
 // fronteira entre segmentos; e limitada a uma fração da CORDA -> não estoura em curva
 // fechada (o artefato em que o carro saía da via).
-const TENSION = 0.85;
-const TAN_MAX = 0.9;
+// Os dois em 1: numa reta a velocidade constante a tangente é a própria corda e a
+// Hermite vira movimento uniforme. Com 0,85 / 0,9 o carro andava a 0,85x nas pontas do
+// segmento e a 1,075x no meio — uma pulsação por frame, vista como tranco.
+const TENSION = 1.0;
+const TAN_MAX = 1.0;
 
 function hermite(p, v, dt, k) {
   const r0 = p.angle * DEG, r1 = v.angle * DEG;   // náutico: dir mundo = (sin, cos)
@@ -55,7 +58,9 @@ function hermite(p, v, dt, k) {
   };
 }
 
-export const DELAY = 1.15;      // s simulados atrás do frame mais novo (>1 step: sempre há par)
+// s simulados atrás do relógio ESTIMADO do servidor (ver `sample`). A folga para um
+// frame atrasado é DELAY - 1 passo: 0,5 s simulado = 0,5 s de parede a 1x, 0,25 s a 2x.
+export const DELAY = 1.5;
 const DRIFT_GAIN = 0.5;
 const RATE_MIN = 0.85, RATE_MAX = 1.15;
 const MAX_DT = 0.25;     // passo real (s) acima disto = gap (aba inativa) -> re-sincroniza
@@ -68,6 +73,8 @@ export class FrameBuffer {
     this.playClock = null;
     this.lastReal = null;
     this.newestFrame = null;
+    this.newestT = null;   // `t` do frame mais novo já visto por `sample`
+    this.chegouEm = 0;     // e quando ele foi visto (relógio de quem chama `sample`)
     this.speed = 1;
     this.recebidos = 0;
     this.perdidos = 0;     // frames que chegaram fora de ordem / duplicados
@@ -83,6 +90,7 @@ export class FrameBuffer {
       // t voltou MUITO atrás => a rodada reiniciou: zera e aceita o frame novo.
       if (t < last.t - 1.0) {
         this.buf = []; this.playClock = null; this.lastReal = null; this.newestFrame = null;
+        this.newestT = null;
       } else { this.perdidos++; return; }
     }
     const tlsMap = {};
@@ -98,6 +106,7 @@ export class FrameBuffer {
 
   limpa() {
     this.buf = []; this.playClock = null; this.lastReal = null; this.newestFrame = null;
+    this.newestT = null;
   }
 
   sample(nowMs) {
@@ -108,7 +117,17 @@ export class FrameBuffer {
     }
     const newest = this.buf[this.buf.length - 1].t;
     const oldest = this.buf[0].t;
-    const target = newest - DELAY;
+    // Medido no primeiro sample depois do push, para o buffer não depender do relógio
+    // da página: erra no máximo um quadro de render.
+    if (newest !== this.newestT) { this.newestT = newest; this.chegouEm = nowMs; }
+    // O ALVO é o relógio do servidor estimado CONTÍNUO — o frame mais novo mais o que
+    // já passou desde que ele chegou — menos o DELAY. Antes o alvo era o próprio
+    // `newest`, uma ESCADA que sobe 1 s a cada frame: o erro ia de -0,5 a +0,5 s dentro
+    // de cada passo, o controle de deriva batia nos dois limites e a taxa trocava de
+    // 0,85 para 1,15 de uma vez a cada frame. Medido na tela padrão: velocidade
+    // aparente dos carros entre 0,80x e 1,25x da real.
+    const vivo = newest + Math.max(0, nowMs - this.chegouEm) / 1000 * this.speed;
+    const target = vivo - DELAY;
 
     if (this.playClock === null) { this.playClock = target; this.lastReal = nowMs; }
     let dt = (nowMs - this.lastReal) / 1000;

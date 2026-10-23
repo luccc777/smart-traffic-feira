@@ -495,6 +495,12 @@ class ArenaSumo:
         # settables de proposito: o motor do jogo os liga sem tocar em contrato.
         self.ao_esperar = ao_esperar
         self.fatia_espera_s = float(fatia_espera_s)
+        # Gancho da LARGADA: recebe o `Frame` do estado em t0, logo antes do
+        # `controlador.reset()` (onde roda o 3-2-1 do jogo). Só leitura de traci, não
+        # avança o relógio e não passa pelo `observador`: a medição não o vê. Existe
+        # para a projeção mostrar a cidade da rodada durante a contagem, em vez do
+        # último quadro da tela padrão, e os carros saírem dali no "JÁ!".
+        self.ao_abrir_janela = None
 
     # ------------------------------------------------------------ topologia
     def topologia(self, cenario: Cenario) -> Topologia:
@@ -615,6 +621,12 @@ class ArenaSumo:
         t_ini = float(traci.simulation.getTime())
         contab = Contabilidade()
         contab.abre_janela(t_ini, ativos=len(contador.vivos()), abertos=contador.abertos())
+        if self.ao_abrir_janela is not None:
+            try:
+                self.ao_abrir_janela(self._frame(topo, getattr(controlador, "nome", "braco"),
+                                                 t_ini, 0, 0, leitor, None))
+            except Exception:
+                pass                  # a projeção nunca derruba a medição
         controlador.reset(topo, cenario.restricoes, t_ini)
 
         n_passos = int(round(janela.duracao / passo))

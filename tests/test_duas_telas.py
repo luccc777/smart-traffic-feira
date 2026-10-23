@@ -59,3 +59,22 @@ console.log(JSON.stringify({
     assert all(b['posto'] is None and b['porcentagem'] == 0 for b in r['invalido']['barras'])
     assert r['ocioso']['barras'][2]['valor'] is None
     assert r['ocioso']['relogio'] == '—:—'
+
+
+@pytest.mark.skipif(not shutil.which('node'), reason='requer Node')
+def test_pulso_da_fila_cresce_com_a_fila_e_nunca_passa_do_alfa_auditado(tmp_path):
+    modulo = (Path(__file__).resolve().parents[1] / 'web/js/paint.js').as_uri()
+    script = tmp_path / 'pulso.mjs'
+    script.write_text('''
+import { pulsoDaFila } from MODULO;
+const faixa = u => { const v = []; for (let t = 0; t < 4000; t += 7) v.push(pulsoDaFila(u, t)); return [Math.min(...v), Math.max(...v)]; };
+console.log(JSON.stringify({leve: faixa(0.3), media: faixa(0.5), cheia: faixa(0.8), travada: faixa(1)}));
+'''.replace('MODULO', json.dumps(modulo)), encoding='utf-8')
+    proc = subprocess.run([shutil.which('node'), str(script)], capture_output=True,
+                          text=True, encoding='utf-8', check=True)
+    r = json.loads(proc.stdout)
+    assert r['leve'] == [1, 1]                       # trânsito normal não pisca
+    for nome in ('media', 'cheia', 'travada'):
+        assert r[nome][1] <= 1.0                     # o pico é o alfa auditado
+    profundidade = [1 - r[n][0] for n in ('media', 'cheia', 'travada')]
+    assert profundidade == sorted(profundidade) and profundidade[0] > 0.2

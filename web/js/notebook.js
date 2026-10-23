@@ -53,6 +53,8 @@ function mudaFase(nova){
   if(!nova)return;
   if(nova!==fase){iniciando=false;memo={};escs=[];if(nova==='ocioso')$('apelido').value='';}
   fase=nova;$('fase').textContent=ROTULOS[fase]||fase;
+  // Fora da rodada não há tempo correndo: o relógio sai e fica só quem joga a seguir.
+  $('andamento').dataset.relogio=['contagem','jogando','resultado'].includes(fase)?'1':'0';
   $('orientacao').textContent=fase==='jogando'?'Use A B C D / E F G H / I J K L ou os botões ao lado. Esc três vezes cancela.':fase==='resultado'?'A próxima rodada ficará disponível automaticamente.':fase==='ocioso'?'Digite seu apelido e inicie. Os controles ficam neste notebook; a cidade fica na projeção.':fase==='contagem'?'Posicione as mãos: a rodada começa após a contagem.':'Calculando uma disputa com as mesmas condições para os três controles.';
   habilita();
 }
@@ -78,10 +80,12 @@ function mostraComparacao(m,nome){
     $('motivo').textContent='A cidade congestionou. Sua pontuação considera os carros entregues em comparação com o timer.';
   }
   $('metricas').replaceChildren(...BRACOS_HUD.map(b=>{
-    const l=(m.linhas||[]).find(x=>x.braco===b);const tr=document.createElement('tr');
-    for(const valor of [NOMES_HUD[b],l?.entregues??'—',l?`${Number(l.tempo_medio||0).toFixed(1)} s`:'—',l?Number(l.fila||0).toFixed(1):'—']){const td=document.createElement('td');td.textContent=valor;tr.append(td);}return tr;
+    const l=(m.linhas||[]).find(x=>x.braco===b);const tr=document.createElement('tr');tr.dataset.braco=b;
+    for(const valor of [NOMES_HUD[b],l?.entregues??'—',l?`${decimal(l.tempo_medio)} s`:'—',l?decimal(l.fila):'—']){const td=document.createElement('td');td.textContent=valor;tr.append(td);}return tr;
   }));
 }
+// Vírgula decimal, como no resto da feira.
+const decimal=v=>Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
 function ranking(m){
   $('ranking-info').textContent=`${m.total||0} ${m.total===1?'rodada':'rodadas'} · ${m.vitorias||0} venceram a rede neural`;
   $('ranking').replaceChildren(...(m.topo||[]).map(l=>{const li=document.createElement('li');li.textContent=l.rotulo||l.nome||'Visitante';const b=document.createElement('b');b.textContent=`${l.score>0?'+':''}${l.score??0}`;li.append(b);return li;}));

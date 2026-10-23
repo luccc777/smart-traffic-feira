@@ -22,7 +22,8 @@
 import { DELAY, FrameBuffer } from './interp.js';
 import { Board } from './paint.js';
 import { HudCompacto, retanguloProjecao } from './compacto.js';
-import { Placar, QuadroDeRecordes, textoColocacao, veredito } from './placar.js';
+import { Placar, QuadroDeRecordes, colocacoes, deltaContraRegua, textoColocacao,
+         veredito } from './placar.js';
 import { LEGENDA, PainelLeds, centrosDosTls, faltaParaTrocar, observaTls,
          pintaTeclas, textoOcioso } from './entrada.js';
 
@@ -77,7 +78,13 @@ function salva() { try { localStorage.setItem(STORE, JSON.stringify(st)); } catc
 
 const bufs = {}; const boards = {};
 for (const b of BRACOS) bufs[b] = new FrameBuffer();
-let ritmo = 1;            // s simulados por s de parede, do status do servidor
+let ritmo = 1;            // s simulados por s de parede da RODADA, do status do servidor
+// A tela padrão NÃO anda no ritmo da rodada: o feed ocioso é sempre 1:1
+// (`scripts/projecao_ocioso.py`, `Ritmo(sim_por_parede=1.0)`). Com o 2x da feira
+// aplicado a ele, o interpolador alcançava o frame mais novo em meio segundo e ficava
+// parado o outro meio — a travadinha de 1 em 1 s na tela padrão.
+const RITMO_OCIOSO = 1;
+const ritmoDoFeed = () => (fase === 'ocioso' ? RITMO_OCIOSO : ritmo);
 
 let rede = null, placar = null;
 let compacto = null, entradaAtiva = false, ultimoMapa = null;
@@ -215,7 +222,7 @@ function desenha(now) {
     const snap = atual || ultimoMapa;
     if (snap) {
       board.paint(ctx, snap, now, dt,
-                  { footprint: st.pegada, verdade: st.verdade });
+                  { footprint: st.pegada, verdade: st.verdade, alerta: fase === 'jogando' });
     }
     // O painel da botoeira, projetado: os 12 LEDs durante a rodada, e as letras do
     // bloco 3x4 sobre os cruzamentos no ocioso (é o mapa de teclas E o manual). Só
@@ -281,7 +288,19 @@ function poeFase(nova) {
   // a conviver: o feed ocioso roda [300, 900] e a rodada roda [300, 420], então
   // apertar ESPAÇO abria a rodada com "JANELAS DIFERENTES" por cima. O servidor faz o
   // mesmo no `_vira_epoca`; aqui é o lado da tela, que tem buffer próprio.
-  for (const b of BRACOS) { bufs[b] = new FrameBuffer(); janelaDe[b] = ''; }
+  // A exceção é o HUMANO dentro da mesma rodada: o servidor manda a largada (t0) no fim
+  // do `preparando`, e é dela que os carros saem no "JÁ!". Zerar aqui congelaria o
+  // mapa meio segundo e faria a cidade saltar.
+  const mesmaRodada = (fase === 'contagem' && antes === 'preparando')
+    || (fase === 'jogando' && antes === 'contagem');
+  // O `FrameBuffer` nasce com speed 1 e o status (que traz o `ritmo`) só chega na
+  // conexão — a troca de fase vem pelo `placar`. Sem repor aqui, a rodada a 2x era
+  // desenhada a 1x: o mapa ficava para trás do placar e saltava.
+  for (const b of BRACOS) {
+    if (!(mesmaRodada && b === 'humano')) bufs[b] = new FrameBuffer();
+    bufs[b].speed = ritmoDoFeed();
+    janelaDe[b] = '';
+  }
   janelaDe.placar = '';
   confereJanela();
   // A escala da barra é por RODADA: `preparando` é onde a rodada nova começa.
@@ -304,9 +323,35 @@ function poeFase(nova) {
     setTimeout(buscaRanking, 1200);
   }
   if (fase !== 'resultado') poeColocacao(null);
+  if (antes === 'contagem' && fase === 'jogando') mostraJa();
+  else if (fase !== 'jogando') document.documentElement.dataset.ja = '0';
   if (entrada) entrada.fase(fase);
   poeOcioso();
   $('fase-nome').textContent = fase.toUpperCase();
+}
+
+// O 3·2·1 grande. O número vem do placar de `contagem` (1 Hz, `t_restante` = 3, 2, 1);
+// cada troca reinicia a batida. O "JÁ!" fica 0,8 s quando a rodada abre. Só o número:
+// ele cai em cima dos prédios da maquete, e legenda miúda ali não se lê.
+let contagemNaTela = null, jaTimer = 0;
+function mostraContagem(n) {
+  const palco = $('contagem-palco');
+  if (!palco || contagemNaTela === n) return;
+  contagemNaTela = n;
+  palco.dataset.n = String(n);
+  $('cg-num').textContent = n > 0 ? String(n) : 'JÁ!';
+  palco.classList.remove('bate');
+  void palco.offsetWidth;            // reinicia a animação
+  palco.classList.add('bate');
+}
+function mostraJa() {
+  mostraContagem(0);
+  document.documentElement.dataset.ja = '1';
+  clearTimeout(jaTimer);
+  jaTimer = setTimeout(() => {
+    document.documentElement.dataset.ja = '0';
+    contagemNaTela = null;
+  }, 800);
 }
 
 // ------------------------------------------------------------ gamificação
@@ -352,10 +397,16 @@ function poeColocacao(ultima) {
   const el = $('colocacao');
   if (!el) return;
   const t = textoColocacao(ultima);
+  const rs = $('rs-colocacao');
   if (!t || fase !== 'resultado') {
     el.hidden = true;
     el.dataset.medalha = '';
+    if (rs) rs.hidden = true;
     return;
+  }
+  if (rs) {
+    rs.textContent = t.recorde ? `${t.titulo} · ${t.sub}` : t.titulo;
+    rs.hidden = false;
   }
   $('colocacao-titulo').textContent = t.titulo;
   $('colocacao-sub').textContent = t.sub ? `${t.sub} · ${t.score}` : t.score;
@@ -587,12 +638,54 @@ function recebePlacar(m) {
   // espera, e é isso que a pessoa sente. O `t` simulado continua no cromo (`I`).
   $('relogio').textContent = ((m.t_restante || 0) / (ritmo || 1)).toFixed(0);
   $('contagem-num').textContent = String(Math.max(0, Math.round(m.t_restante || 0)));
+  if (m.fase === 'contagem') mostraContagem(Math.max(1, Math.ceil(m.t_restante || 0)));
   if (placar) {
     placar.atualiza(m.linhas || [],
                     { vencedor: v.coroa, fase: m.fase, compara: v.compara });
   }
   poeVeredito(m, v);
+  poeResultado(m, v);
   mostraAviso();          // depois do veredito: ele é quem decide se sobrou motivo
+}
+
+// O RESULTADO no chão (duas telas): o veredito e os três números grandes. Mesma
+// regra do placar: sem comparação válida (travou, não concluída) os números ficam e
+// a coroa sai.
+const NOMES_RESULTADO = { timer: 'TIMER FIXO', rl: 'REDE NEURAL', humano: 'VOCÊ' };
+function poeResultado(m, v) {
+  const palco = $('resultado-palco');
+  if (!palco || m.fase !== 'resultado') return;
+  palco.dataset.estado = v.estado;
+  palco.dataset.quem = v.estado === 'vencedor' ? v.coroa : '';
+  $('rs-titulo').textContent = v.estado === 'vencedor' ? (VENCEU[v.coroa] || v.coroa)
+    : v.estado === 'empate' ? 'EMPATE'
+    : v.estado === 'travou' ? 'O TRÂNSITO TRAVOU' : 'RODADA NÃO CONCLUÍDA';
+  // O motivo do portão de saúde é texto de auditoria ("acúmulo excedente +51 pp");
+  // no chão vai a frase que o visitante entende. O técnico segue no notebook e no log.
+  const motivo = v.estado === 'travou' ? 'a cidade congestionou no seu controle'
+    : v.estado === 'vencedor' ? '' : (v.motivo || '');
+  $('rs-motivo').textContent = motivo;
+  $('rs-motivo').hidden = !motivo;
+  const linhas = m.linhas || [];
+  const postos = v.compara ? colocacoes(linhas) : {};
+  $('rs-bracos').replaceChildren(...['timer', 'rl', 'humano'].map(b => {
+    const l = linhas.find(x => x.braco === b);
+    const el = document.createElement('div');
+    el.className = 'rs-braco';
+    el.dataset.braco = b;
+    el.dataset.vence = v.estado === 'vencedor' && v.coroa === b ? '1' : '0';
+    const nome = document.createElement('span');
+    nome.textContent = postos[b] ? `${postos[b]}º · ${NOMES_RESULTADO[b]}` : NOMES_RESULTADO[b];
+    const num = document.createElement('b');
+    num.textContent = l ? String(l.entregues ?? 0) : '—';
+    const sub = document.createElement('small');
+    const d = l ? deltaContraRegua(linhas, b) : null;
+    sub.textContent = !l ? 'sem resultado'
+      : d == null ? 'carros entregues'
+      : `${d > 0 ? '+' : d < 0 ? '−' : '±'}${Math.abs(d)} sobre o timer`;
+    el.append(nome, num, sub);
+    return el;
+  }));
 }
 
 // O veredito não é "tem vencedor ou não tem": são quatro estados, e o `veredito()` do
@@ -639,9 +732,10 @@ function recebeEstado(m) {
   if (m.entrada_web !== undefined) entradaAtiva = !!m.entrada_web;
   // RITMO: o feed chega `ritmo` s simulados por s de parede; o interpolador tem que
   // andar na mesma velocidade, senão fica preso em RATE_MAX e salta para o frame novo.
+  // O `ritmo` do status é o da rodada; no ocioso o feed é outro (ver `ritmoDoFeed`).
   if (m.ritmo !== undefined && isFinite(+m.ritmo) && +m.ritmo > 0) {
     ritmo = +m.ritmo;
-    for (const b of BRACOS) bufs[b].speed = ritmo;
+    for (const b of BRACOS) bufs[b].speed = ritmoDoFeed();
     painel.atrasoMs = atrasoPlacasMs();
   }
   if (m.jogador !== undefined) { jogador = { ...(jogador || {}), nome: m.jogador }; poeOcioso(); }

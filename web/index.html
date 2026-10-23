@@ -14,6 +14,23 @@
 <div id="palco">
   <canvas id="cv"></canvas>
   <div id="projection-hud" aria-label="Placar da projeção"></div>
+  <!-- O 3·2·1 das duas telas. Fica FORA do #hud (que o duas-telas.css esconde) e
+       ocupa só o retângulo do mapa, acima da faixa compacta. -->
+  <!-- Sobre a maquete, só o véu: os prédios ficam no meio e texto ali não se lê.
+       O "PREPARANDO" mora na faixa de baixo (compacto.js). -->
+  <div id="preparando-palco"></div>
+  <div id="contagem-palco" aria-live="assertive">
+    <b id="cg-num"></b>
+  </div>
+  <!-- O RESULTADO, por cima do mapa parado: quem venceu e os três números. É o
+       momento em que a plateia olha para o chão, então a resposta mora aqui e não
+       só no notebook. -->
+  <div id="resultado-palco" aria-live="polite">
+    <b id="rs-titulo"></b>
+    <span id="rs-motivo" hidden></span>
+    <div id="rs-bracos"></div>
+    <span id="rs-colocacao" hidden></span>
+  </div>
 
   <div id="hud">
 

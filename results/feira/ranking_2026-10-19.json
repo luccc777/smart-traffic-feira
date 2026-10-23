@@ -1,0 +1,58 @@
+{
+ "versao": 2,
+ "dia": "2026-10-19",
+ "marcas": [
+  {
+   "entregues": 38,
+   "seed": 100,
+   "venceu": false,
+   "rl": 125,
+   "timer": 111,
+   "quando": 1792450605.6214411,
+   "nome": "",
+   "rodada": 1,
+   "teste": false,
+   "removida": false,
+   "ordem": 1
+  },
+  {
+   "entregues": 37,
+   "seed": 101,
+   "venceu": false,
+   "rl": 128,
+   "timer": 109,
+   "quando": 1792450802.7197325,
+   "nome": "",
+   "rodada": 2,
+   "teste": false,
+   "removida": false,
+   "ordem": 2
+  },
+  {
+   "entregues": 38,
+   "seed": 100,
+   "venceu": false,
+   "rl": 125,
+   "timer": 111,
+   "quando": 1792451037.3206718,
+   "nome": "",
+   "rodada": 1,
+   "teste": false,
+   "removida": false,
+   "ordem": 3
+  },
+  {
+   "entregues": 37,
+   "seed": 101,
+   "venceu": false,
+   "rl": 128,
+   "timer": 109,
+   "quando": 1792451592.8179743,
+   "nome": "",
+   "rodada": 2,
+   "teste": false,
+   "removida": false,
+   "ordem": 4
+  }
+ ]
+}

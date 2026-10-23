@@ -29,13 +29,18 @@ export function resumoCompacto(msg, escala = 10, ritmo = 1) {
   };
 }
 
+// Só há líder quando a comparação vale (rodada pareada, não travada).
+function verdictCompara(msg) {
+  return !!veredito(msg).compara;
+}
+
 export class HudCompacto {
   constructor(raiz) {
     this.escala = 10;
     this.fase = '';
     this.raiz = raiz;
     raiz.innerHTML = BRACOS_HUD.map(b => `<section class="compact-card" data-braco="${b}">
-      <div class="compact-label"><span>${NOMES_HUD[b]}</span><b data-valor>—</b><small data-posto></small></div>
+      <div class="compact-label"><span>${NOMES_HUD[b]}</span>${b === 'humano' ? '<em class="convite-hud">SUA VEZ · NO NOTEBOOK</em>' : ''}<b data-valor>—</b><small data-posto></small></div>
       <div class="compact-track" role="progressbar" aria-label="Carros entregues: ${NOMES_HUD[b]}" aria-valuemin="0"><i></i></div>
     </section>`).join('') + '<time class="compact-clock" aria-label="Tempo restante">—:—</time>';
   }
@@ -48,16 +53,30 @@ export class HudCompacto {
       const card = this.raiz.querySelector(`[data-braco="${b.braco}"]`);
       card.querySelector('[data-valor]').textContent = b.valor === null ? '—' : b.valor;
       card.querySelector('[data-posto]').textContent = b.posto ? `${b.posto}º` : '';
+      card.dataset.lider = b.posto === 1 && verdictCompara(msg) ? '1' : '0';
       card.querySelector('i').style.width = `${b.porcentagem}%`;
       const track = card.querySelector('[role="progressbar"]');
       track.setAttribute('aria-valuemax', modelo.escala);
       track.setAttribute('aria-valuenow', b.valor || 0);
     }
-    this.raiz.querySelector('time').textContent = modelo.relogio;
+    // Na tela padrão não há tempo correndo: o relógio vira "AO VIVO" (as duas
+    // simulações estão rodando agora). Preparando não tem tempo nem vivo: some.
+    const convite = this.raiz.querySelector('.convite-hud');
+    if (convite) convite.textContent = msg.fase === 'preparando' ? 'PREPARANDO A RODADA' : 'SUA VEZ · NO NOTEBOOK';
+    const relogio = this.raiz.querySelector('time');
+    relogio.dataset.modo = msg.fase === 'ocioso' ? 'vivo' : msg.fase === 'preparando' ? 'vazio' : '';
+    relogio.textContent = msg.fase === 'ocioso' ? 'AO VIVO' : modelo.relogio;
+    // Os últimos 10 s de parede da rodada: o relógio avisa que está acabando.
+    const restante = msg.fase === 'jogando' ? (msg.t_restante || 0) / (ritmo || 1) : Infinity;
+    relogio.dataset.fim = restante <= 10 ? '1' : '0';
   }
   invalida() {
-    this.raiz.querySelector('time').textContent = '—:—';
+    const relogio = this.raiz.querySelector('time');
+    relogio.dataset.modo = 'vazio';
+    relogio.dataset.fim = '0';
+    relogio.textContent = '—:—';
     for (const card of this.raiz.querySelectorAll('.compact-card')) {
+      card.dataset.lider = '0';
       card.querySelector('[data-posto]').textContent = '';
       card.querySelector('[data-valor]').textContent = '—';
       card.querySelector('i').style.width = '0%';

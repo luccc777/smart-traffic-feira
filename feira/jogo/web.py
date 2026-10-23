@@ -886,8 +886,17 @@ class ArenaPublicada:
             if observador is not None:
                 observador(quadro)
 
-        return self._arena.roda(cenario, seed, controlador, janela,
-                                ritmo=ritmo, observador=espelha, gui=gui)
+        # A largada (t0) vai só para a projeção: o observador do motor não a vê.
+        tem_largada = hasattr(self._arena, "ao_abrir_janela")
+        if tem_largada:
+            self._arena.ao_abrir_janela = (
+                lambda quadro: self._pub.frame(quadro, braco=braco, janela=j, politica=pol))
+        try:
+            return self._arena.roda(cenario, seed, controlador, janela,
+                                    ritmo=ritmo, observador=espelha, gui=gui)
+        finally:
+            if tem_largada:
+                self._arena.ao_abrir_janela = None
 
 
 # ------------------------------------------------------------------- servidor

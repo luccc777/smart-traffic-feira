@@ -109,6 +109,45 @@ export function coreK(u) { return u <= CORE_ON ? 0 : (u - CORE_ON) / (1 - CORE_O
 
 const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(3)})`;
 
+// A BANDA DA FILA tem três camadas, e a razão é o que a esconde: os carros PARADOS
+// ficam em cima dela. Numa fila de quarteirão inteiro a banda some sob os sprites
+// e sobra um fio de vermelho nas bordas — medido na bancada (variantes a..d, numa
+// rodada real com 80 s sem ninguém apertar). O destaque tem de vir de FORA da via:
+//   · o halo (2,2x a largura da via, 34% do alfa) é o que se vê de longe;
+//   · a banda na largura inteira da via;
+//   · o núcleo claro, 40% mais largo e mais forte que o de referência.
+// A cauda se dissolve 35% além do fim físico da fila; o degrau da borda de ataque
+// continua no fim físico. O alfa da cabeça segue sendo o auditado — só a largura
+// cresceu. O halo passa ~0,6 via para fora do asfalto (~6 px a 1080p): se um prédio
+// da maquete encostar na rua, a beira dele recebe um pouco de vermelho.
+const BANDA = { larg: 1.00, bloom: 2.2, bloomA: 0.34, cauda: 0.35, nucleo: 1.4 };
+
+// O PULSO DA FILA durante a rodada: a fila chama o jogador para o cruzamento. Três
+// degraus (e não uma rampa contínua) porque frequência variando a cada quadro faz a
+// fase saltar e a banda tremer. Fila pequena não pisca: abaixo de 45% da saturação
+// é trânsito normal, e piscar tudo seria não apontar nada.
+//
+// Devolve um fator em [1 - amp, 1]: o pico é o alfa da rampa (o auditado em
+// `scripts/projecao_contraste.py`), o vale é mais apagado. Nunca passa do auditado.
+const PULSO_FILA = [
+  // [u mínimo, Hz, profundidade]
+  [0.90, 1.6, 0.55],
+  [0.70, 1.1, 0.40],
+  [0.45, 0.7, 0.25],
+];
+const SEM_MOVIMENTO = typeof matchMedia === 'function'
+  && matchMedia('(prefers-reduced-motion: reduce)').matches;
+export function pulsoDaFila(u, nowMs) {
+  if (SEM_MOVIMENTO) return 1;
+  for (const [min, hz, amp] of PULSO_FILA) {
+    if (u >= min) {
+      const onda = 0.5 + 0.5 * Math.sin(nowMs / 1000 * 2 * Math.PI * hz);
+      return 1 - amp + amp * onda;
+    }
+  }
+  return 1;
+}
+
 // Fila (carros parados numa aproximação) que satura a rampa.
 export const Q_JAM = 5;
 
@@ -576,13 +615,13 @@ export class Board {
   paint(ctx, snap, nowMs, dt, opts = {}) {
     if (!this.T || !snap) return;
     const { heat = true, signals = true, cars = true, footprint = true,
-            verdade = false } = opts;
+            verdade = false, alerta = false } = opts;
     // O calor avança MESMO fora do recorte: ele é estado da simulação (a EMA da fila),
     // não pintura. Pular a conta porque o retângulo é degenerado congelaria a rampa.
     this._advanceHeat(snap.heat, dt);
     if (!this._recorta(ctx)) return;
     try {
-      if (heat) this._paintHeat(ctx, nowMs);
+      if (heat) this._paintHeat(ctx, nowMs, alerta);
       if (signals) this._paintSignals(ctx, snap.tls || {});
       if (cars) this._paintCars(ctx, snap.vehicles || [], footprint, verdade);
     } finally {
@@ -608,19 +647,20 @@ export class Board {
   }
 
   // ------------------------------------------------------- acúmulo (a fila)
-  // UMA BANDA DENTRO DA VIA, COM BORDA. Antes eram dois traços: um "bloom" de 1,75x a
-  // largura da faixa a 30% de alfa, e a banda por cima. O bloom é o que vazava para
-  // fora do asfalto — cada aproximação carregada virava uma mancha laranja maior que a
-  // própria rua, e doze cruzamentos viravam doze borrões. Num projetor fraco isso se
-  // defendia como "calor"; numa imagem nítida é sujeira, e era a primeira coisa que se
-  // via na tela.
+  // HALO + BANDA + NÚCLEO (ver `BANDA`, acima). O halo já tinha sido tirado uma vez
+  // (1,75x a 30%, "doze borrões"), quando a fila era desenhada com o sprite 2,5x
+  // maior que a vaga e a banda sobrava por todo lado. Com o carro no tamanho certo o
+  // problema inverteu: a fila cheia ESCONDE a banda, e o halo é o que a plateia vê.
+  // Ele é um degradê da mesma banda (mesma cabeça, mesma cauda), não uma mancha fixa.
   //
-  // A banda agora é SÓLIDA e termina onde a fila termina. Quem carrega a informação é
-  // a BORDA DE ATAQUE dela: um degrau visível que anda para trás enquanto a fila
-  // cresce e volta quando o verde abre. Borda dura se acompanha a três metros;
-  // degradê que morre devagar, não. O alcance continua sendo o físico (`reach`), então
-  // o que mudou é como a banda é pintada, não o que ela mede.
-  _paintHeat(ctx, nowMs) {
+  // A banda termina onde a fila termina, e é DILUÍDA: cheia na linha de parada (onde
+  // o farol é a causa) e cada vez mais rala até a cauda — a fila "nasce" no farol e
+  // escorre pela via. A cauda ainda é um degrau (38% -> 0 nos últimos 12% do
+  // alcance), para a BORDA DE ATAQUE continuar legível de longe quando a fila cresce
+  // e quando ela escoa. O alcance continua sendo o físico (`reach`), então o degradê
+  // muda como a banda é pintada, não o que ela mede. O alfa cheio (o auditado em
+  // `scripts/projecao_contraste.py`) é o da cabeça; o resto só desce.
+  _paintHeat(ctx, nowMs, alerta = false) {
     const T = this.T, mult = this.laneMult();
     const w = this.laneW * T.s * mult;
     ctx.lineCap = 'butt';
@@ -632,7 +672,12 @@ export class Board {
       const c = heatRGB(u);
       // Pulso só na saturação, e de 4% em alfa. O de 18% em LARGURA fazia a mancha
       // respirar de tamanho, que num projetor a 2 m lê como tremor de foco.
-      const puls = u > 0.85 ? 1 + 0.04 * Math.sin(nowMs / 300) : 1;
+      //
+      // Na RODADA (`alerta`) o pulso vira chamada de atenção para quem joga: quanto
+      // maior a fila, mais rápido e mais fundo ele pisca — ver `pulsoDaFila`. Continua
+      // sendo só alfa (a forma da banda não muda) e só PARA BAIXO do alfa auditado.
+      const puls = alerta ? pulsoDaFila(u, nowMs)
+        : u > 0.85 ? 1 + 0.04 * Math.sin(nowMs / 300) : 1;
       const k = coreK(u);
       for (const ln of lanes) {
         const sh = ln.shape, n = sh.length;
@@ -661,30 +706,41 @@ export class Board {
         const lanePx = Math.max(1, Math.hypot(cx - hx, cy - hy));
         const d0 = Math.min(0.30, (w * 0.42) / lanePx);
         const fim = Math.min(0.999, d0 + reach);
+        const fim2 = Math.min(0.999, d0 + reach * (1 + BANDA.cauda));
         const faixa = (cor, alpha) => {
           const g = ctx.createLinearGradient(hx, hy, cx, cy);
           g.addColorStop(0, rgba(cor, 0));
           g.addColorStop(d0, rgba(cor, 0));
           g.addColorStop(Math.min(fim, d0 + 0.002), rgba(cor, alpha));
-          // 88% do alcance em cheio; os 12% finais são o degrau da borda de ataque —
-          // é ele que se acompanha de longe quando a fila cresce e quando ela escoa
-          g.addColorStop(Math.max(d0 + 0.003, d0 + reach * 0.88), rgba(cor, alpha));
-          g.addColorStop(fim, rgba(cor, 0));
+          // cheia na cabeça, 3/4 no meio, pouco mais de 1/3 na cauda; os 12% finais
+          // são o degrau da borda de ataque
+          g.addColorStop(Math.max(d0 + 0.003, d0 + reach * 0.45), rgba(cor, alpha * 0.76));
+          g.addColorStop(Math.max(d0 + 0.004, d0 + reach * 0.88), rgba(cor, alpha * 0.38));
+          if (BANDA.cauda > 0 && fim2 > fim + 0.002) {
+            g.addColorStop(fim, rgba(cor, alpha * 0.14));
+            g.addColorStop(fim2, rgba(cor, 0));
+          } else {
+            g.addColorStop(fim, rgba(cor, 0));
+          }
           g.addColorStop(1, rgba(cor, 0));
           return g;
         };
-        // 0,88 da faixa: a banda fica DENTRO do asfalto, com um fio de via de cada
-        // lado. É esse fio que diz que a mancha está numa rua.
+        // O halo primeiro (por baixo), depois a banda na largura da via.
         // `heatAlpha` e não uma fórmula local: é ela que o auditor de contraste mede.
+        if (BANDA.bloom > 0) {
+          ctx.strokeStyle = faixa(c, BANDA.bloomA * heatAlpha(u) * puls);
+          ctx.lineWidth = w * BANDA.bloom;
+          poly(ctx, T, ln.shape); ctx.stroke();
+        }
         ctx.strokeStyle = faixa(c, Math.min(0.86, heatAlpha(u) * puls));
-        ctx.lineWidth = w * 0.88;
+        ctx.lineWidth = w * BANDA.larg;
         poly(ctx, T, ln.shape); ctx.stroke();
         // O núcleo incandescente: onde mora a GRAVIDADE. Vermelho saturado tem
         // luminância baixa por construção, então "mais vermelho" seria "mais escuro";
         // o núcleo claro e estreito é o canal que faz pior TAMBÉM ser mais claro.
         if (k > 0.01) {
-          ctx.strokeStyle = faixa(CORE_RGB, CORE_A * k);
-          ctx.lineWidth = w * (0.12 + 0.10 * k);
+          ctx.strokeStyle = faixa(CORE_RGB, Math.min(0.9, CORE_A * BANDA.nucleo * k * (alerta ? puls : 1)));
+          ctx.lineWidth = w * (0.12 + 0.10 * k) * BANDA.nucleo;
           poly(ctx, T, ln.shape); ctx.stroke();
         }
       }
